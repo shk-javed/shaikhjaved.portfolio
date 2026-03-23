@@ -199,6 +199,37 @@
             text-shadow: 2px 4px 15px rgba(0, 0, 0, 0.4);
         }
 
+        /* --- OPEN TO WORK BADGE --- */
+        .open-to-work {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            color: #e0f2f1;
+            margin: 0 auto 25px auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            width: fit-content;
+        }
+
+        .blinking-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #00e676;
+            border-radius: 50%;
+            animation: blink 1.5s infinite ease-in-out;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.4; transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
+            50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px 4px rgba(0, 230, 118, 0.7); }
+            100% { opacity: 0.4; transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+        }
+
         .hero h2 {
             font-size: 1.8rem;
             font-weight: 300;
@@ -460,6 +491,76 @@
             border-color: #1565c0;
             box-shadow: 0 15px 25px rgba(21, 101, 192, 0.2);
             background-color: #fff;
+        }
+
+        /* --- TIMELINE & EDUCATION SECTION --- */
+        .timeline-section {
+            background: white;
+            padding-top: 50px;
+        }
+
+        .timeline-grid {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .timeline-column {
+            flex: 1;
+            min-width: 320px;
+            max-width: 500px;
+        }
+
+        .timeline-heading {
+            font-size: 1.5rem;
+            color: #004d40;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .timeline-box {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #26c6da;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+
+        .timeline-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .timeline-box h4 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .timeline-org {
+            font-size: 0.95rem;
+            color: #00796b;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .timeline-desc {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.6;
         }
 
         /* PROJECTS */
@@ -770,6 +871,10 @@
             </div>
             <h1>Hi, I'm Shaikh Javed</h1>
 
+            <div class="open-to-work">
+                <span class="blinking-dot"></span> Open for Internships & Junior Data Analyst Roles
+            </div>
+
             <h2> <span class="fading-text" id="roleText">Data Scientist</span></h2>
 
             <div class="btn-group">
@@ -798,7 +903,7 @@
                         impactful, data-driven solutions. ||Google Student Ambassador||
                     </p>
                     <div class="about-actions">
-                        <a href="javed.pdf" download class="btn-resume-magic">
+                        <a href="Shaikh_Javed_Data_Analyst.pdf" download class="btn-resume-magic">
                             My Resume <i class="fa-solid fa-download"></i>
                         </a>
                         <div class="social-links-about">
@@ -841,6 +946,50 @@
                     <span class="skill-badge">MATPLOTLIB</span>
                     <span class="skill-badge">SCIKIT-LEARN</span>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="journey" class="timeline-section">
+        <div class="container">
+            <h2 class="section-title">My Journey</h2>
+            <div class="timeline-grid">
+                
+                <div class="timeline-column">
+                    <h3 class="timeline-heading"><i class="fa-solid fa-graduation-cap"></i> Education</h3>
+                    
+                    <div class="timeline-box">
+                        <h4>B.Sc in Data Science</h4>
+                        <p class="timeline-org">University of Mumbai</p>
+                        <p class="timeline-date">July 2023 - April 2026</p>
+                        <p class="timeline-desc">Currently pursuing. Consistently maintaining a strong academic record with a CGPA of <strong>7.40/10</strong> (up to Semester 4).</p>
+                    </div>
+                </div>
+
+                <div class="timeline-column">
+                    <h3 class="timeline-heading"><i class="fa-solid fa-trophy"></i> Achievements & Experience</h3>
+                    
+                    <div class="timeline-box">
+                        <h4>Google Student Ambassador</h4>
+                        <p class="timeline-org">Google</p>
+                        <p class="timeline-desc">Representing Google's mission on campus and organizing technical, analytics-focused events to build a strong developer community.</p>
+                    </div>
+
+                    <div class="timeline-box">
+                        <h4>App Developer (Maayura)</h4>
+                        <p class="timeline-org">Build & Grow AI Hackathon 2.0 (GDG Cloud)</p>
+                        <p class="timeline-date">Jan 2026</p>
+                        <p class="timeline-desc">Led a team of 3 to develop "Maayura," a Health Tech app for pregnancy care. Handled UI/UX design and integrated Google Maps API within a 24-hour sprint.</p>
+                    </div>
+
+                    <div class="timeline-box">
+                        <h4>Project Showcase</h4>
+                        <p class="timeline-org">GDG-DevFest Mumbai</p>
+                        <p class="timeline-desc">Selected to demonstrate a personal analytics project live on stage at a major tech conference.</p>
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </section>
@@ -900,8 +1049,7 @@
                         <a href="https://github.com/shk-javed/comcast-customer-complaints-analysis" target="_blank"
                             class="btn-github">Github</a>
                     </div>
-
-                <div class="project-card" data-category="analytics">
+                 </div> <div class="project-card" data-category="analytics">
                     <div class="card-image">
                         <img src="spotify2023.png" alt="Spotify 2023 Dashboard">
                     </div>
@@ -914,11 +1062,9 @@
                         <a href="https://github.com/shk-javed/spotify2023-dashboard" target="_blank"
                             class="btn-github">Github</a>
                     </div>
-
                 </div>
-            </div>
 
-        </div>
+            </div>
         </div>
     </section>
 
