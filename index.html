@@ -215,9 +215,23 @@
         }
 
         @keyframes blink {
-            0% { opacity: 0.4; transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
-            50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px 4px rgba(0, 230, 118, 0.7); }
-            100% { opacity: 0.4; transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+            0% {
+                opacity: 0.4;
+                transform: scale(0.8);
+                box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+                box-shadow: 0 0 10px 4px rgba(0, 230, 118, 0.7);
+            }
+
+            100% {
+                opacity: 0.4;
+                transform: scale(0.8);
+                box-shadow: 0 0 0 0 rgba(0, 230, 118, 0);
+            }
         }
 
         .hero h2 {
@@ -283,9 +297,22 @@
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-            40% { transform: translateX(-50%) translateY(-10px); }
-            60% { transform: translateX(-50%) translateY(-5px); }
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
         }
 
         .scroll-top {
@@ -447,8 +474,15 @@
         }
 
         @keyframes floatGrid {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         .honeycomb-row {
@@ -481,7 +515,7 @@
             position: relative;
             z-index: 1;
             user-select: none;
-            overflow: visible; 
+            overflow: visible;
         }
 
         /* ICONS CSS */
@@ -551,7 +585,8 @@
             padding: 25px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 2px solid transparent; /* UPDATED FOR GLOW */
+            border: 2px solid transparent;
+            /* UPDATED FOR GLOW */
             border-left: 4px solid #26c6da;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             transition: all 0.4s ease;
@@ -641,7 +676,8 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border: 2px solid transparent; /* UPDATED FOR GLOW */
+            border: 2px solid transparent;
+            /* UPDATED FOR GLOW */
             transition: all 0.4s ease;
             opacity: 1;
             transform: scale(1);
@@ -735,6 +771,72 @@
             box-shadow: 0 15px 30px rgba(0, 230, 118, 0.2);
         }
 
+
+        /* --- PREMIUM HOVER EFFECTS FOR PROJECT CARDS --- */
+        .card-image.overlay-hover {
+            position: relative;
+        }
+
+        .tech-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 37, 26, 0.7);
+            /* Dark green semi-transparent background */
+            backdrop-filter: blur(3px);
+            /* Halka blur background ke liye */
+            -webkit-backdrop-filter: blur(3px);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            /* Shuru mein chhupa rahega */
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+
+        /* Card par hover karne se overlay dikhega */
+        .project-card:hover .card-image.overlay-hover .tech-overlay {
+            opacity: 1;
+        }
+
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transform: translateY(15px);
+            /* Animation ke liye neeche se start hoga */
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        /* Hover karne par tags upar aayenge */
+        .project-card:hover .card-image.overlay-hover .tech-overlay .tech-tag {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Thoda delay har tag ke beech aesthetic feel ke liye */
+        .project-card:hover .tech-overlay .tech-tag:nth-child(1) {
+            transition-delay: 0.1s;
+        }
+
+        .project-card:hover .tech-overlay .tech-tag:nth-child(2) {
+            transition-delay: 0.2s;
+        }
+
+        .project-card:hover .tech-overlay .tech-tag:nth-child(3) {
+            transition-delay: 0.3s;
+        }
+
         /* CONTACT SECTION */
         .contact-section {
             background: white;
@@ -776,7 +878,8 @@
             margin-bottom: 20px;
         }
 
-        input, textarea {
+        input,
+        textarea {
             width: 100%;
             padding: 15px;
             border: 1px solid #eee;
@@ -788,7 +891,8 @@
             transition: 0.3s;
         }
 
-        input:focus, textarea:focus {
+        input:focus,
+        textarea:focus {
             background: #fff;
             border-color: #333;
         }
@@ -838,17 +942,286 @@
         }
 
         @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .about-container { flex-direction: column; }
-            .input-row { flex-direction: column; }
-            .contact-info { flex-direction: column; gap: 30px; }
-            .hero h1 { font-size: 2.5rem; }
-            .modal-content { width: 95%; }
-            .skill-bubble { width: 65px; height: 65px; margin: 0; }
-            .skill-bubble img { width: 28px; height: 28px; }
-            .skill-bubble i { font-size: 24px; }
-            .honeycomb-grid { animation: none; padding: 10px 0; }
+            .nav-links {
+                display: none;
+            }
+
+            .about-container {
+                flex-direction: column;
+            }
+
+            .input-row {
+                flex-direction: column;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+
+            .skill-bubble {
+                width: 65px;
+                height: 65px;
+                margin: 0;
+            }
+
+            .skill-bubble img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .skill-bubble i {
+                font-size: 24px;
+            }
+
+            .honeycomb-grid {
+                animation: none;
+                padding: 10px 0;
+            }
         }
+
+        /* --- OPTION 2: FLOATING ORBS (TRUE GLASSMORPHISM) --- */
+        .light-glass-journey {
+            background-color: #BCC88B;
+            /* Creates 3 crisp floating orbs (White, Dark Green, Small White) behind the glass */
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.3) 250px, transparent 252px),
+                radial-gradient(circle at 90% 85%, rgba(0, 77, 64, 0.12) 0%, rgba(0, 77, 64, 0.12) 300px, transparent 302px),
+                radial-gradient(circle at 80% 25%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.2) 120px, transparent 122px);
+            background-attachment: fixed;
+            /* 🔥 MAGIC: Orbs stay fixed while you scroll! 🔥 */
+            padding-top: 80px;
+            padding-bottom: 80px;
+            position: relative;
+        }
+
+        .relative-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .apple-title {
+            color: #00251a !important;
+            text-shadow: none !important;
+            font-weight: 800;
+        }
+
+        .light-glass-journey .timeline-heading {
+            color: #00251a;
+            font-weight: 700;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+        }
+
+        /* 🔥 PURE GLOSSY CARDS 🔥 */
+        .glass-box,
+        .liquid-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.8);
+            /* Edge reflection */
+            border-left: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            border-radius: 18px;
+            margin-bottom: 25px;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 2;
+        }
+
+        .glass-box {
+            padding: 25px;
+        }
+
+        /* CARD HOVER */
+        .glass-box:hover,
+        .liquid-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(3, 126, 118, 0.1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.1));
+        }
+
+        /* Vibrant Text Colors */
+        .glass-box h4,
+        .liquid-content h4 {
+            color: #00251a;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            font-size: 1.3rem;
+        }
+
+        .glass-box .timeline-desc,
+        .liquid-content .timeline-desc {
+            color: #222;
+            font-weight: 500;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .glass-box .timeline-date,
+        .liquid-content .timeline-date {
+            color: #444;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .glass-box .timeline-org,
+        .liquid-content .timeline-org {
+            color: #00695c;
+            font-weight: 800;
+        }
+
+        /* GITHUB THEME CARD */
+        .github-glass {
+            border-left: 5px solid #8e24aa !important;
+        }
+
+        .github-glass h4 i {
+            color: #8e24aa;
+        }
+
+        /* LIQUID CARD SPECIFICS */
+        .liquid-card {
+            padding: 0;
+        }
+
+        .liquid-content {
+            padding: 25px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            z-index: 2;
+        }
+
+        /* Stats Badges */
+        .stats-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.4);
+            color: #004d40;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-badge:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+
+
+        /* ... purana global CSS ... */
+
+        /* 1. Journey Section CSS (Jo humne pehle banaya tha) */
+        .light-glass-journey {
+            /* tumhara existing code */
+        }
+
+        /* 2. CERTIFICATES 3D SETUP (Ab yaha ye naya code paste karo) */
+        .certificates-section {
+            background-color: #f9f9f9;
+        }
+
+        .cert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            perspective: 1000px;
+        }
+
+        .cert-card {
+            perspective: 1000px;
+        }
+
+        /* --- CERTIFICATES: MINIMAL GOLDEN PULSE GALLERY (REVISED) --- */
+        .certificates-section {
+            background-color: #f9f9f9; 
+            padding-bottom: 120px;
+        }
+
+        .cert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 50px;
+        }
+
+        .cert-card {
+            border-radius: 12px;
+            overflow: visible; /* To allow glow to spread */
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            cursor: zoom-in; /* Indicates click for full view */
+        }
+
+        /* 🖼️ CERTIFICATE IMAGE BASIC STYLE 🖼️ */
+        .cert-card img {
+            width: 100%;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); /* Soft, subtle shadow initially */
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* --- 🔥 HOVER EFFECT (ZOOM & GOLDEN BORDER) 🔥 --- */
+        .cert-card:hover {
+            transform: scale(1.1); /* Gallery-style smooth zoom (Bada karna) */
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15); /* Stronger shadow on lift */
+            z-index: 10; /* Ensures it pops above other certificates */
+        }
+
+        .cert-card:hover img {
+            box-shadow: none; /* Combine shadows for clean border spread */
+        }
+
+        /* GOLDEN KALE PULSATING BORDER LIGHT (Charo taraf) */
+        .cert-card::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border-radius: 16px; /* Slightly larger for the border space */
+            background: rgba(255, 255, 255, 0); /* Transparent until hover */
+            border: 1px solid transparent; 
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: -1; /* Card ke piche glow karega */
+        }
+
+        .cert-card:hover::before {
+            opacity: 1;
+            /* Apple-style Golden Kale gradient border and glow */
+            background: linear-gradient(135deg, rgba(230, 239, 218, 0.1), rgba(188, 200, 139, 0.3)); 
+            border: 2px solid #D7DDBA; /* Golden Kale solid edge */
+            box-shadow: 0 0 30px rgba(188, 200, 139, 0.6); /* Soft golden pulse */
+            animation: pulseGlow 2s infinite alternate; /* Border pulsating effect */
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 20px rgba(188, 200, 139, 0.5); }
+            100% { box-shadow: 0 0 40px rgba(188, 200, 139, 0.8); }
+        }
+
     </style>
 </head>
 
@@ -905,24 +1278,25 @@
             <div class="about-container">
                 <div class="about-text">
                     <h1>Hello, I am Shaikh Javed</h1>
-                    <p>
-                        Welcome to my portfolio website! <br><br>
-                        I am a passionate <strong>Data Scientist</strong> currently pursuing B.Sc in Data Science at
-                        Mumbai University.
-                        I like to discover insights from data and build data-driven solutions.ocused on transforming
-                        data into meaningful insights. I’m developing practical skills in Python, SQL, and Machine
-                        Learning through real-world projects.
-                        I’m eager to collaborate, intern, and connect with Data Science professionals to build
-                        impactful, data-driven solutions. ||Google Student Ambassador||
+                   <p>
+                        Welcome to my professional space! <br><br>
+                        I am <strong>Data Analyst</strong> and a final-year B.Sc. Data Science student at the University of Mumbai (CGPA: 7.40). Having recently completed my examinations, I am now focused on transitioning my academic foundation into high-impact industry solutions.
+                        <br><br>
+                        Currently, as a <strong>Data Analytics Intern at MAK { Byte} </strong>, I specialize in extracting actionable insights using Excel, SQL,Python(Basic) and Power BI,Tableau. My journey is defined by a hands-on approach—from leading team <strong>Code_Runners</strong> to a win at the GDG Cloud Hackathon 2.0 to serving as a <strong>Google Student Ambassador</strong>.
+                        <br><br>
+                        I am eager to collaborate on large-scale data projects and connect with industry leaders to build the next generation of data-driven innovations.
                     </p>
                     <div class="about-actions">
-                        <a href="Shaikh_Javed_Data_Analyst.pdf" download class="btn-resume-magic">
+                        <a href="shaikh_javed_DA.pdf" download class="btn-resume-magic">
                             My Resume <i class="fa-solid fa-download"></i>
                         </a>
                         <div class="social-links-about">
-                            <a href="https://www.instagram.com/javed.52/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                            <a href="https://github.com/shk-javed" target="_blank"><i class="fa-brands fa-github"></i></a>
-                            <a href="https://www.linkedin.com/in/shk-javed/" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="https://www.instagram.com/javed.52/" target="_blank"><i
+                                    class="fa-brands fa-instagram"></i></a>
+                            <a href="https://github.com/shk-javed" target="_blank"><i
+                                    class="fa-brands fa-github"></i></a>
+                            <a href="https://www.linkedin.com/in/shk-javed/" target="_blank"><i
+                                    class="fa-brands fa-linkedin-in"></i></a>
                         </div>
                     </div>
                 </div>
@@ -932,15 +1306,19 @@
             </div>
         </div>
 
-        <div class="skills-section-wrapper" id="skills-universe" style="background-color: #ffffff; padding: 100px 0; min-height: 90vh; display: flex; flex-direction: column; justify-content: center;">
-            <h2 class="section-title" style="color: #000000; position: relative; z-index: 10; text-align: center;">My Skills Universe</h2>
+        <div class="skills-section-wrapper" id="skills-universe"
+            style="background-color: #ffffff; padding: 100px 0; min-height: 90vh; display: flex; flex-direction: column; justify-content: center;">
+            <h2 class="section-title" style="color: #000000; position: relative; z-index: 10; text-align: center;">My
+                Skills Universe</h2>
 
-            <div class="viewport" id="skills-viewport" style="display: flex; justify-content: center; width: 100%; align-items: center;">
+            <div class="viewport" id="skills-viewport"
+                style="display: flex; justify-content: center; width: 100%; align-items: center;">
 
                 <div class="honeycomb-grid" id="watchGrid">
                     <div class="honeycomb-row">
                         <div class="skill-bubble">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="Python">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
+                                alt="Python">
                             <span class="node-label">Python</span>
                         </div>
                         <div class="skill-bubble">
@@ -948,7 +1326,8 @@
                             <span class="node-label">SQL</span>
                         </div>
                         <div class="skill-bubble">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" alt="Power BI">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg"
+                                alt="Power BI">
                             <span class="node-label">Power BI</span>
                         </div>
                     </div>
@@ -982,7 +1361,8 @@
                             <span class="node-label">Data Cleaning</span>
                         </div>
                         <div class="skill-bubble">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/googlecloud/googlecloud-original.svg" alt="GCP">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/googlecloud/googlecloud-original.svg"
+                                alt="GCP">
                             <span class="node-label">GCP</span>
                         </div>
                         <div class="skill-bubble">
@@ -990,7 +1370,8 @@
                             <span class="node-label">BigQuery</span>
                         </div>
                         <div class="skill-bubble">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Tableau_Logo.png" alt="Tableau">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Tableau_Logo.png"
+                                alt="Tableau">
                             <span class="node-label">Tableau</span>
                         </div>
                     </div>
@@ -1001,7 +1382,8 @@
                             <span class="node-label">Health Analytics</span>
                         </div>
                         <div class="skill-bubble">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/opencv/opencv-original.svg" alt="OpenCV">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/opencv/opencv-original.svg"
+                                alt="OpenCV">
                             <span class="node-label">OpenCV</span>
                         </div>
                         <div class="skill-bubble">
@@ -1009,22 +1391,26 @@
                             <span class="node-label">OCR</span>
                         </div>
                         <div class="skill-bubble">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pandas/pandas-original.svg" alt="Pandas">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pandas/pandas-original.svg"
+                                alt="Pandas">
                             <span class="node-label">Pandas</span>
                         </div>
                     </div>
 
                     <div class="honeycomb-row">
                         <div class="skill-bubble">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/numpy/numpy-original.svg" alt="NumPy">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/numpy/numpy-original.svg"
+                                alt="NumPy">
                             <span class="node-label">NumPy</span>
                         </div>
                         <div class="skill-bubble">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/matplotlib/matplotlib-original.svg" alt="Matplotlib">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/matplotlib/matplotlib-original.svg"
+                                alt="Matplotlib">
                             <span class="node-label">Matplotlib</span>
                         </div>
                         <div class="skill-bubble">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/scikitlearn/scikitlearn-original.svg" alt="Scikit-Learn">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/scikitlearn/scikitlearn-original.svg"
+                                alt="Scikit-Learn">
                             <span class="node-label">Scikit-Learn</span>
                         </div>
                     </div>
@@ -1033,437 +1419,556 @@
             </div>
         </div>
 
-    <section id="projects" class="projects-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>Projects</h2>
-                <div class="project-filters">
-                    <span class="filter-btn active" onclick="filterProjects('all')">All</span>
-                    <span class="filter-btn" onclick="filterProjects('ml')">Machine Learning</span>
-                    <span class="filter-btn" onclick="filterProjects('genai')">Gen AI</span>
-                    <span class="filter-btn" onclick="filterProjects('analytics')">Analytics</span>
+        <section id="projects" class="projects-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Projects</h2>
+                    <div class="project-filters">
+                        <span class="filter-btn active" onclick="filterProjects('all')">All</span>
+                        <span class="filter-btn" onclick="filterProjects('ml')">Machine Learning</span>
+                        <span class="filter-btn" onclick="filterProjects('genai')">Gen AI</span>
+                        <span class="filter-btn" onclick="filterProjects('analytics')">Analytics</span>
+                    </div>
+                </div>
+
+                <div class="projects-grid">
+
+                    <div class="project-card" data-category="ml">
+                        <div class="card-image overlay-hover">
+                            <img src="aadhar.png" alt="Aadhaar Masking" style="object-position: top;">
+                            <div class="tech-overlay">
+                                <span class="tech-tag">OCR</span>
+                                <span class="tech-tag">DJANGO</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Aadhaar Masking Tool</h3>
+                            <p style="font-size: 0.9rem; color: #666;">A secure tool to detect and mask Aadhaar numbers
+                                using Computer Vision.</p>
+                            <a href="https://github.com/shk-javed/Aadhaar-Masking-Tool" target="_blank"
+                                class="btn-github">Github</a>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="ml">
+                        <div class="card-image overlay-hover">
+                            <img src="financial.png" alt="Financial Forecasting" style="object-position: top;">
+                            <div class="tech-overlay">
+                                <span class="tech-tag">ML</span>
+                                <span class="tech-tag">PYTHON</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Financial Trading & Forecasting</h3>
+                            <p style="font-size: 0.9rem; color: #666;">Stock market trend prediction using machine
+                                learning algorithms.</p>
+                            <a href="https://github.com/shk-javed/financial-forecasting" target="_blank"
+                                class="btn-github">Github</a>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="analytics">
+                        <div class="card-image overlay-hover">
+                            <img src="comcast.png" alt="Comcast Customer Complaints Dashboard"
+                                style="object-position: top;">
+                            <div class="tech-overlay">
+                                <span class="tech-tag">SQL</span>
+                                <span class="tech-tag">POWER BI</span>
+                                <span class="tech-tag">DAX</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Comcast Customer Complaints Analysis</h3>
+                            <p style="font-size: 0.9rem; color: #666;">End-to-end data analytics project leveraging SQL
+                                and Power BI to analyze over 2,000+ customer complaints, uncover service trends, measure
+                                resolution performance, and identify geographic hotspots.</p>
+                            <a href="https://github.com/shk-javed/comcast-customer-complaints-analysis" target="_blank"
+                                class="btn-github">Github</a>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="analytics">
+                        <div class="card-image overlay-hover">
+                            <img src="flight.png" alt="Domestic Airline KPI Dashboard" style="object-position: top;">
+                            <div class="tech-overlay">
+                                <span class="tech-tag">Power BI</span>
+                                <span class="tech-tag">DAX</span>
+                                <span class="tech-tag">Data Modeling</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Domestic Airline KPI Dashboard</h3>
+                            <p style="font-size: 0.9rem; color: #666;">Interactive Power BI dashboard analyzing 9,651
+                                flights across 12 airlines to extract KPI insights like peak departure hours, route
+                                pricing, and flight duration buckets.</p>
+                            <a href="https://github.com/shk-javed/domestic-airline-kpi-dashboard" target="_blank"
+                                class="btn-github">Github</a>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="analytics">
+                        <div class="card-image overlay-hover">
+                            <img src="spotify2023.png" alt="Spotify 2023 Dashboard" style="object-position: top;">
+                            <div class="tech-overlay">
+                                <span class="tech-tag">EDA</span>
+                                <span class="tech-tag">POWERBI</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Spotify 2023 Dashboard</h3>
+                            <p style="font-size: 0.9rem; color: #666;">Interactive dashboard analyzing music trends from
+                                2023 Spotify dataset.</p>
+                            <a href="https://github.com/shk-javed/spotify2023-dashboard" target="_blank"
+                                class="btn-github">Github</a>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+        </section>
 
-            <div class="projects-grid">
-                <div class="project-card" data-category="ml">
-                    <div class="card-image"><img src="aadhar.png" alt="Aadhaar Masking"></div>
-                    <div class="card-content">
-                        <div style="margin-bottom: 10px;"><span class="tag-badge">OCR</span><span class="tag-badge">DJANGO</span></div>
-                        <h3>Aadhaar Masking Tool</h3>
-                        <p style="font-size: 0.9rem; color: #666;">A secure tool to detect and mask Aadhaar numbers using Computer Vision.</p>
-                        <a href="https://github.com/shk-javed/Aadhaar-Masking-Tool" target="_blank" class="btn-github">Github</a>
-                    </div>
-                </div>
+        <section id="certificates" class="certificates-section">
+            <div class="container">
+                <h2 class="section-title">Certificates</h2>
+               <div class="cert-grid">
 
-                <div class="project-card" data-category="ml">
-                    <div class="card-image"><img src="financial.png" alt="Financial Forecasting"></div>
-                    <div class="card-content">
-                        <div style="margin-bottom: 10px;"><span class="tag-badge">ML</span><span class="tag-badge">PYTHON</span></div>
-                        <h3>Financial Trading & Forecasting</h3>
-                        <p style="font-size: 0.9rem; color: #666;">Stock market trend prediction using machine learning algorithms.</p>
-                        <a href="https://github.com/shk-javed/financial-forecasting" target="_blank" class="btn-github">Github</a>
-                    </div>
-                </div>
+                <div class="cert-card"><img src="Great-learing.png" alt="Google Analytics Certificate"></div>
 
-                <div class="project-card" data-category="analytics">
-                    <div class="card-image"><img src="comcast.png" alt="Comcast Customer Complaints Dashboard"></div>
-                    <div class="card-content">
-                        <div style="margin-bottom: 10px;"><span class="tag-badge">SQL</span><span class="tag-badge">POWER BI</span><span class="tag-badge">DAX</span></div>
-                        <h3>Comcast Customer Complaints Analysis</h3>
-                        <p style="font-size: 0.9rem; color: #666;">End-to-end data analytics project leveraging SQL and Power BI to analyze over 2,000+ customer complaints, uncover service trends, measure resolution performance, and identify geographic hotspots.</p>
-                        <a href="https://github.com/shk-javed/comcast-customer-complaints-analysis" target="_blank" class="btn-github">Github</a>
-                    </div>
-                </div>
-
-                <div class="project-card" data-category="analytics">
-                    <div class="card-image"><img src="spotify2023.png" alt="Spotify 2023 Dashboard"></div>
-                    <div class="card-content">
-                        <div style="margin-bottom: 10px;"><span class="tag-badge">EDA</span><span class="tag-badge">POWERBI</span></div>
-                        <h3>Spotify 2023 Dashboard</h3>
-                        <p style="font-size: 0.9rem; color: #666;">Interactive dashboard analyzing music trends from 2023 Spotify dataset.</p>
-                        <a href="https://github.com/shk-javed/spotify2023-dashboard" target="_blank" class="btn-github">Github</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="certificates" class="certificates-section">
-        <div class="container">
-            <h2 class="section-title">Certificates</h2>
-            <div class="cert-grid">
-                <div class="cert-card"><img src="Great-learing.png" alt="Google anaytics certificate"></div>
                 <div class="cert-card"><img src="IBM.png" alt="IBM Python for Data Science"></div>
+
                 <div class="cert-card"><img src="cert-powerbi.png" alt="Power BI Workshop"></div>
+
                 <div class="cert-card"><img src="cert-google.png" alt="Google Cloud Data Analytics"></div>
+
+                 <div class="cert-card"><img src="Sahikh_javed.png" alt="GDG Cloud Hackathon Certificate"></div>
+
+                <div class="cert-card"><img src="github-copilot.png" alt="GitHub Copilot Dev Days Mumbai"></div>
+
             </div>
-        </div>
-    </section>
+            </div>
+        </section>
 
-    <section id="journey" class="timeline-section">
-        <div class="container">
-            <h2 class="section-title">My Journey</h2>
-            <div class="timeline-grid">
+        <section id="journey" class="timeline-section light-glass-journey">
+            <div class="container relative-container">
+                <h2 class="section-title apple-title">My Journey</h2>
+                <div class="timeline-grid">
 
-                <div class="timeline-column">
-                    <h3 class="timeline-heading"><i class="fa-solid fa-graduation-cap"></i> Education</h3>
-                    <div class="timeline-box">
-                        <h4>B.Sc in Data Science</h4>
-                        <p class="timeline-org">University of Mumbai</p>
-                        <p class="timeline-date">July 2023 - April 2026</p>
-                        <p class="timeline-desc">Currently pursuing. Consistently maintaining a strong academic record with a CGPA of <strong>7.40/10</strong> (up to Semester 4).</p>
+                    <div class="timeline-column">
+                        <h3 class="timeline-heading"><i class="fa-solid fa-briefcase"></i> Experience</h3>
+
+                        <div class="liquid-card">
+                            <div class="liquid-content">
+                                <h4>Data Analyst Intern</h4>
+                                <p class="timeline-org">MAK { Byte }</p>
+                                <p class="timeline-date">Aug 2025 - Present</p>
+                                <p class="timeline-desc">Collected and validated datasets, built Power BI dashboards,
+                                    and supported A/B testing to drive business decisions.</p>
+
+                                <div class="stats-row">
+                                    <span class="stat-badge"><i class="fa-solid fa-bullseye"></i> +25% Accuracy</span>
+                                    <span class="stat-badge"><i class="fa-solid fa-bolt"></i> +30% Speed</span>
+                                    <span class="stat-badge"><i class="fa-solid fa-chart-line"></i> +18%
+                                        Effectiveness</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="timeline-heading" style="margin-top: 50px;"><i
+                                class="fa-solid fa-graduation-cap"></i> Education</h3>
+                        <div class="timeline-box glass-box">
+                            <h4>B.Sc in Data Science</h4>
+                            <p class="timeline-org">University of Mumbai</p>
+                            <p class="timeline-date">July 2023 - April 2026</p>
+                            <p class="timeline-desc">Currently pursuing. Consistently maintaining a strong academic
+                                record with a CGPA of <strong>7.40/10</strong> (up to Semester 4).</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="timeline-column">
-                    <h3 class="timeline-heading"><i class="fa-solid fa-trophy"></i> Achievements & Experience</h3>
-                    <div class="timeline-box">
-                        <h4>Google Student Ambassador</h4>
-                        <p class="timeline-org">Google</p>
-                        <p class="timeline-desc">Representing Google's mission on campus and organizing technical, analytics-focused events to build a strong developer community.</p>
-                    </div>
-                    <div class="timeline-box">
-                        <h4>App Developer (Maayura)</h4>
+                    <div class="timeline-column">
+                        <h3 class="timeline-heading"><i class="fa-solid fa-trophy"></i> Achievements</h3>
+
+                        <div class="timeline-box glass-box github-glass">
+                            <h4><i class="fa-brands fa-github"></i> Open Source Contributor</h4>
+                            <p class="timeline-org" style="color: #af52de;">OSCG '26</p>
+                            <p class="timeline-desc">Recognized as a contributor at Open Source Connect Global 2026.</p>
+                        </div>
+
+                        <div class="timeline-box glass-box">
+                            <h4>Google Student Ambassador</h4>
+                            <p class="timeline-org">Google</p>
+                            <p class="timeline-desc">Representing Google's mission on campus and organizing technical,
+                                analytics-focused events to build a strong developer community.</p>
+                        </div>
+
+                       <div class="timeline-box glass-box hackathon-glass">
+                        <h4><i class="fa-solid fa-code"></i> App Developer & Team Lead</h4>
                         <p class="timeline-org">Build & Grow AI Hackathon 2.0 (GDG Cloud)</p>
-                        <p class="timeline-date">Jan 2026</p>
-                        <p class="timeline-desc">Led a team of 3 to develop "Maayura," a Health Tech app for pregnancy care. Handled UI/UX design and integrated Google Maps API within a 24-hour sprint.</p>
+                        <p class="timeline-date">Jan 2026 | Team: <strong>Code_Runners</strong></p>
+                        <p class="timeline-desc">
+                            Led a team of 3 to develop <strong>"Maayura,"</strong> a Health Tech app for pregnancy care. Handled UI/UX design and integrated Google Maps API within a 24-hour sprint. 
+                            <br><br>
+                        </p>
                     </div>
-                    <div class="timeline-box">
-                        <h4>Project Showcase</h4>
-                        <p class="timeline-org">GDG-DevFest Mumbai</p>
-                        <p class="timeline-desc">Selected to demonstrate a personal analytics project live on stage at a major tech conference.</p>
+
+                        <div class="timeline-box glass-box">
+                            <h4>Project Showcase</h4>
+                            <p class="timeline-org">GDG-DevFest Mumbai</p>
+                            <p class="timeline-desc">Selected to demonstrate a personal analytics project live on stage
+                                at a major tech conference.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <h2 class="section-title">Contact Me</h2>
+                <div class="contact-info">
+                    <div class="info-item"><i class="fa-solid fa-envelope"></i>
+                        <p>shkjaved41@gmail.com</p>
+                    </div>
+                    <div class="info-item"><i class="fa-solid fa-location-dot"></i>
+                        <p>Mumbai, Maharashtra, India<br>Pin: 401107</p>
+                    </div>
+                    <div class="info-item"><i class="fa-solid fa-phone"></i>
+                        <p>9768810150</p>
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </section>
+                <form class="contact-form" id="contactForm" action="https://formspree.io/f/xpqdperl" method="POST">
+                    <div class="input-row">
+                        <input type="text" name="name" placeholder="Name" required>
+                        <input type="email" name="email" placeholder="Email" required>
+                    </div>
+                    <textarea name="message" placeholder="Message..." rows="5" required></textarea>
+                    <button type="submit" class="btn-submit">Send Message</button>
+                </form>
 
-    <section id="contact" class="contact-section">
-        <div class="container">
-            <h2 class="section-title">Contact Me</h2>
-            <div class="contact-info">
-                <div class="info-item"><i class="fa-solid fa-envelope"></i><p>shkjaved41@gmail.com</p></div>
-                <div class="info-item"><i class="fa-solid fa-location-dot"></i><p>Mumbai, Maharashtra, India<br>Pin: 401107</p></div>
-                <div class="info-item"><i class="fa-solid fa-phone"></i><p>9768810150</p></div>
-            </div>
+                <div id="successMessage" class="form-message">Thank you for your submission!</div>
 
-            <form class="contact-form" id="contactForm" action="https://formspree.io/f/xpqdperl" method="POST">
-                <div class="input-row">
-                    <input type="text" name="name" placeholder="Name" required>
-                    <input type="email" name="email" placeholder="Email" required>
+                <div class="footer-icons">
+                    <a href="https://www.instagram.com/javed.52/" target="_blank"><i
+                            class="fa-brands fa-instagram"></i></a>
+                    <a href="https://github.com/shk-javed" target="_blank"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/shk-javed/" target="_blank"><i
+                            class="fa-brands fa-linkedin-in"></i></a>
                 </div>
-                <textarea name="message" placeholder="Message..." rows="5" required></textarea>
-                <button type="submit" class="btn-submit">Send Message</button>
-            </form>
-
-            <div id="successMessage" class="form-message">Thank you for your submission!</div>
-
-            <div class="footer-icons">
-                <a href="https://www.instagram.com/javed.52/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                <a href="https://github.com/shk-javed" target="_blank"><i class="fa-brands fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/shk-javed/" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
             </div>
+        </section>
+
+        <div id="certModal" class="modal">
+            <span class="close">&times;</span>
+            <img class="modal-content" id="modalImg">
+            <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+            <a class="next" onclick="changeSlide(1)">&#10095;</a>
         </div>
-    </section>
 
-    <div id="certModal" class="modal">
-        <span class="close">&times;</span>
-        <img class="modal-content" id="modalImg">
-        <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
-        <a class="next" onclick="changeSlide(1)">&#10095;</a>
-    </div>
+        <script>
+            // --- BACKGROUND ANIMATION ---
+            const canvas = document.getElementById('dataCanvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
 
-    <script>
-        // --- BACKGROUND ANIMATION ---
-        const canvas = document.getElementById('dataCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-
-        function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-            initParticles();
-        }
-        window.addEventListener('resize', resize);
-
-        class DataBar {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = height + 150;
-                this.targetHeight = Math.random() * (height * 0.5) + 100;
-                this.width = Math.random() * 40 + 40;
-                this.speed = Math.random() * 1 + 0.5;
-                this.hue = Math.random() * 20 + 170;
-                this.color = `hsla(${this.hue}, 100%, 50%, 0.3)`;
-                this.value = Math.floor(Math.random() * 90 + 10);
-                this.label = ["Conversion", "Churn Rate", "Retention", "ROI", "Avg Order"][Math.floor(Math.random() * 5)];
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                initParticles();
             }
-            update() {
-                if (this.y > height - this.targetHeight) { this.y -= this.speed; } 
-                else {
-                    this.y = height + 150;
+            window.addEventListener('resize', resize);
+
+            class DataBar {
+                constructor() {
                     this.x = Math.random() * width;
+                    this.y = height + 150;
                     this.targetHeight = Math.random() * (height * 0.5) + 100;
+                    this.width = Math.random() * 40 + 40;
+                    this.speed = Math.random() * 1 + 0.5;
+                    this.hue = Math.random() * 20 + 170;
+                    this.color = `hsla(${this.hue}, 100%, 50%, 0.3)`;
+                    this.value = Math.floor(Math.random() * 90 + 10);
                     this.label = ["Conversion", "Churn Rate", "Retention", "ROI", "Avg Order"][Math.floor(Math.random() * 5)];
                 }
-            }
-            draw() {
-                ctx.shadowBlur = 15; ctx.shadowColor = this.color; ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x + this.width, this.y);
-                ctx.lineTo(this.x + this.width, height); ctx.lineTo(this.x, height); ctx.fill();
-                ctx.shadowBlur = 0; ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-                ctx.textAlign = "left"; ctx.font = "bold 15px sans-serif"; ctx.fillText(this.value + "%", this.x, this.y - 22);
-                ctx.font = "12px sans-serif"; ctx.fillStyle = "rgba(255, 255, 255, 0.7)"; ctx.fillText(this.label, this.x, this.y - 6);
-            }
-        }
-
-        class DonutChart {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.radius = Math.random() * 30 + 40; this.lineWidth = 15;
-                this.speedX = (Math.random() - 0.5) * 0.4; this.speedY = (Math.random() - 0.5) * 0.4;
-                this.rotation = Math.random() * Math.PI * 2; this.rotationSpeed = (Math.random() - 0.5) * 0.015;
-                this.totalValue = Math.floor(Math.random() * 100);
-                this.subLabel = ["Segment", "Target", "Source", "Devices"][Math.floor(Math.random() * 4)];
-                this.segments = [
-                    { color: 'rgba(0, 255, 255, 0.5)', size: Math.random() * 2 + 1 },
-                    { color: 'rgba(0, 150, 150, 0.4)', size: Math.random() * 2 + 0.5 },
-                    { color: 'rgba(255, 255, 255, 0.1)', size: Math.random() * 1 + 0.5 }
-                ];
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY; this.rotation += this.rotationSpeed;
-                if (this.x < -100 || this.x > width + 100) this.speedX *= -1;
-                if (this.y < -100 || this.y > height + 100) this.speedY *= -1;
-            }
-            draw() {
-                ctx.shadowBlur = 10; ctx.shadowColor = "rgba(0, 255, 255, 0.5)";
-                let startAngle = this.rotation;
-                this.segments.forEach(seg => {
-                    ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, startAngle, startAngle + seg.size);
-                    ctx.strokeStyle = seg.color; ctx.lineWidth = this.lineWidth; ctx.lineCap = "round"; ctx.stroke();
-                    startAngle += seg.size + 0.15;
-                });
-                ctx.shadowBlur = 0; ctx.fillStyle = "rgba(255, 255, 255, 0.95)"; ctx.textAlign = "center";
-                ctx.textBaseline = "middle"; ctx.font = "bold 16px sans-serif"; ctx.fillText(this.totalValue + "%", this.x, this.y - 5);
-                ctx.font = "11px sans-serif"; ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; ctx.fillText(this.subLabel, this.x, this.y + 15);
-            }
-        }
-
-        class ScatterPlot {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height; this.size = 140;
-                this.speedX = (Math.random() - 0.5) * 0.2; this.speedY = (Math.random() - 0.5) * 0.2;
-                this.axisLabel = ["Regression", "K-Means", "Outliers", "Correlation"][Math.floor(Math.random() * 4)];
-                this.points = [];
-                for (let i = 0; i < 20; i++) { this.points.push({ x: Math.random() * this.size, y: Math.random() * this.size, r: Math.random() * 3 + 1 }); }
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.x < -200 || this.x > width + 200) this.speedX *= -1;
-                if (this.y < -200 || this.y > height + 200) this.speedY *= -1;
-            }
-            draw() {
-                ctx.shadowBlur = 0; ctx.strokeStyle = "rgba(255, 255, 255, 0.2)"; ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x, this.y + this.size);
-                ctx.lineTo(this.x + this.size, this.y + this.size); ctx.stroke();
-                ctx.fillStyle = "rgba(255, 255, 255, 0.4)"; ctx.fillRect(this.x + this.size / 2, this.y + this.size - 3, 1, 6);
-                ctx.fillRect(this.x - 3, this.y + this.size / 2, 6, 1);
-                ctx.textAlign = "center"; ctx.font = "10px sans-serif"; ctx.fillText(this.axisLabel, this.x + this.size / 2, this.y + this.size + 15);
-                ctx.shadowBlur = 8; ctx.shadowColor = "#00e5ff"; ctx.fillStyle = "#00e5ff";
-                this.points.forEach(p => { ctx.beginPath(); ctx.arc(this.x + p.x, (this.y + this.size) - p.y, p.r, 0, Math.PI * 2); ctx.fill(); });
-                ctx.shadowBlur = 0;
-            }
-        }
-
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < 7; i++) particles.push(new DataBar());
-            for (let i = 0; i < 4; i++) particles.push(new DonutChart());
-            for (let i = 0; i < 3; i++) particles.push(new ScatterPlot());
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animate);
-        }
-
-        resize(); animate();
-
-        // --- GENERAL LOGIC ---
-        const roles = ['Data Scientist', 'Data Analyst', 'Python Developer'];
-        let roleIndex = 0;
-        const roleElement = document.getElementById('roleText');
-
-        function changeRole() {
-            roleElement.style.opacity = 0;
-            setTimeout(() => {
-                roleIndex = (roleIndex + 1) % roles.length;
-                roleElement.textContent = roles[roleIndex];
-                roleElement.style.opacity = 1;
-            }, 1000);
-        }
-        setInterval(changeRole, 4000);
-
-        window.addEventListener("scroll", function () {
-            var nav = document.querySelector("nav");
-            var scrollBtn = document.querySelector(".scroll-top");
-            var scrollDownArrow = document.querySelector(".scroll-down");
-            if (window.scrollY > 0) { nav.classList.add("sticky"); } else { nav.classList.remove("sticky"); }
-            if (window.scrollY > 500) { scrollBtn.classList.add("active"); scrollDownArrow.style.opacity = "0"; } 
-            else { scrollBtn.classList.remove("active"); scrollDownArrow.style.opacity = "0.7"; }
-        });
-
-        function filterProjects(category) {
-            let buttons = document.querySelectorAll('.filter-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            let cards = document.querySelectorAll('.project-card');
-            cards.forEach(card => {
-                let cardCategory = card.getAttribute('data-category');
-                if (category === 'all' || cardCategory === category) {
-                    card.classList.remove('hide'); card.style.display = 'block';
-                    setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'scale(1)'; }, 50);
-                } else {
-                    card.style.opacity = '0'; card.style.transform = 'scale(0.9)';
-                    setTimeout(() => { card.classList.add('hide'); card.style.display = 'none'; }, 600);
+                update() {
+                    if (this.y > height - this.targetHeight) { this.y -= this.speed; }
+                    else {
+                        this.y = height + 150;
+                        this.x = Math.random() * width;
+                        this.targetHeight = Math.random() * (height * 0.5) + 100;
+                        this.label = ["Conversion", "Churn Rate", "Retention", "ROI", "Avg Order"][Math.floor(Math.random() * 5)];
+                    }
                 }
+                draw() {
+                    ctx.shadowBlur = 15; ctx.shadowColor = this.color; ctx.fillStyle = this.color;
+                    ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x + this.width, this.y);
+                    ctx.lineTo(this.x + this.width, height); ctx.lineTo(this.x, height); ctx.fill();
+                    ctx.shadowBlur = 0; ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+                    ctx.textAlign = "left"; ctx.font = "bold 15px sans-serif"; ctx.fillText(this.value + "%", this.x, this.y - 22);
+                    ctx.font = "12px sans-serif"; ctx.fillStyle = "rgba(255, 255, 255, 0.7)"; ctx.fillText(this.label, this.x, this.y - 6);
+                }
+            }
+
+            class DonutChart {
+                constructor() {
+                    this.x = Math.random() * width; this.y = Math.random() * height;
+                    this.radius = Math.random() * 30 + 40; this.lineWidth = 15;
+                    this.speedX = (Math.random() - 0.5) * 0.4; this.speedY = (Math.random() - 0.5) * 0.4;
+                    this.rotation = Math.random() * Math.PI * 2; this.rotationSpeed = (Math.random() - 0.5) * 0.015;
+                    this.totalValue = Math.floor(Math.random() * 100);
+                    this.subLabel = ["Segment", "Target", "Source", "Devices"][Math.floor(Math.random() * 4)];
+                    this.segments = [
+                        { color: 'rgba(0, 255, 255, 0.5)', size: Math.random() * 2 + 1 },
+                        { color: 'rgba(0, 150, 150, 0.4)', size: Math.random() * 2 + 0.5 },
+                        { color: 'rgba(255, 255, 255, 0.1)', size: Math.random() * 1 + 0.5 }
+                    ];
+                }
+                update() {
+                    this.x += this.speedX; this.y += this.speedY; this.rotation += this.rotationSpeed;
+                    if (this.x < -100 || this.x > width + 100) this.speedX *= -1;
+                    if (this.y < -100 || this.y > height + 100) this.speedY *= -1;
+                }
+                draw() {
+                    ctx.shadowBlur = 10; ctx.shadowColor = "rgba(0, 255, 255, 0.5)";
+                    let startAngle = this.rotation;
+                    this.segments.forEach(seg => {
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, startAngle, startAngle + seg.size);
+                        ctx.strokeStyle = seg.color; ctx.lineWidth = this.lineWidth; ctx.lineCap = "round"; ctx.stroke();
+                        startAngle += seg.size + 0.15;
+                    });
+                    ctx.shadowBlur = 0; ctx.fillStyle = "rgba(255, 255, 255, 0.95)"; ctx.textAlign = "center";
+                    ctx.textBaseline = "middle"; ctx.font = "bold 16px sans-serif"; ctx.fillText(this.totalValue + "%", this.x, this.y - 5);
+                    ctx.font = "11px sans-serif"; ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; ctx.fillText(this.subLabel, this.x, this.y + 15);
+                }
+            }
+
+            class ScatterPlot {
+                constructor() {
+                    this.x = Math.random() * width; this.y = Math.random() * height; this.size = 140;
+                    this.speedX = (Math.random() - 0.5) * 0.2; this.speedY = (Math.random() - 0.5) * 0.2;
+                    this.axisLabel = ["Regression", "K-Means", "Outliers", "Correlation"][Math.floor(Math.random() * 4)];
+                    this.points = [];
+                    for (let i = 0; i < 20; i++) { this.points.push({ x: Math.random() * this.size, y: Math.random() * this.size, r: Math.random() * 3 + 1 }); }
+                }
+                update() {
+                    this.x += this.speedX; this.y += this.speedY;
+                    if (this.x < -200 || this.x > width + 200) this.speedX *= -1;
+                    if (this.y < -200 || this.y > height + 200) this.speedY *= -1;
+                }
+                draw() {
+                    ctx.shadowBlur = 0; ctx.strokeStyle = "rgba(255, 255, 255, 0.2)"; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x, this.y + this.size);
+                    ctx.lineTo(this.x + this.size, this.y + this.size); ctx.stroke();
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.4)"; ctx.fillRect(this.x + this.size / 2, this.y + this.size - 3, 1, 6);
+                    ctx.fillRect(this.x - 3, this.y + this.size / 2, 6, 1);
+                    ctx.textAlign = "center"; ctx.font = "10px sans-serif"; ctx.fillText(this.axisLabel, this.x + this.size / 2, this.y + this.size + 15);
+                    ctx.shadowBlur = 8; ctx.shadowColor = "#00e5ff"; ctx.fillStyle = "#00e5ff";
+                    this.points.forEach(p => { ctx.beginPath(); ctx.arc(this.x + p.x, (this.y + this.size) - p.y, p.r, 0, Math.PI * 2); ctx.fill(); });
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < 7; i++) particles.push(new DataBar());
+                for (let i = 0; i < 4; i++) particles.push(new DonutChart());
+                for (let i = 0; i < 3; i++) particles.push(new ScatterPlot());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animate);
+            }
+
+            resize(); animate();
+
+            // --- GENERAL LOGIC ---
+            const roles = ['Data Scientist', 'Data Analyst', 'Python Developer'];
+            let roleIndex = 0;
+            const roleElement = document.getElementById('roleText');
+
+            function changeRole() {
+                roleElement.style.opacity = 0;
+                setTimeout(() => {
+                    roleIndex = (roleIndex + 1) % roles.length;
+                    roleElement.textContent = roles[roleIndex];
+                    roleElement.style.opacity = 1;
+                }, 1000);
+            }
+            setInterval(changeRole, 4000);
+
+            window.addEventListener("scroll", function () {
+                var nav = document.querySelector("nav");
+                var scrollBtn = document.querySelector(".scroll-top");
+                var scrollDownArrow = document.querySelector(".scroll-down");
+                if (window.scrollY > 0) { nav.classList.add("sticky"); } else { nav.classList.remove("sticky"); }
+                if (window.scrollY > 500) { scrollBtn.classList.add("active"); scrollDownArrow.style.opacity = "0"; }
+                else { scrollBtn.classList.remove("active"); scrollDownArrow.style.opacity = "0.7"; }
             });
-        }
 
-        document.getElementById('contactForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            document.getElementById('successMessage').style.display = 'block';
-            this.reset();
-            setTimeout(() => { document.getElementById('successMessage').style.display = 'none'; }, 5000);
-        });
+            function filterProjects(category) {
+                let buttons = document.querySelectorAll('.filter-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                let cards = document.querySelectorAll('.project-card');
+                cards.forEach(card => {
+                    let cardCategory = card.getAttribute('data-category');
+                    if (category === 'all' || cardCategory === category) {
+                        card.classList.remove('hide'); card.style.display = 'block';
+                        setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'scale(1)'; }, 50);
+                    } else {
+                        card.style.opacity = '0'; card.style.transform = 'scale(0.9)';
+                        setTimeout(() => { card.classList.add('hide'); card.style.display = 'none'; }, 600);
+                    }
+                });
+            }
 
-        const modal = document.getElementById("certModal");
-        const modalImg = document.getElementById("modalImg");
-        const certImages = document.querySelectorAll(".cert-card img");
-        let currentIndex = 0;
+            document.getElementById('contactForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                document.getElementById('successMessage').style.display = 'block';
+                this.reset();
+                setTimeout(() => { document.getElementById('successMessage').style.display = 'none'; }, 5000);
+            });
 
-        certImages.forEach((img, index) => {
-            img.addEventListener("click", () => { modal.style.display = "block"; modalImg.src = img.src; currentIndex = index; });
-        });
+            const modal = document.getElementById("certModal");
+            const modalImg = document.getElementById("modalImg");
+            const certImages = document.querySelectorAll(".cert-card img");
+            let currentIndex = 0;
 
-        document.querySelector(".close").addEventListener("click", () => { modal.style.display = "none"; });
-        window.addEventListener("click", (e) => { if (e.target == modal) { modal.style.display = "none"; } });
+            certImages.forEach((img, index) => {
+                img.addEventListener("click", () => { modal.style.display = "block"; modalImg.src = img.src; currentIndex = index; });
+            });
 
-        function changeSlide(n) {
-            currentIndex += n;
-            if (currentIndex >= certImages.length) currentIndex = 0;
-            else if (currentIndex < 0) currentIndex = certImages.length - 1;
-            modalImg.src = certImages[currentIndex].src;
-        }
+            document.querySelector(".close").addEventListener("click", () => { modal.style.display = "none"; });
+            window.addEventListener("click", (e) => { if (e.target == modal) { modal.style.display = "none"; } });
 
-        let touchStartX = 0; let touchEndX = 0;
-        modal.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
-        modal.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            if (touchEndX < touchStartX - 50) changeSlide(1);
-            if (touchEndX > touchStartX + 50) changeSlide(-1);
-        });
+            function changeSlide(n) {
+                currentIndex += n;
+                if (currentIndex >= certImages.length) currentIndex = 0;
+                else if (currentIndex < 0) currentIndex = certImages.length - 1;
+                modalImg.src = certImages[currentIndex].src;
+            }
 
-        // --- UPDATED: PERFECT CIRCULAR LAYOUT FOR SKILLS UNIVERSE ---
-        function setupCircularGrid() {
+            let touchStartX = 0; let touchEndX = 0;
+            modal.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+            modal.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                if (touchEndX < touchStartX - 50) changeSlide(1);
+                if (touchEndX > touchStartX + 50) changeSlide(-1);
+            });
+
+            // --- UPDATED: PERFECT CIRCULAR LAYOUT FOR SKILLS UNIVERSE ---
+            function setupCircularGrid() {
+                const watchGrid = document.getElementById('watchGrid');
+                const bubbles = document.querySelectorAll('.skill-bubble');
+                const rows = document.querySelectorAll('.honeycomb-row');
+
+                // Handle Responsive sizes
+                let isMobile = window.innerWidth <= 768;
+                let bubbleSize = isMobile ? 65 : 90;
+                let offset = bubbleSize / 2;
+                let centerPos = isMobile ? 180 : 275;
+                let radiusInner = isMobile ? 80 : 120;
+                let radiusOuter = isMobile ? 160 : 240;
+
+                // Setup overall grid dimensions
+                watchGrid.style.position = 'relative';
+                watchGrid.style.width = `${centerPos * 2}px`;
+                watchGrid.style.height = `${centerPos * 2}px`;
+                watchGrid.style.display = 'block';
+                watchGrid.style.margin = '0 auto';
+
+                // Flatten structure purely for visual positioning
+                rows.forEach(row => {
+                    row.style.position = 'static';
+                    row.style.display = 'contents';
+                    row.style.transform = 'none';
+                });
+
+                // Distribute bubbles in concentric circles (1 Center, 6 Inner, 12 Outer = 19 Total)
+                bubbles.forEach((bubble, index) => {
+                    bubble.style.position = 'absolute';
+                    bubble.style.margin = '0';
+
+                    let angle, radius;
+                    if (index === 0) { // Center Element
+                        angle = 0;
+                        radius = 0;
+                    } else if (index >= 1 && index <= 6) { // Inner Circle (6 elements)
+                        angle = (index - 1) * (Math.PI / 3); // 60 degrees apart
+                        radius = radiusInner;
+                    } else { // Outer Circle (12 elements)
+                        angle = (index - 7) * (Math.PI / 6); // 30 degrees apart
+                        radius = radiusOuter;
+                    }
+
+                    // Calculate exact position
+                    const x = centerPos + radius * Math.cos(angle) - offset;
+                    const y = centerPos + radius * Math.sin(angle) - offset;
+
+                    bubble.style.left = `${x}px`;
+                    bubble.style.top = `${y}px`;
+                });
+            }
+
+            // Initialize circle on load and handle resize
+            setupCircularGrid();
+            window.addEventListener('resize', setupCircularGrid);
+
+            // --- APPLE WATCH SKILLS INTERACTION LOGIC ---
             const watchGrid = document.getElementById('watchGrid');
             const bubbles = document.querySelectorAll('.skill-bubble');
-            const rows = document.querySelectorAll('.honeycomb-row');
-            
-            // Handle Responsive sizes
-            let isMobile = window.innerWidth <= 768;
-            let bubbleSize = isMobile ? 65 : 90;
-            let offset = bubbleSize / 2;
-            let centerPos = isMobile ? 180 : 275;
-            let radiusInner = isMobile ? 80 : 120;
-            let radiusOuter = isMobile ? 160 : 240;
 
-            // Setup overall grid dimensions
-            watchGrid.style.position = 'relative';
-            watchGrid.style.width = `${centerPos * 2}px`;
-            watchGrid.style.height = `${centerPos * 2}px`;
-            watchGrid.style.display = 'block';
-            watchGrid.style.margin = '0 auto';
+            watchGrid.addEventListener('mousemove', (e) => {
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
 
-            // Flatten structure purely for visual positioning
-            rows.forEach(row => {
-                row.style.position = 'static';
-                row.style.display = 'contents';
-                row.style.transform = 'none';
-            });
+                bubbles.forEach(bubble => {
+                    const rect = bubble.getBoundingClientRect();
+                    const bubbleX = rect.left + rect.width / 2;
+                    const bubbleY = rect.top + rect.height / 2;
+                    const distance = Math.hypot(mouseX - bubbleX, mouseY - bubbleY);
+                    const maxDistance = 150;
 
-            // Distribute bubbles in concentric circles (1 Center, 6 Inner, 12 Outer = 19 Total)
-            bubbles.forEach((bubble, index) => {
-                bubble.style.position = 'absolute';
-                bubble.style.margin = '0';
-                
-                let angle, radius;
-                if (index === 0) { // Center Element
-                    angle = 0; 
-                    radius = 0;
-                } else if (index >= 1 && index <= 6) { // Inner Circle (6 elements)
-                    angle = (index - 1) * (Math.PI / 3); // 60 degrees apart
-                    radius = radiusInner;
-                } else { // Outer Circle (12 elements)
-                    angle = (index - 7) * (Math.PI / 6); // 30 degrees apart
-                    radius = radiusOuter;
-                }
-                
-                // Calculate exact position
-                const x = centerPos + radius * Math.cos(angle) - offset;
-                const y = centerPos + radius * Math.sin(angle) - offset;
-                
-                bubble.style.left = `${x}px`;
-                bubble.style.top = `${y}px`;
-            });
-        }
-        
-        // Initialize circle on load and handle resize
-        setupCircularGrid();
-        window.addEventListener('resize', setupCircularGrid);
+                    if (distance < maxDistance) {
+                        const scale = 1 + ((maxDistance - distance) / maxDistance) * 0.6;
+                        const zIndex = Math.round(scale * 100);
 
-        // --- APPLE WATCH SKILLS INTERACTION LOGIC ---
-        const watchGrid = document.getElementById('watchGrid');
-        const bubbles = document.querySelectorAll('.skill-bubble');
-        
-        watchGrid.addEventListener('mousemove', (e) => {
-            const mouseX = e.clientX;
-            const mouseY = e.clientY;
+                        bubble.style.transform = `scale(${scale})`;
+                        bubble.style.zIndex = zIndex;
 
-            bubbles.forEach(bubble => {
-                const rect = bubble.getBoundingClientRect();
-                const bubbleX = rect.left + rect.width / 2;
-                const bubbleY = rect.top + rect.height / 2;
-                const distance = Math.hypot(mouseX - bubbleX, mouseY - bubbleY);
-                const maxDistance = 150;
+                        bubble.style.background = `rgba(5, 10, 5, 0.98)`;
+                        bubble.style.borderColor = `rgba(0, 230, 118, ${1 * scale})`;
+                        bubble.style.boxShadow = `inset 0 0 20px rgba(0, 230, 118, ${0.4 * scale}), 0 15px 30px rgba(0,0,0,1), 0 0 25px rgba(0, 230, 118, ${0.5 * scale})`;
 
-                if (distance < maxDistance) {
-                    const scale = 1 + ((maxDistance - distance) / maxDistance) * 0.6;
-                    const zIndex = Math.round(scale * 100);
-
-                    bubble.style.transform = `scale(${scale})`;
-                    bubble.style.zIndex = zIndex;
-
-                    bubble.style.background = `rgba(5, 10, 5, 0.98)`;
-                    bubble.style.borderColor = `rgba(0, 230, 118, ${1 * scale})`;
-                    bubble.style.boxShadow = `inset 0 0 20px rgba(0, 230, 118, ${0.4 * scale}), 0 15px 30px rgba(0,0,0,1), 0 0 25px rgba(0, 230, 118, ${0.5 * scale})`;
-
-                    if (scale > 1.45) {
-                        const icon = bubble.querySelector('img, i');
-                        if (icon) icon.style.transform = 'translateY(-8px) scale(0.9)';
-                        const label = bubble.querySelector('.node-label');
-                        if (label) {
-                            label.style.opacity = '1';
-                            label.style.transform = 'translateY(0)';
+                        if (scale > 1.45) {
+                            const icon = bubble.querySelector('img, i');
+                            if (icon) icon.style.transform = 'translateY(-8px) scale(0.9)';
+                            const label = bubble.querySelector('.node-label');
+                            if (label) {
+                                label.style.opacity = '1';
+                                label.style.transform = 'translateY(0)';
+                            }
+                        } else {
+                            const icon = bubble.querySelector('img, i');
+                            if (icon) icon.style.transform = 'translateY(0) scale(1)';
+                            const label = bubble.querySelector('.node-label');
+                            if (label) {
+                                label.style.opacity = '0';
+                                label.style.transform = 'translateY(-10px)';
+                            }
                         }
                     } else {
+                        bubble.style.transform = 'scale(1)';
+                        bubble.style.zIndex = 1;
+                        bubble.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        bubble.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+                        bubble.style.background = 'rgba(255, 255, 255, 0.05)';
+
                         const icon = bubble.querySelector('img, i');
                         if (icon) icon.style.transform = 'translateY(0) scale(1)';
                         const label = bubble.querySelector('.node-label');
@@ -1472,7 +1977,11 @@
                             label.style.transform = 'translateY(-10px)';
                         }
                     }
-                } else {
+                });
+            });
+
+            watchGrid.addEventListener('mouseleave', () => {
+                bubbles.forEach(bubble => {
                     bubble.style.transform = 'scale(1)';
                     bubble.style.zIndex = 1;
                     bubble.style.borderColor = 'rgba(255, 255, 255, 0.1)';
@@ -1486,28 +1995,9 @@
                         label.style.opacity = '0';
                         label.style.transform = 'translateY(-10px)';
                     }
-                }
+                });
             });
-        });
-
-        watchGrid.addEventListener('mouseleave', () => {
-            bubbles.forEach(bubble => {
-                bubble.style.transform = 'scale(1)';
-                bubble.style.zIndex = 1;
-                bubble.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                bubble.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-                bubble.style.background = 'rgba(255, 255, 255, 0.05)';
-
-                const icon = bubble.querySelector('img, i');
-                if (icon) icon.style.transform = 'translateY(0) scale(1)';
-                const label = bubble.querySelector('.node-label');
-                if (label) {
-                    label.style.opacity = '0';
-                    label.style.transform = 'translateY(-10px)';
-                }
-            });
-        });
-    </script>
+        </script>
 </body>
 
 </html>
