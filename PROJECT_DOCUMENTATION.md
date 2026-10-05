@@ -2,89 +2,211 @@
 
 ## Overview
 
-This repository is a static, single-page personal portfolio for Shaikh Javed. The complete site is implemented in `index.html`; images, the favicon, and the downloadable resume are root-level assets. There is no build system, server-side application, database, or package manifest in the repository.
+This repository is a static, single-page personal portfolio for Shaikh Javed. The complete application is implemented in `index.html`; root-level assets provide the profile image, project thumbnails, logo, certificates, favicon, and resume link target. There is no build system, server-side application, database, or package manifest.
 
-`README.md` remains the public GitHub-facing introduction. This file is the code-backed working context for maintainers and AI coding agents.
+`README.md` remains the public GitHub-facing introduction.
+
+## Design Lock / Audit (Step 1 of 12)
+
+This section records the preserved design system and content baseline for the portfolio redesign. Treat this as the locked source of truth for all following implementation steps.
+
+### Preserved Design Tokens
+
+- `:root` palette:
+  - `--black: #000`
+  - `--ink: #00251a`
+  - `--deep: #004d40`
+  - `--teal: #006064`
+  - `--cyan: #26c6da`
+  - `--green: #00e676`
+  - `--green-dark: #4CAF50`
+  - `--paper: #fff`
+  - `--mist: #f9f9f9`
+  - `--kale: #D7DDBA`
+  - `--pale: #BCC88B`
+  - `--muted: #555`
+  - `--line: rgba(0,77,64,.12)`
+  - `--ease: cubic-bezier(.2,.8,.2,1)`
+- Background colors: black, paper white, deep green, teal gradients, pale green with radial overlays, mist backgrounds.
+- Primary text color: `--ink` (#00251a)
+- Secondary text color: `--deep` (#004d40)
+- Muted text color: `--muted` (#555)
+- Glass fill examples: `rgba(255,255,255,.86)` on sticky nav; `rgba(255,255,255,.1)` hero status chip.
+- Glass borders: `rgba(255,255,255,.24)`, `rgba(255,255,255,.32)`, `rgba(255,255,255,.62)` and green translucent borders.
+- Existing gradients: hero dark green/teal blend and soft pale-green radial overlays.
+- Accent colors: `#D7DDBA` must remain exactly as the Golden Kale accent; `--cyan`, `--green`, `--deep` are secondary accents.
+- Shadows: soft green-tinted shadows such as `rgba(0,37,26,.07)` and `rgba(0,37,26,.15)`.
+- Glow colors: certificate glow in soft `rgba(188,200,139,.6)` to `.9`.
+- Border colors: `var(--line)` with translucent green values and white translucent surfaces.
+- Typography: Inter for body/UI; JetBrains Mono for labels and metadata; large editorial headings with tight tracking and uppercase eyebrow labels.
+- Spacing system: container width `min(1160px, calc(100% - 40px))`, large section padding, 12-column project grid, card paddings, and tight stacked rhythm.
+- Breakpoints: current responsive logic is anchored by `max-width: 800px` and `max-width: 480px`.
+
+### Asset Audit
+
+Required root assets already present and must remain supported without renaming or inventing replacements:
+
+- `github-copilot.png` — certificate card
+- `Great-learing.png` — certificate card
+- `IBM.png` — certificate card
+- `cert-powerbi.png` — certificate card
+- `cert-google.png` — certificate card
+- `Sahikh_javed.png` — certificate card
+- `logo.png` — header brand mark
+- `javed222.jpeg` — about profile image
+- `Shaikh_Javed_Data_Analyst.pdf` — resume download link target
+
+Other existing images remain part of the portfolio gallery and should be preserved unless genuinely unused.
+
+### Content Audit
+
+Preserve the current factual content and narrative as the source-of-truth:
+
+- Data Analytics Intern at MAK { Byte }
+- Final-year B.Sc. Data Science student at Mumbai University
+- CGPA: 7.40
+- Post-exam status: awaiting results
+- Team Code_Runners leadership at GDG Cloud Hackathon 2.0
+- Google Student Ambassador role
+
+Do not add extra jobs, degrees, companies, awards, or metrics beyond the current implementation.
+
+### Structure Audit
+
+Current sections present in the page:
+
+- Header
+- Navigation
+- Hero
+- About
+- Skills
+- Journey (contains experience, education, leadership, and community content)
+- Projects
+- Certificates
+- Contact
+- Footer
+
+Planned but not currently standalone: dedicated Experience, Education, and Achievements sections.
+
+### Final Architecture Guardrails
+
+- Single-file portfolio remains in `index.html`
+- Semantic HTML5, CSS3, CSS variables, Grid/Flexbox, `backdrop-filter`, vanilla ES6+, and HTML5 Canvas only
+- No React, Vue, Angular, Tailwind, build system, or unnecessary libraries
+- Apple-inspired but not copied from proprietary Apple assets or implementations
+- Subtle motion, large typography, glass surfaces, editorial spacing, and story-led hierarchy
+- Mobile-first, responsive from 320px to desktop
+- Performance targets: no unnecessary layout shifts, passive listeners, `requestAnimationFrame`, and reduced-motion support
 
 ## Architecture
 
-- `index.html` contains the page markup, all CSS, and all JavaScript.
-- Root-level image files supply profile photos, project thumbnails, logos, and certificate images.
-- The browser loads Google Fonts, Font Awesome, skill icons from jsDelivr, and several skill-logo images from Wikimedia URLs.
-- The contact form is configured with a Formspree `action`; its current JavaScript submit handler prevents the native submission and shows a local success message instead.
-- No API, database, authentication, environment variables, or server routes are present. The only page is the root document, with in-page navigation via section anchors.
+### Final production composition rebuild
+
+- Rebuilt `index.html` around one shared 12-column master grid with a deliberate eight-chapter narrative: hero, identity, journey, education, leadership, work, credentials, toolkit, and contact.
+- Replaced the incomplete one-card journey with independently visible current role, previous internship, and academic milestone entries, using only the verified project/profile timeline available in the workspace.
+- Reframed projects as four product-story presentations instead of a dense bento card wall, while preserving existing project assets and adding only source-backed details.
+- Added an accessible mobile navigation overlay, responsive tablet rules, intrinsic image dimensions, and a reduced motion mode that disables canvas movement and complex transforms.
+- Kept the established palette and `#D7DDBA` accent unchanged. No new framework or build system was introduced.
+- Production checks completed: JavaScript syntax, HTML parser structure, image intrinsic dimensions, palette lock, required section landmarks, and `git diff --check`.
+
+### Step 4 — About / Identity redesign
+
+- Replaced the placeholder about section with a two-column editorial identity story.
+- Preserved the project palette and used only existing design tokens: black, deep green, teal, white, pale green, and the Golden Kale accent `#D7DDBA`.
+- Kept the content grounded in current portfolio facts: Data Analytics, Data Science, Python, SQL, Power BI, automation, and Google Apps Script as a workflow support tool.
+- Added subtle scroll parallax and reveal motion only within the about/identity block to avoid affecting the hero or other sections.
+- Used the existing profile image asset `javed222.jpeg` with a fixed aspect ratio to prevent CLS.
+- Replaced the leadership placeholder with two asymmetric liquid-glass storytelling cards for Team Code_Runners at GDG Cloud Hackathon 2.0 and the Google Student Ambassador role.
+- Added leadership-only mouse spotlight tracking with CSS custom properties and `requestAnimationFrame`, while preserving sequential reveal behavior and reduced-motion support.
+- Replaced the projects placeholder with a responsive 12-column bento gallery using existing assets and conservative, source-grounded project descriptions.
+- Added fixed-ratio project visuals, product-style hover treatments, and project-only pointer spotlight tracking with CSS custom properties and `requestAnimationFrame`.
+- Refined the project interaction system without changing the bento geometry: cached pointer bounds, restrained CSS-variable depth, content translation, image zoom, border illumination, and keyboard focus parity.
+- Added reduced-motion fallbacks so project transforms and image movement resolve to static states when requested.
+- Replaced the certificates placeholder with a responsive asymmetric gallery using the exact existing certificate assets: GitHub Copilot, Great Learning, IBM, Power BI, and Google.
+- Added fixed-ratio certificate visuals, asset-supported captions, keyboard-accessible viewing links, and a restrained Golden Kale `#D7DDBA` border/glow treatment with reduced-motion support.
+- Replaced the skills placeholder with a two-column editorial technology ecosystem covering Data Analytics, Data Science, Python, SQL, Power BI, Google Apps Script, and automation.
+- Added progressively revealed, keyboard-accessible technology clusters with subtle glass surfaces, monochrome labels, restrained focus/hover movement, and reduced-motion support.
+- Replaced the Contact placeholder with a spacious closing statement and one primary magnetic `View Resume` action using the existing resume asset.
+- Simplified the Footer to preserve only existing identity, copyright, resume access, and closing portfolio language; no email, phone, or social details were invented.
+- Completed final production QA: preserved the locked palette, added intrinsic dimensions to all images, batched scroll work through `requestAnimationFrame`, reduced mobile canvas density, guarded zero-distance pointer math, and tied hero animation to both viewport and document visibility.
+- Final static audit passes HTML parser validation, JavaScript syntax validation, whitespace validation, section landmark checks, focus/reduced-motion checks, and palette verification.
+- Final art-direction pass completed against rendered desktop and mobile views: reduced desktop hero scale so the full opening hierarchy and CTAs compose in one viewport, tightened the mobile toolkit-to-contact handoff, added restrained project-story content lift, and fixed mobile menu toggle stacking so the overlay can always be closed.
+- Rendered checks covered 320px, 390px, 768px, 1024px, 1280px, 1440px, and 1920px compositions; no horizontal overflow or console errors were observed.
+- Step 16 global layout normalization completed: replaced the universal section padding with standard, compact, and story density tiers; brought timeline and leadership content onto the master visual rail; normalized shared card radius and shadow treatment; added subtle current-role emphasis; and reduced hero/mobile spacing compression without changing project storytelling or media behavior.
+- Step 16 validation completed at 320px, 390px, 768px, 1024px, 1280px, 1440px, and 1920px. No horizontal overflow or HTML diagnostics were observed; rendered hero, experience, and project checkpoints were inspected after the change.
+- Step 17 Projects storytelling completed: project rows now use one consistent editorial scene system with a centered text rail, dominant 16:10 media frame, secondary metadata treatment, controlled mobile order, and a Projects-only rAF active-scene emphasis. Project 02 uses palette-backed `contain` treatment to preserve its square dashboard source without stretching or destructive cropping.
+- Step 17 rendered QA passed at 320px, 390px, 768px, 1024px, 1280px, 1440px, and 1920px with four project scenes, no horizontal overflow, preserved project content/order/CTAs, and reduced-motion transitions disabled. No other page section was intentionally changed in this step.
+- Step 17.6 Projects pacing completed: reduced desktop scene padding and changed the cinematic media ratio to 16:9; added visible current-scene emphasis with quieter inactive media/content; made the media cap responsive up to 1280px at wide desktop; tightened Project 01 focal positioning, reduced Project 02 containment padding, and reduced the Projects-to-Certificates boundary gap.
+- Step 17.6 validation: at 1440px scenes are approximately 1115px and Projects is approximately 4929px, compared with the previous 1355px scenes and 5964px section. At 1280px scenes are approximately 994px; at 1024px approximately 891px; at 390px scenes are approximately 605-630px. Active states resolve one-at-a-time, inactive media uses restrained opacity/scale, reduced-motion resets all project transforms, and all tested viewports remain free of horizontal overflow.
+- Step 17.8 Projects finalization — root cause: the Step 17.6 emphasis was split across two competing layers. The article-level `opacity:.78` only reached Project 03, because Project 01 was pinned to `1` by `.project-story:first-of-type` and Projects 02/04 were overridden by the more specific `.reveal.is-visible`. Inactive media therefore rendered at `.82` for P1/P2/P4 and `.64` for P3: too weak, and inconsistent between scenes. The article layer is removed; all emphasis now lives in one selector family (`.project-story.is-visible:not(.is-current)`), so the four scenes behave identically and the reveal fade/rise applies to all of them.
+- Step 17.8 active-scene algorithm: the current scene is the story containing a focus line at the centre of the area visible below the fixed header. The previous line sat at 52% of the full viewport, ignored the ~82–90px header, and switched 18–47px late depending on scene height. A 3% deadband around each boundary prevents flicker. Classes are written only when the index changes, layout reads happen before writes in the shared rAF pass, `main section[id]` is cached, and `resize` now schedules the same pass so state no longer goes stale after a resize or rotation.
+- Step 17.8 visual hierarchy: inactive media `opacity:.55`, `scale(.97)`, `saturate(.6)`; inactive content `opacity:.85` with `translateY(8px)`; inactive titles `.6` (≈.51 effective). Small text stays at or above 4.5:1 and titles at or above 3:1. Transitions use `--slow`, and the same values apply at every breakpoint (the softer mobile override was removed). The hover zoom on project images and a dead hover-lift rule were removed: scenes span the full width, so the zoom fired on pointer position rather than intent and implied a click target that does not exist.
+- Step 17.8 Project 02 asset: `business.png` is a 512×512 LinkedIn outline icon, not a dashboard. The committed version of this project (2,000+ customer complaints, SQL / Power BI) used `comcast.png`, so Project 02 now uses that asset with an accurate alt. Title, description, facts, and links are unchanged. The artwork is 73 source rows taller than a 16:9 window, so any crop would cut its title or bottom labels; it therefore stays `contain`ed, on a matte matched to the artwork's own paper (`#fdf7f0`) because the kale tint produced visible cool/warm pillarbox seams.
+- Step 17.8 framing and closing: Project 01 `object-position` moved from 62% to 53% so the source's white mat is equal above and below its artwork band (rows 184–850 of 1024). Project 04 moved from 50% to 40% so its title clears the frame edge. Media now centres with `align-self:center`: above 1480px the media is wider than the 1200px rail, where `margin-inline:auto` collapsed to zero and pushed it up to 40px right of centre. The last story closes with a firmer `rgba(0,77,64,.28)` rule (the existing current-role border value) so the series reads as finished before Certificates; spacing is unchanged. The project title cap moved from 6.5rem to 6.25rem (binding only above ~1667px), so "Spotify 2023 Music Dashboard" no longer breaks onto three lines at 1920px.
+- Step 17.8 validation (Playwright/Chromium at 320, 390, 768, 1024, 1280, 1440, and 1920px): exactly one current scene at the beginning, middle, and lower portion of every scene in both scroll directions; every boundary flips once per direction in 1px sweeps; fast jumps and native smooth scrolling progress 1→2→3→4; 0 console errors and 0 horizontal overflow. CLS is unchanged from baseline (≤0.038, originating outside Projects), and wheel-scrolling through Projects produced no long animation frames. Reduced motion renders every scene at full opacity with no transforms or filters. Non-Projects sections are pixel-identical apart from the 1px offset introduced by the closing rule, and html-validate reports the same 8 pre-existing diagnostics as before. Measurements: scenes 1115px at 1440 (Projects 4932px), 995px at 1280, 891px at 1024, 605–630px at 390; Projects at 1920 fell from 5515px to 5394px.
+- Observed during Step 17.8 but out of scope: the site-wide `:focus-visible` outline uses `--kale`, which is about 1.35:1 against white sections; and after the Contact CTA the nav highlights Toolkit, because Contact cannot reach the 180px detection line.
+- Current role (from LinkedIn, Oct 2026): MIS Automation Analyst / Google Apps Script Developer at American Hairline since Aug 2026. MAK { Byte } Data Analyst dates follow LinkedIn: Jan 2026 – Aug 2026. The hero film's Automate chapter shows this role (Google Sheets → Apps Script → MIS report, dashboard, web app). Every section except the Hero and Projects has `min-height:100svh`, with content centred vertically.
+- Content source (Oct 2026): portfolio text follows the latest resume (`portfolio-resume2.pdf`: Data Analyst at MAK { Byte } from Feb 2026, intern Aug 2025 – Jan 2026, B.Sc. Data Science Jul 2023 – Apr 2026). Hospital ER (10,000+ records) and certificate dates come from the earlier resume. `Shaikh_Javed_Data_Analyst.pdf` and `shaikh_javed_DA.pdf` are now the real resume. The phone number is intentionally not published; email, LinkedIn and GitHub are.
+- Hero film chapters: records validate, then fold into a plane that lands on "Analytics"; Protect (Aadhaar masking); Measure (one chart: airline fares → trading forecast → Spotify streams → Hospital ER load); Automate (service records → Power Query → Power BI, −22% manual reporting effort); Connect (five panels, a solar-system orbit and convergence); name card. Object handoffs link the chapters (digits become bars, heatmap cells become sheet rows, the MIS donut becomes the insight ring). An idle hook drips records from the headline, and the ending sends a packet into View Work.
+- Step 18.5 motion system: one motion owner per property. Chapter content uses `.beat` one-shot reveals (opacity, individual `translate`/`scale`, `clip-path`); items revealed in the same frame stagger in document order via `--stagger`, and `--tempo` shortens beats during fast scrolls. Hover and press keep `transform`, which repaired the dead certificate hover lift and skill-grid offsets. The shared rAF pass drives the Experience timeline progress (`--tl`, reached/active markers) and the Contact arrival (`--arrive`). Projects keeps its own `.reveal` and `.is-current` system unchanged. Focusing a control inside an unrevealed chapter reveals it immediately; hover states are pointer-only; reduced motion uses opacity-only crossfades.
+- Hero font stability: the entrance waits for the web fonts (capped at 1.2s), the headline cap is expressed in `em`, and a width-matched `Inter Fallback` (local Arial, size-adjust 106.6% / 102.3%) keeps a late font swap from reflowing the page. Hero CLS measured 0 on normal and font-delayed loads.
+- Hero film (380svh sticky stage, 320svh at 800px and below): a ~20s identity film scrubbed by native scroll. The shared scroll pass sets `heroTarget`; one hero rAF loop eases toward it (weighted camera) and derives everything from that single progress value. The title card is driven by `--tx/--ty/--ts/--ta/--tb`, the copy and CTAs by `--la/--ly`, and the grid by `--g*`. The canvas projects far/mid/near layers through the same camera (push-in plus a restrained pan). Scenes: identity (0–15%), awakening (15–30%: data streams emerge from the ends of the four headline words), data movement (30–50%: Golden Kale packets with trails travel real connections; arrivals light the node, flash the connection, pulse a ring and wake neighbours), automation (50–70%: the network snaps into lanes with process frames and rhythmic, evenly paced packets), convergence (70–88%: three orbits around a restrained insight point, packets route into it), resolution (88–100%: no new packets, orbits settle, the title card and CTAs return as the end card, and a kale rule draws along the bottom edge before About). The header stays transparent while the film is pinned. Desktop has 33 nodes and up to 4 packets; phone has 11 nodes, up to 2 packets and vertical orbits, in the lower-right column beside the deliberately narrow text rail. Short phones (≤720px tall) get a compact title card so the stage fits the viewport. Focusing a CTA restores the copy at any point. Reduced motion removes the pinned travel and draws one organised frame with a single lit signal path. Layout is read only on resize/fonts/intro, and the loop runs only while the hero is visible.
+- Asset note: `javed222.jpeg` was restored to the committed 3120×4160 portrait after it had been replaced by a 1400×349 banner. Both resume PDFs (`Shaikh_Javed_Data_Analyst.pdf`, the link target, and `shaikh_javed_DA.pdf`) are currently 1-page plain-text placeholders; the real 2-page resume exists only in git HEAD (`shaikh_javed_DA.pdf`).
+
+
+## Architecture
+
+- `index.html` contains semantic HTML, all CSS, and all JavaScript.
+- The design uses the existing teal, deep green, cyan, green, white, pale green, and Golden Kale (`#D7DDBA`) palette.
+- Inter and JetBrains Mono load from Google Fonts; Font Awesome, GSAP, and ScrollTrigger load from CDNs.
+- GSAP and ScrollTrigger enhance reveal animations when available. CSS states remain usable if the CDN is unavailable or reduced motion is enabled.
+- No API, database, authentication, environment variables, or server routes are present.
 
 ## Features
 
-- Fixed navigation, a scroll-to-top control, hero section, and rotating role text.
-- About section with social links and a resume download link to `shaikh_javed_DA.pdf`.
-- Skills universe: 19 skill bubbles positioned in concentric circles and enlarged near the cursor.
-- Project gallery with category filters for Machine Learning, Gen AI, and Analytics. Current cards link to external GitHub repositories.
-- Certificate grid with hover styling and a click-to-open modal, including previous/next and touch-swipe navigation.
-- Experience, education, and achievement timeline cards.
-- Contact details and a form with required name, email, and message fields.
-- Full-screen canvas background intended to animate data bars, donut charts, and scatter plots.
+- Fixed navigation with in-page anchors, scroll state, rotating role text, magnetic buttons, and a scroll-to-top control.
+- Full-viewport canvas node/vector background using `requestAnimationFrame`, capped device-pixel ratio, and pointer proximity.
+- Profile section with social links and resume download link reserved for `Shaikh_Javed_Data_Analyst.pdf`.
+- Skills section covering Python, SQL, Power BI, Excel, machine learning, analytics, OpenCV, OCR, and Google Cloud.
+- Responsive bento project grid with Machine Learning and Analytics filters, pointer spotlight, and GitHub links.
+- Certificate gallery with Golden Kale hover glow and keyboard-accessible previous/next modal navigation.
+- Journey cards for MAK { Byte }, Mumbai University, Team Code_Runners, and Google Student Ambassador work.
+- Contact form with required fields and local success feedback.
 
-## Components and UI Patterns
+## Main UI Surfaces
 
-In this static site, components are HTML sections and reusable CSS classes rather than framework components.
+- `#siteNav`, `.nav-links`, and `#scrollTop`: fixed navigation and scroll state.
+- `#home`, `.hero`, `.button`, and `#dataCanvas`: hero content, calls to action, and canvas background.
+- `#about`, `.about-layout`, and `.metrics`: profile, photo, links, and summary figures.
+- `#skills`, `.skill-list`: toolkit presentation.
+- `#journey`, `.journey-grid`, and `.liquid-card`: experience, education, leadership, and community cards.
+- `#projects`, `.filter`, and `.project-card`: filtered project gallery.
+- `#certificates`, `.cert-card`, and `#certModal`: certificate gallery and viewer.
+- `#contact`, `#contactForm`, and `#formStatus`: contact form and local feedback.
 
-- `nav`, `.nav-links`, and `.scroll-top`: fixed navigation and scroll state.
-- `#home`, `.hero`, `.btn`: hero content and anchor buttons.
-- `#about`, `.about-container`, `.btn-resume-magic`: biography, photo, social links, and resume action.
-- `#skills-universe`, `#watchGrid`, `.skill-bubble`: interactive skills display.
-- `#projects`, `.filter-btn`, `.project-card`: filtered project gallery.
-- `#certificates`, `.cert-card`, `#certModal`: certificate gallery and modal viewer.
-- `#journey`, `.timeline-grid`, `.glass-box`, `.liquid-card`, `.stat-badge`: experience and achievement cards.
-- `#contact`, `#contactForm`, `#successMessage`: contact form and local feedback message.
+## Data Flow
 
-## Design System
-
-- Typography: Poppins from Google Fonts with a sans-serif fallback.
-- Visual direction: dark teal gradient/canvas hero, white content sections, green/cyan accents, and a pale green journey section.
-- Repeated colors include teal (`#006064`, `#004d40`), green (`#00e676`, `#4CAF50`), cyan (`#26c6da`), and pale green (`#BCC88B`).
-- Layout uses a centered `.container` capped at 1200px, CSS grid for galleries/timelines, and flexbox for groups and responsive arrangements.
-- Cards use rounded corners, soft shadows, hover lift/scale transitions, and semi-transparent glass effects with `backdrop-filter`.
-- At `max-width: 768px`, navigation links are hidden, key flex layouts stack, and the skills animation is reduced.
-
-## Data Flow and Business Logic
-
-- Portfolio content, project metadata, contact details, and timeline entries are static HTML.
-- `filterProjects(category)` toggles project-card classes and display/opacity styles using each card's `data-category`.
-- Certificate clicks copy an image source into the modal; controls and touch gestures update the current image index with wraparound.
-- Canvas chart positions and values are generated with `Math.random()` and dimensions are recomputed on resize.
-- Scroll events add/remove sticky navigation and reveal the scroll-to-top control.
-- The form handler prevents the configured Formspree request, shows a success message for five seconds, and clears the fields.
+- Portfolio content, project metadata, contact details, and journey entries are static HTML.
+- Project filter buttons toggle cards using each card's `data-category`.
+- Certificate clicks open the modal; buttons and arrow keys cycle images with wraparound.
+- Canvas nodes and connecting vectors animate continuously and respond to pointer proximity.
+- The contact handler prevents the configured Formspree request, shows local feedback, and resets the form.
 
 ## Dependencies
 
-- Google Fonts: Poppins.
-- Font Awesome 6.5.1 CDN: interface and social icons.
-- Remote skill images: jsDelivr Devicon and Wikimedia-hosted logos.
-- Browser-native APIs: DOM events, CSS Grid/Flexbox, HTML Canvas, `requestAnimationFrame`, and touch events.
-
-There are no installed npm or other package-managed dependencies.
+- Google Fonts: Inter and JetBrains Mono.
+- Font Awesome 6.5.1 CDN.
+- GSAP 3.12.5 and ScrollTrigger CDN.
+- Browser-native DOM events, CSS Grid/Flexbox, Canvas, `requestAnimationFrame`, keyboard events, and media queries.
 
 ## Known Issues
 
-- The script begins with a duplicate nested `function resize()` declaration and appears to lack a closing brace for the outer declaration. This prevents the inline JavaScript from parsing, so later interactions may not run.
-- The contact form specifies a Formspree endpoint, but the submit handler calls `preventDefault()`, so it currently only shows local feedback.
-- Navigation exposes Home, About, Projects, and Contact, but not Skills, Certificates, or Journey anchors.
-- A `Gen AI` filter button is present, while no project card currently has `data-category="genai"`.
-- Several styles are duplicated or overridden later in the same inline stylesheet, especially certificate and journey rules.
+- Resume PDF is restored at the root as `Shaikh_Javed_Data_Analyst.pdf`, and the legacy `shaikh_javed_DA.pdf` copy is retained for compatibility.
+- The contact form remains local feedback because the inline handler prevents the Formspree request. Remove `preventDefault()` and define the production submission UX before enabling submissions.
+- External fonts, Font Awesome, GSAP, and ScrollTrigger require network access. The page remains readable and interactive without GSAP through the CSS fallback.
 
-## Tasks
+## Maintenance Notes
 
-- Fix and manually verify the inline JavaScript parse error before relying on interactive features.
-- Decide whether the contact form should submit to Formspree or remain local feedback, then align the handler.
-- Add a `genai` project card or remove/disable the empty filter.
-- Keep asset filenames synchronized with each `src` or `href` when changing assets.
-
-## AI Project Memory
-
-- Treat `index.html` as a coupled single-file application: markup, styles, and behavior live together.
-- Preserve existing root-level assets and external links unless explicitly requested otherwise.
-- Make responsive changes in both base CSS and the existing mobile media query when necessary.
-- Inspect event handlers and the CSS classes they manipulate before changing client-side behavior.
-- Do not add secrets, credentials, or tokens to this static client-side repository.
-- Update this document after meaningful architectural, behavioral, dependency, or known-issue changes.
+- Treat `index.html` as a coupled single-file application: markup, styles, and behavior are intentionally co-located.
+- Preserve existing root-level asset names and external project links when changing content.
+- Validate the inline script and local asset references after edits.
