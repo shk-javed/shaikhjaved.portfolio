@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- GitHub Pages serves this file at ANY missing URL depth, so every asset resolves from the project root. Change if a custom domain is added. -->
+  <base href="https://shk-javed.github.io/shaikhjaved.portfolio/">
+  <title>404 | Shaikh Javed</title>
+  <meta name="description" content="This page does not exist on Shaikh Javed's portfolio.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#00251a">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#00251a;--deep:#004d40;--kale:#D7DDBA;--paper:#fff;--ease:cubic-bezier(.2,.8,.2,1);--body:'Inter',Arial,sans-serif;--mono:'JetBrains Mono',monospace}
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;display:flex;flex-direction:column;min-height:100svh;background:var(--ink);color:var(--paper);font-family:var(--body);-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    :focus-visible{outline:2px solid var(--kale);outline-offset:4px}
+    .wrap{width:min(1200px,calc(100% - 32px));margin:0 auto}
+    header{padding:1.5rem 0}
+    .brand{display:inline-flex;align-items:center;gap:.7rem;font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .brand img{width:34px;height:34px;display:block}
+    main{flex:1;display:flex;align-items:center;padding:2rem 0 4rem}
+    .eyebrow{display:block;margin-bottom:1.25rem;color:var(--kale);font:600 .68rem/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+    .code{margin:0;font-size:clamp(6rem,24vw,17rem);font-weight:800;line-height:.82;letter-spacing:-.075em;color:var(--kale)}
+    h1{margin:1.5rem 0 1rem;max-width:16ch;font-size:clamp(2rem,5.4vw,4rem);font-weight:800;line-height:1;letter-spacing:-.04em}
+    .query{margin:0 0 2.25rem;max-width:60ch;color:rgba(255,255,255,.62);font:500 .8rem/1.7 var(--mono);overflow-wrap:anywhere}
+    .query b{color:var(--kale);font-weight:600}
+    .cursor{display:inline-block;width:.55em;height:1em;margin-left:.15em;vertical-align:-.15em;background:var(--kale);animation:blink 1.1s steps(1) infinite}
+    @keyframes blink{50%{opacity:0}}
+    .home{display:inline-flex;align-items:center;gap:.6rem;padding:.95rem 1.4rem;border-radius:999px;background:var(--kale);color:var(--ink);font:600 .72rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;transition:background 180ms var(--ease),transform 180ms var(--ease)}
+    .home:hover{background:var(--paper);transform:translateY(-2px)}
+    footer{padding:1.5rem 0 2rem;color:rgba(255,255,255,.5);font:600 .65rem/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+    @media (prefers-reduced-motion:reduce){.cursor{animation:none}.home{transition:none}.home:hover{transform:none}}
+  </style>
+</head>
+<body>
+  <header class="wrap"><a class="brand" href="./" aria-label="Shaikh Javed home"><img src="logo.png" alt="" width="160" height="160"><span>Shaikh Javed</span></a></header>
+  <main class="wrap">
+    <div>
+      <span class="eyebrow">Error 404 · Query returned nothing</span>
+      <p class="code" aria-hidden="true">404</p>
+      <h1>This row doesn't exist in the dataset.</h1>
+      <p class="query"><b>SELECT</b> * <b>FROM</b> portfolio <b>WHERE</b> path = '<span id="path">/this-page</span>';<br>0 rows returned. Not a null, just never recorded.<span class="cursor" aria-hidden="true"></span></p>
+      <a class="home" href="./">Back to the full table <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </main>
+  <footer class="wrap">&copy; 2026 Shaikh Javed · Mumbai</footer>
+  <script>
+    (function(){var p=location.pathname.replace(/^\/shaikhjaved\.portfolio/,'')||'/';if(p.length>60)p=p.slice(0,57)+'...';document.getElementById('path').textContent=p.replace(/'/g,"''");})();
+  </script>
+  <!-- GoatCounter (same switch as index.html): inert until GC_CODE is set; logs the broken path under /404/... with its referrer. -->
+  <script>
+    (function(){
+      var GC_CODE=''; // e.g. 'shaikhjaved'
+      if(!GC_CODE||location.hostname!=='shk-javed.github.io')return;
+      window.goatcounter={path:function(p){return '/404'+p},title:'404'};
+      var s=document.createElement('script');s.async=true;s.src='https://gc.zgo.at/count.js';
+      s.dataset.goatcounter='https://'+GC_CODE+'.goatcounter.com/count';document.head.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
