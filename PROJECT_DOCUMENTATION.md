@@ -52,8 +52,8 @@ Required root assets already present and must remain supported without renaming 
 - `cert-powerbi.png` — certificate card
 - `cert-google.png` — certificate card
 - `Sahikh_javed.png` — certificate card
-- `logo.png` — header brand mark
-- `javed222.jpeg` — about profile image
+- `logo.png` — header brand mark (160×160; shown at 2.1rem)
+- `about-gdg-stage.jpg` — About section stage photo
 - `Shaikh_Javed_Data_Analyst.pdf` — resume download link target
 
 Other existing images remain part of the portfolio gallery and should be preserved unless genuinely unused.
@@ -219,3 +219,4 @@ Planned but not currently standalone: dedicated Experience, Education, and Achie
 - Treat `index.html` as a coupled single-file application: markup, styles, and behavior are intentionally co-located.
 - Preserve existing root-level asset names and external project links when changing content.
 - Validate the inline script and local asset references after edits.
+- Repository cleanup (Oct 2026): removed 13 unused assets (~20 MB): the old project posters `aadhar.png`, `comcast.png`, `flight.png`, `spotify2023.png` and `financial.png`; the old portraits `javed222.jpeg`, `javed52.jpeg` and `JAVED.png`; the old icons `business.png`, `calculating.png`, `github1.png` and `insta1.png`; and `cert-3.png`. Also stopped tracking `.DS_Store`. `logo.png` was shrunk from 2048×2048 (9.2 MB) to 160×160 (66 KB). `favicon.ico` was renamed from a filename with a trailing space, and its link no longer needs `%20`. `shaikh_javed_DA.pdf` (a duplicate of the resume) is kept on purpose because older shared links may point to it. A code audit found no unused CSS classes or keyframes in `index.html`.
