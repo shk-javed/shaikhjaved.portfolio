@@ -1,0 +1,233 @@
+{
+ "schema": "twin-sprites/1",
+ "character": "SHK JAVED",
+ "source": {
+  "sha256": "59ced1e35094a573c3b0f6e7d2fa86061c1f1edd98b64eb07e17c3e931bd0997",
+  "width": 1536,
+  "height": 2288,
+  "version": 2
+ },
+ "cell": {
+  "w": 192,
+  "h": 208
+ },
+ "display": {
+  "w": 96,
+  "h": 104
+ },
+ "refGround": 191,
+ "poster": {
+  "file": "poster.webp",
+  "bytes": 7514
+ },
+ "facing": "left",
+ "states": {
+  "idle": {
+   "file": "idle.webp",
+   "row": 0,
+   "frames": 6,
+   "durations": [
+    280,
+    110,
+    110,
+    140,
+    140,
+    320
+   ],
+   "loop": true,
+   "ground": 191,
+   "scale": 1.0,
+   "measuredScale": 1.0,
+   "still": 0,
+   "bytes": 42704
+  },
+  "run-left": {
+   "file": "run-left.webp",
+   "row": 2,
+   "frames": 8,
+   "durations": [
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120
+   ],
+   "loop": true,
+   "ground": 197,
+   "scale": 0.98,
+   "measuredScale": 1.018,
+   "still": 0,
+   "bytes": 55490
+  },
+  "wave": {
+   "file": "wave.webp",
+   "row": 3,
+   "frames": 4,
+   "durations": [
+    140,
+    140,
+    140,
+    280
+   ],
+   "loop": 2,
+   "ground": 179,
+   "scale": 1.12,
+   "measuredScale": 1.153,
+   "still": 2,
+   "bytes": 26274
+  },
+  "jump": {
+   "file": "jump.webp",
+   "row": 4,
+   "frames": 5,
+   "durations": [
+    140,
+    140,
+    140,
+    140,
+    280
+   ],
+   "loop": false,
+   "ground": 201,
+   "scale": 1.12,
+   "measuredScale": 1.16,
+   "still": 0,
+   "bytes": 31104
+  },
+  "failed": {
+   "file": "failed.webp",
+   "row": 5,
+   "frames": 8,
+   "durations": [
+    140,
+    140,
+    140,
+    140,
+    140,
+    140,
+    140,
+    240
+   ],
+   "loop": false,
+   "ground": 201,
+   "scale": 1.0,
+   "measuredScale": 1.026,
+   "still": 3,
+   "bytes": 52460
+  },
+  "waiting": {
+   "file": "waiting.webp",
+   "row": 6,
+   "frames": 6,
+   "durations": [
+    150,
+    150,
+    150,
+    150,
+    150,
+    260
+   ],
+   "loop": true,
+   "ground": 201,
+   "scale": 1.0,
+   "measuredScale": 0.951,
+   "still": 3,
+   "bytes": 41550
+  },
+  "working": {
+   "file": "working.webp",
+   "row": 7,
+   "frames": 6,
+   "durations": [
+    120,
+    120,
+    120,
+    120,
+    120,
+    220
+   ],
+   "loop": true,
+   "ground": 201,
+   "scale": 0.97,
+   "measuredScale": 0.928,
+   "still": 3,
+   "bytes": 43794
+  },
+  "review": {
+   "file": "review.webp",
+   "row": 8,
+   "frames": 6,
+   "durations": [
+    150,
+    150,
+    150,
+    150,
+    150,
+    280
+   ],
+   "loop": true,
+   "ground": 201,
+   "scale": 1.0,
+   "measuredScale": 0.976,
+   "still": 0,
+   "bytes": 38884
+  }
+ },
+ "aliases": {
+  "waving": "wave",
+  "jumping": "jump",
+  "running": "working",
+  "thinking": "working"
+ },
+ "mirrors": {
+  "run-right": "run-left"
+ },
+ "look": {
+  "files": [
+   "look-a.webp",
+   "look-b.webp"
+  ],
+  "framesPerFile": 8,
+  "step": 22.5,
+  "zero": "up",
+  "direction": "clockwise",
+  "neutral": 270,
+  "inbetweenMs": 60,
+  "avoid": {
+   "180": 202.5
+  },
+  "ground": 191,
+  "scale": 1.22,
+  "measuredScale": 1.239,
+  "bytes": [
+   40320,
+   37530
+  ]
+ },
+ "idleHoldMs": [
+  2000,
+  5000
+ ],
+ "walkFrameMs": 120,
+ "budget": {
+  "entrance": [
+   "poster",
+   "idle",
+   "wave"
+  ],
+  "open": [
+   "working",
+   "look",
+   "jump",
+   "review"
+  ],
+  "lazy": [
+   "waiting",
+   "failed",
+   "run-left"
+  ]
+ }
+}

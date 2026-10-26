@@ -139,6 +139,55 @@ Planned but not currently standalone: dedicated Experience, Education, and Achie
   - Re-scrape the preview in LinkedIn Post Inspector after deploys.
 - `README.md` was rewritten for GitHub, with screenshots in `readme/` (WebP, about 116 KB total).
 
+## Talk to Me: SHK JAVED AI guide (Oct 2026)
+
+A robotic-pangolin "AI guide" that answers visitors' questions about Javed from verified site facts and takes them to the evidence. It runs fully in the browser: no backend, API keys, accounts, cookies, analytics of questions, or network transmission of anything the visitor types.
+
+**Experience ("The Archivist")**
+- The dock stays hidden while the hero film plays. After the hero, the pangolin slides in on a kale disc in the bottom-right corner and waves once per session. On narrow screens, near the certificate reel, or wherever it would cover an interactive element, it compacts to a small edge tab.
+- Openers: the dock button and `[data-tw-open]`, which is the "Ask my AI guide" button in #contact.
+- The panel is a non-modal dialog. Its header always shows "AI guide · not Javed himself · answers only from this site's verified facts". It has starter questions, answers with evidence chips (the hexagon glyph marks verified facts) and follow-up suggestions.
+- "Show me" minimises the panel to the dock (the transcript stays), plays a move, then calls `SHKSite.go(evidence)`. Certificate chips move the reel to that certificate; tool chips select that toolkit element (its bonds draw); project chips activate that work row; anchors scroll. Focus moves to the target and a spotlight ring marks it.
+- Mobile uses a bottom sheet. Reduced motion uses still poses, instant moves and no entrance animation.
+- The transcript, engine context and "hide for this visit" state live in `sessionStorage` (`tw:v1`, this tab only).
+
+**Modules (each one global; plain scripts, no build)**
+| File | Owner role | Notes |
+|---|---|---|
+| `twin/tw-boot.js` | Experience | Loader. It loads nothing while the hero is visible, then injects `tw.css`, the poster, `pangolin.js` and the idle/wave strips. Global `SHKTwin`. |
+| `twin/tw-app.js`, `twin/tw.css` | Experience | Panel, Shadow DOM, chips, focus, choreography, dock avoidance. Loads on the first hover, focus or click of an opener. |
+| `twin/pangolin.js` | Character | Sprite player (`SHKPangolin`). Timer clock, not rAF; per-row ground and scale corrections; 16 look directions; pauses when hidden. |
+| `twin/sprites/*.webp`, `manifest.json` | Character | Built from the official ChatGPT-pet v2 sheet (1536×2288, 192×208 cells) by `tools/build_twin_sprites.py <sheet>`. A new sheet can be dropped in by re-running the tool. `running-right` is mirrored from `running-left`. |
+| `twin/engine.js` | Engine | Local deterministic answers (`SHKTwinEngine`). Pipeline: normalise, Hinglish/synonym map, typo-tolerant tokens, intent rules, BM25 over facts and aliases, context resolution, templated grounded answers. Every sentence comes from a KB fact; output is text segments rendered with textContent only. |
+| `twin/knowledge.json` | Knowledge | 158 facts, 55 entities, 57 evidence targets, 12 refusals, 5 starters. Built and checked by `tools/build_twin_kb.py` (`--check` compares the KB against index.html and fails on drift, broken targets, or phone-number patterns). |
+| `index.html` | Lead | `window.SHKSite.go` hooks in the work-index, certificate-reel and toolkit modules; the `twin/tw-boot.js` script tag; the "Ask my AI guide" button. |
+
+**Rules the guide follows**
+- It speaks as the guide, about "Javed" in the third person. It never claims to be Javed, the ChatGPT pet, or human.
+- The site is canonical. Resume-only facts are kept only when not contradicted, and are phrased "his resume also notes…". Raw resume text is never indexed, because it contains the phone number.
+- It politely declines unknown and personal questions (salary, phone, notice period, relocation, languages, …) and points to email.
+- Moods: `review` for answers; `failed` only for "can't verify"; `idle` for polite refusals; `waiting` for clarification.
+
+**Tests**
+- `node --test tests/twin/engine.test.mjs` runs hard gates (traceability, identity, evidence resolution, refusals, answerable follow-ups, no phone pattern, determinism, mood mapping) and score targets (intent, top-3 fact, Hinglish, typos, p95 latency) on `tests/twin/eval.json` (91 items).
+- `python3 tools/build_twin_kb.py --check` checks the KB against the site.
+- `tests/twin/e2e.mjs` is the browser suite (Playwright; usage in its header). It is read-only and covers budgets, entrance, real typed conversation, evidence navigation, persistence, privacy, axe, keyboard, reduced motion, layout sweeps at 1440/1024/390/320/390×667, the dialog and menu layering, and errors.
+- Verified results (2026-10-26):
+  - engine tests: 16/16; all eval scores 100% on 91 items plus generated typos; p95 under 1 ms
+  - KB check: 0 errors, 0 warnings
+  - e2e: 95 passed, 2 failed. The 2 failures are the uncompressed byte totals on the local server (124.2 KB and 425.8 KB). The gzip estimates pass (entrance 89.4 KB ≤ 100; panel open 281.4 KB ≤ 350), and GitHub Pages serves gzip (`content-encoding: gzip` verified).
+  - regression probe against the pre-integration baseline: identical, except the mobile Contact height (+1 button); 0 console errors and 0 4xx.
+- Known cosmetic issue: on the full click path under reduced motion, "Show me" can settle in two instant steps about 20 ms apart while the destination's lazy images load. Direct `SHKSite.go` calls make a single jump.
+
+**Maintenance**
+- After editing site content, run `python3 tools/build_twin_kb.py` (then `--check`) and the engine tests.
+- Keep the `.work-row` and `.cert` order, the toolkit symbols, and the section ids stable; the evidence targets depend on them.
+
+**Future generative option (not enabled)**
+- A remote provider could be added behind the engine's `provider` switch. It would receive only the local top-k facts, and its citations would be validated, with a fallback to local.
+- The researched candidate is Cloudflare Workers AI: a free tier of 10,000 Neurons a day, roughly 470 short answers. It hard-fails at the cap rather than charging.
+- This needs the owner's Cloudflare account, a worker with a secret, an origin check and rate limits. No worker code ships in this repo.
+
 ## Known Issues
 
 - `shaikh_javed_DA.pdf` is a duplicate of `Shaikh_Javed_Data_Analyst.pdf`. It is kept because older shared links may point to it.
