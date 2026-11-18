@@ -158,7 +158,7 @@ async function lastBot(page) {
   return page.evaluate(() => {
     const all = document.querySelectorAll('#tw-panel .tw-msg--bot'), li = all[all.length - 1];
     if (!li) return null;
-    const chips = [...li.querySelectorAll('a.tw-chip, a.tw-inline')].map(a => {
+    const chips = [...li.querySelectorAll('a.tw-card__go, a.tw-chip, a.tw-inline')].map(a => {
       let ev = {}; try { ev = JSON.parse(a.getAttribute('data-ev')); } catch (e) { /* ignore */ }
       return { cls: a.className, kind: ev.kind, index: ev.index, select: ev.select, target: ev.target, href: a.getAttribute('href'), tgt: a.getAttribute('target'), rel: a.getAttribute('rel'), show: a.hasAttribute('data-show'), label: a.textContent.trim() };
     });
@@ -459,7 +459,9 @@ async function session() {
   const lsKeys1 = await page.evaluate(() => Object.keys(localStorage));
   const cookies = await talkCtx.cookies();
   const docCookie = await page.evaluate(() => document.cookie);
-  rec(G, 'nothing in localStorage / cookies', lsKeys1.length === lsKeys0.length && lsKeys1.length === 0 && cookies.length === 0 && docCookie === '', `localStorage ${JSON.stringify(lsKeys1)}, cookies ${cookies.length}, document.cookie "${docCookie}"`);
+  // Decision (2026-11): the only thing kept across visits is ONE "visited before" flag for "Look who's back!".
+  const lsOk = await page.evaluate(() => Object.keys(localStorage).every(k => k === 'tw:visited' && localStorage.getItem(k) === '1'));
+  rec(G, 'localStorage holds at most the visited flag; no cookies', lsOk && cookies.length === 0 && docCookie === '', `localStorage ${JSON.stringify(lsKeys1)}, cookies ${cookies.length}, document.cookie "${docCookie}"`);
 }
 
 /* =================================================================== 7. accessibility */

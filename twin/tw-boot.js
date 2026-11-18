@@ -49,10 +49,11 @@
   var zone = 'hero', mode = 'full', sampleTimer = 0, hintTimer = 0;
 
   /* ---------- live region (outside the panel, so it survives "hide") ---------- */
+  // Written at once, so the region is never left empty mid-update; a repeat of the same message gets a trailing
+  // no-break space so screen readers still hear it.
   function announce(text) {
-    if (!ui) return;
-    ui.live.textContent = '';
-    setTimeout(function () { ui.live.textContent = text; }, 60);
+    if (!ui || !text) return;
+    ui.live.textContent = ui.live.textContent === text ? text + ' ' : text;
   }
 
   /* ---------- dock ---------- */
@@ -73,6 +74,9 @@
           '</span></span>' +
         '</button>' +
       '</div>' +
+      '<div class="tw-strip" aria-hidden="true"></div>' +
+      '<div class="tw-scan" aria-hidden="true"><span class="tw-scan__label">Evidence scan</span></div>' +
+      '<p class="tw-say" aria-hidden="true"></p>' +
       '<p class="tw-sr" id="tw-live" aria-live="polite"></p>';
     d.body.appendChild(root);
     ui = {
@@ -83,6 +87,8 @@
       petHost: root.querySelector('.tw-pet'),
       hint: root.querySelector('.tw-hint'),
       spot: root.querySelector('.tw-spot'),
+      scan: root.querySelector('.tw-scan'),
+      say: root.querySelector('.tw-say'),
       live: root.querySelector('#tw-live')
     };
     ui.btn.addEventListener('click', function () { toggle(ui.btn); });
@@ -127,8 +133,74 @@
     if (deg > 150 && deg < 210) deg = deg < 180 ? 135 : 225;
     pet.look(deg);
   }
+  // Speech bubble: decorative (aria-hidden) one-liners beside wherever the pet stands right now. Lines queue: each
+  // stays at least 1.6 s before the next replaces it (reduced motion: same timing, no animation).
+  // hush(true) ends the current line once it has had its 1.6 s; hush() clears at once.
+  var sayTimer = 0, sayWait = 0, sayTok = 0, sayQ = [], cur = null, placer = null;
+  function hush(soft) {
+    if (!ui) return;
+    sayQ.length = 0; clearTimeout(sayWait);
+    if (soft && cur) { cur.ms = Math.min(cur.ms, 1600); arm(); return; }
+    cur = null; sayTok++; clearTimeout(sayTimer); ui.say.classList.remove('is-on');
+  }
+  function say(text, ms) {
+    if (!ui || !text) return;
+    sayQ.push([text, ms || 2600]);
+    if (sayQ.length > 2) sayQ.shift();
+    pump();
+  }
+  function pump() {
+    clearTimeout(sayWait);
+    if (!sayQ.length) return;
+    var left = cur ? (cur.at || Date.now()) + 1600 - Date.now() : 0;
+    if (left > 0) { sayWait = setTimeout(pump, left); return; }
+    var c = cur = { text: sayQ[0][0], ms: sayQ.shift()[1], at: 0 }, tok = ++sayTok;
+    clearTimeout(sayTimer);
+    ui.say.classList.remove('is-on');
+    // Two frames later: the phone sheet may still be growing with a new answer, and the pet rides on its header.
+    requestAnimationFrame(function () { requestAnimationFrame(function () { if (tok === sayTok) { c.at = Date.now(); place(c.text); arm(); } }); });
+  }
+  function arm() {
+    clearTimeout(sayTimer);
+    var c = cur;
+    if (c && c.at) sayTimer = setTimeout(function () { if (cur === c) { cur = null; ui.say.classList.remove('is-on'); pump(); } }, Math.max(0, c.at + c.ms - Date.now()));
+  }
+  function place(text) {
+    var b = ui.say, r = (pet && ui.petHost ? ui.petHost : ui.stage).getBoundingClientRect();
+    b.textContent = text;
+    b.className = 'tw-say';
+    // The panel / tour strip (tw-app) may pick a better spot: beside the pet in the strip, or right of the open chat.
+    var css = placer && placer(r, b);
+    if (!css) {
+      var bw = Math.min(260, Math.max(120, text.length * 7.2 + 28)), vw = w.innerWidth;
+      css = 'left:' + Math.round(Math.max(8, Math.min(vw - bw - 8, r.left + r.width / 2 - bw + 28))) + 'px;top:' + Math.round(Math.max(76, r.top - 14)) + 'px;max-width:' + bw + 'px';
+    }
+    b.style.cssText = css;
+    void b.offsetWidth;
+    b.classList.add('is-on');
+  }
+  // The pet changed place (tour strip / dock): the current line fades and comes back beside it.
+  function follow() {
+    var c = cur;
+    if (!c || !c.at) return;
+    ui.say.classList.remove('is-on');
+    setTimeout(function () { if (cur === c) place(c.text); }, 340);
+  }
+  // "Look who's back!": ONE flag in this browser (no chat, no date, no id), never sent anywhere.
+  function visitedBefore() { try { return w.localStorage.getItem('tw:visited') === '1'; } catch (e) { return false; } }
+  function markVisited() { try { w.localStorage.setItem('tw:visited', '1'); } catch (e) { /* storage blocked: fine */ } }
+  // While the pet tours the page: the full-size dock on wider screens; phones (≤640px) keep it small and it walks
+  // inside a slim strip along the bottom edge (tw.css), never over the text.
+  var touring = false, strip = w.matchMedia('(max-width: 640px)');
+  function setTouring(on) {
+    touring = !!on;
+    if (!ui) return;
+    ui.root.classList.toggle('is-touring', touring);
+    if (touring) { if (!strip.matches) setMode('full'); setTabY(0); } else sample();
+    follow();
+  }
   var lifeTimer = 0, lastDelight = 0;
-  function calm() { return !!pet && !rm() && !d.hidden && zone === 'page' && mode === 'full' && !state.hidden && !(app && app.isOpen()); }
+  function calm() { return !!pet && !touring && !rm() && !d.hidden && zone === 'page' && mode === 'full' && !state.hidden && !(app && app.isOpen()); }
   function scheduleLife() {
     clearTimeout(lifeTimer);
     lifeTimer = setTimeout(function () {
@@ -147,8 +219,10 @@
   d.addEventListener('click', function (e) {
     if (!e.target || !e.target.closest || !e.target.closest('.contact__copy')) return;
     var now = Date.now();
-    if (!pet || rm() || now - lastDelight < 30000 || zone !== 'page') return;
+    if (!pet || now - lastDelight < 30000 || zone !== 'page') return;
     lastDelight = now;
+    setTimeout(function () { say('Mission accomplished!'); }, rm() ? 0 : 260);
+    if (rm()) return;
     Promise.resolve(pet.preload(['jump'])).then(function (ok) { if (ok && pet) pet.play('jump', { loop: false }); }, function () {});
   });
 
@@ -165,12 +239,16 @@
     arrived = true;
     css().then(function () {
       build();
-      var first = !state.entered;
+      var first = !state.entered, back = first && visitedBefore();
       state = save({ entered: true });
+      markVisited();
       var greet = function () {
         mountPet().then(function (p) {
           if (!p) { if (first) showHint(); return; }
-          if (first && !rm()) {
+          if (back) {
+            if (!rm()) p.play('wave');
+            say('Look who\u2019s back!', 3000);
+          } else if (first && !rm()) {
             p.play('wave'); // a one-shot: the pet returns to idle by itself
             showHint();
           } else {
@@ -247,7 +325,7 @@
   var narrow = w.matchMedia('(max-width: 560px)');
   function sample() {
     sampleTimer = 0;
-    if (!ui || zone === 'hero' || (app && app.isOpen())) return;
+    if (!ui || touring || zone === 'hero' || (app && app.isOpen())) return;
     var r = ui.dock.getBoundingClientRect();
     // Phones: the full dock would sit on body text, so the compact tab is the default there.
     if (!narrow.matches && !pinned() && !hits(r.left, r.top, r.right, r.bottom)) { setMode('full'); setTabY(0); return; }
@@ -315,6 +393,11 @@
     ui: function () { return ui; },
     pet: function () { return pet; },
     lookToward: lookToward,
+    say: say,
+    hush: hush,
+    placer: function (fn) { placer = fn; },
+    touring: setTouring,
+    touringNow: function () { return touring; },
     petReady: function () { return petReady || mountPet(); },
     engine: function () { return engineReady; },
     setMode: function (m) { if (ui) setMode(m); },

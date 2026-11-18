@@ -124,6 +124,8 @@
     Object.keys(CUEVOCAB).concat(Object.keys(STOP), Object.keys(HING), Object.keys(GREET), Object.keys(THANKS), Object.keys(BYE)).forEach(function (w) { vocab[w] = 1; });
     refusals.forEach(function (r) { addVocab((r.triggers || []).join(' ')); });
     var vlist = Object.keys(vocab).filter(function (w) { return w.length >= 4 && /^[a-z]+$/.test(w); });
+    var nameSet = {}; entList.forEach(function (e) { words(norm(e.name + ' ' + (e.aliases || []).join(' '))).forEach(function (w) { nameSet[w] = 1; }); });
+    var nameList = vlist.filter(function (w) { return nameSet[w]; });
     var corpus = ' ' + facts.map(function (f) { return norm(f.text + ' ' + (f.tags || []).join(' ')); }).join(' ') + ' ';
 
     var docs = facts.map(function (f) {
@@ -326,8 +328,12 @@
         var m = HING[w] != null ? HING[w] : w;
         if (m !== w) { q = q.concat(words(m)); return; }
         if (!vocab[w] && /^[a-z]+$/.test(w) && w.length >= 4) {
+          // a word in a skill slot ("use React", "know Docker") or written as a proper noun may only be
+          // corrected towards a KB name, never towards an ordinary word ("react" must not become "reach")
+          var rawW = (clean.match(new RegExp('\\b' + w + '\\b', 'i')) || [w])[0];
+          var techSlot = /^(know|knows|use|uses|used|using|with|in|learn|learned|learnt|and|or)$/.test(all[i - 1] || '') || (/^[A-Z]/.test(rawW) && i > 0);
           var max = w.length >= 8 ? 2 : 1, best = null, bd = 9;
-          vlist.forEach(function (v) {
+          (techSlot ? nameList : vlist).forEach(function (v) {
             if (w.length === 4 && v.length < 5 && osa(w, v, 1) && v.split('').sort().join('') !== w.split('').sort().join('')) return;
             var d = osa(w, v, max);
             if (d <= max && (d < bd || (d === bd && ((v[0] === w[0]) - (best[0] === w[0]) > 0 || ((v[0] === w[0]) === (best[0] === w[0]) && (freq[v] || 0) > (freq[best] || 0)))))) { bd = d; best = v; }

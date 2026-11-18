@@ -251,6 +251,17 @@ test('multi-turn: an unknown term beats context', () => {
   }
 });
 
+test('typo tolerance never turns a tech term into an ordinary word', () => {
+  assert.equal(engine.askSync('how can I reach him', engine.newContext()).debug.intent, 'contact');
+  assert.equal(engine.askSync('how can I raech him', engine.newContext()).debug.intent, 'contact');
+  for (const q of ['does it use React?', 'Does he know React?']) {
+    const r = engine.askSync(q, engine.newContext());
+    assert.equal(r.refusal, 'unknown', q + ' -> ' + r.text);
+    assert.equal(r.mood, 'failed', q);
+  }
+  assert.equal(engine.askSync('does he know pyton and djnago', engine.newContext()).debug.intent, 'tool_detail');
+});
+
 /* ---------- score targets ---------- */
 test('score: intent >= 90%', () => assert.ok(pct(intentOk, withIntent.length) >= 90, `${pct(intentOk, withIntent.length)}%`));
 test('score: required fact in top 3 >= 90%', () => assert.ok(pct(factOk, factItems.length) >= 90, `${pct(factOk, factItems.length)}%`));

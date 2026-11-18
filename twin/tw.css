@@ -102,6 +102,45 @@ body.menu-open .tw-root{visibility:hidden}
 .tw-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.2rem .8rem;padding:0 1rem .7rem;color:var(--tw-muted);font:500 .66rem/1.4 var(--body,'Inter',sans-serif)}
 .tw-hide{min-height:2rem;padding:0;border:0;background:none;color:var(--tw-teal);font:600 .66rem/1.4 var(--body,'Inter',sans-serif);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 
+
+/* ---------- evidence card (compact proof) ---------- */
+.tw-card{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.75rem;margin:.75rem 0 0;padding:.8rem .85rem;border:1px solid rgba(0,77,64,.22);border-radius:14px;background:linear-gradient(180deg,rgba(215,221,186,.28),rgba(215,221,186,.1))}
+.tw-msg.is-new .tw-card{animation:tw-card-in 420ms var(--tw-ease) 120ms both}
+@keyframes tw-card-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tw-card__icon{display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:10px;background:var(--tw-ink);color:var(--tw-kale)}
+.tw-card__icon svg{width:1.6rem;height:1.6rem}
+.tw-card__txt{display:grid;gap:.2rem;min-width:0}
+.tw-card__cat{color:var(--tw-teal);font:600 .58rem/1.3 var(--mono,'JetBrains Mono',monospace);letter-spacing:.1em;text-transform:uppercase}
+.tw-card__title{color:var(--tw-ink);font:700 .95rem/1.25 var(--body,'Inter',sans-serif);overflow-wrap:anywhere}
+.tw-card__proof{margin:0;color:#3d4a45;font:400 .84rem/1.5 var(--body,'Inter',sans-serif)}
+.tw-card__go{justify-self:start;display:inline-flex;align-items:center;gap:.45rem;min-height:2.25rem;margin-top:.35rem;padding:.35rem .85rem;border-radius:999px;background:var(--tw-deep);color:var(--tw-paper);font:600 .64rem/1.2 var(--mono,'JetBrains Mono',monospace);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:background 200ms var(--tw-ease)}
+.tw-card__go:hover{background:var(--tw-ink)}
+.tw-card__arrow{transition:transform 200ms var(--tw-ease)}
+.tw-card__go:hover .tw-card__arrow{transform:translateX(3px)}
+
+/* ---------- speech bubble (decorative one-liners) ---------- */
+.tw-say{position:fixed;z-index:46;margin:0;padding:.5rem .8rem;border:1px solid var(--tw-deep);border-radius:14px 14px 4px 14px;background:var(--tw-paper);color:var(--tw-ink);font:600 .78rem/1.3 var(--body,'Inter',sans-serif);box-shadow:0 10px 26px rgba(0,37,26,.2);pointer-events:none;opacity:0;transform:translateY(calc(-100% + 6px)) scale(.94);transform-origin:80% 100%;transition:opacity 220ms var(--tw-ease),transform 260ms cubic-bezier(.3,1.4,.5,1)}
+.tw-say.is-on{opacity:1;transform:translateY(-100%)}
+/* beside the pet (phone tour strip, or left of the pet when the chat sits above it): vertically centred on it */
+.tw-say.is-side{transform:translateY(-50%) scale(.94);transform-origin:100% 50%}
+.tw-say.is-side.is-on{transform:translateY(-50%)}
+.tw-say.is-right{border-radius:14px 14px 14px 4px;transform-origin:0 50%}
+body.menu-open .tw-say{visibility:hidden}
+
+/* ---------- evidence scan: one kale line sweeps toward the evidence ---------- */
+.tw-scan{position:fixed;left:0;right:0;top:0;z-index:38;height:96px;pointer-events:none;opacity:0;background:linear-gradient(180deg,rgba(215,221,186,0),rgba(215,221,186,.16) 70%,rgba(215,221,186,.42));border-bottom:2px solid var(--tw-kale);box-shadow:0 1px 0 rgba(0,77,64,.55);transform:translateY(-110%)}
+.tw-scan.is-on{animation:tw-scan-down 760ms cubic-bezier(.45,0,.25,1) both}
+.tw-scan.is-on.is-up{animation-name:tw-scan-up;background:linear-gradient(0deg,rgba(215,221,186,0),rgba(215,221,186,.16) 70%,rgba(215,221,186,.42));border-bottom:0;border-top:2px solid var(--tw-kale);box-shadow:0 -1px 0 rgba(0,77,64,.55)}
+@keyframes tw-scan-down{0%{opacity:0;transform:translateY(-100%)}12%{opacity:1}88%{opacity:1}100%{opacity:0;transform:translateY(100vh)}}
+@keyframes tw-scan-up{0%{opacity:0;transform:translateY(100vh)}12%{opacity:1}88%{opacity:1}100%{opacity:0;transform:translateY(-100%)}}
+.tw-scan__label{position:absolute;left:clamp(16px,4vw,48px);bottom:8px;padding:.2rem .45rem;border-radius:6px;background:var(--tw-ink);color:var(--tw-kale);font:600 .58rem/1.3 var(--mono,'JetBrains Mono',monospace);letter-spacing:.12em;text-transform:uppercase}
+.tw-scan.is-up .tw-scan__label{bottom:auto;top:8px}
+
+/* ---------- tour: the full-size pet walks along the bottom edge, above the open chat ---------- */
+.tw-root.is-touring .tw-dock{z-index:44}
+.tw-root.is-touring .tw-hint{display:none}
+.tw-strip{display:none}
+
 /* ---------- mid widths: the panel sits above the dock ---------- */
 @media (max-width:900px) and (min-width:641px){
   .tw-panel{right:calc(var(--tw-r) + env(safe-area-inset-right,0px));bottom:calc(var(--tw-b) + 120px + env(safe-area-inset-bottom,0px));width:min(420px,calc(100vw - 32px));max-height:calc(100svh - 4.5rem - 150px)}
@@ -135,12 +174,23 @@ body.menu-open .tw-root{visibility:hidden}
   .tw-fu{min-height:2.75rem}
   .tw-hide{flex:none;min-height:2.25rem}
   .tw-hint{bottom:38px}
+  /* tour: a slim strip slides up along the bottom edge; the small pet walks inside it, never over the text */
+  .tw-strip{display:block;position:fixed;left:0;right:0;bottom:0;z-index:43;height:calc(68px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--tw-line);background:var(--tw-paper);box-shadow:0 -8px 24px rgba(0,37,26,.1);pointer-events:none;visibility:hidden;transform:translateY(100%);transition:transform 320ms var(--tw-ease),visibility 0s linear 320ms}
+  .tw-root.is-touring:not([data-open]) .tw-strip{visibility:visible;transform:none;transition:transform 320ms var(--tw-ease),visibility 0s}
+  .tw-root.is-touring:not([data-open]) .tw-dock{right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(4px + env(safe-area-inset-bottom,0px));width:60px;height:64px}
+  .tw-root.is-touring:not([data-open]) .tw-dock .tw-dock__btn{right:0;width:60px;height:64px;overflow:visible;transform:none;background:transparent;box-shadow:none;border-radius:14px}
+  .tw-root.is-touring:not([data-open]) .tw-dock .tw-stage{left:0;bottom:0;transform-origin:0 100%;transform:scale(.6)}
+  .tw-root.is-touring:not([data-open]) .tw-dock .tw-disc{opacity:0}
+  body.menu-open .tw-strip{visibility:hidden}
 }
 @keyframes tw-sheet-in{from{transform:translateY(100%)}to{transform:none}}
 
 /* ---------- reduced motion: nothing moves ---------- */
 @media (prefers-reduced-motion:reduce){
   .tw-dock,.tw-dock__btn,.tw-stage,.tw-hint,.tw-chip,.tw-panel,.tw-msg.is-new,.tw-root[data-zone="hero"]:not([data-open]) .tw-dock{animation:none!important;transition:none!important}
+  .tw-say,.tw-card,.tw-msg.is-new .tw-card,.tw-card__arrow{animation:none!important;transition:none!important}
+  .tw-scan{display:none}
+  .tw-strip,.tw-root.is-touring:not([data-open]) .tw-strip{transition:none!important}
   .tw-spot.is-on{animation:none;opacity:1}
   .tw-dots i{animation:none;opacity:.6}
 }

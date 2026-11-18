@@ -162,15 +162,49 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
 | `twin/knowledge.json` | Knowledge | 158 facts, 55 entities, 57 evidence targets, 12 refusals, 5 starters. Built and checked by `tools/build_twin_kb.py` (`--check` compares the KB against index.html and fails on drift, broken targets, or phone-number patterns). |
 | `index.html` | Lead | `window.SHKSite.go` hooks in the work-index, certificate-reel and toolkit modules; the `twin/tw-boot.js` script tag; the "Ask my AI guide" button. |
 
+**Animation plan (Nov 2026, decided with the owner)**
+- **Energy:** calm idle (breathing, blinking, a glance every 11–16 s while docked) with energetic reactions only on events. Nothing random.
+- **Listening and attention:** the pet looks toward the input while the visitor types and settles after a pause. It looks up on dock hover or focus, and waves when the chat opens.
+- **Evidence Scan** runs only for a confident answer (`kind:'answer'`, mood `review`, an internal target):
+  1. The thinking pose (`working`, ≥520 ms).
+  2. The compact **evidence card**: a mini poster icon for projects (hexagon otherwise), the category (Project / Certificate / Skill / Experience / Education / Leadership / About), the title, one verified proof sentence and an action button (Explore Project / View Certificate / See in Toolkit / …).
+     - The proof is a different, preferably numeric, knowledge-base fact about the same entity than the one the answer already states.
+     - Repo links and tool lists stay as chips.
+  3. An "Aha! Found something." bubble (variants include the Hinglish "Arre, found something!").
+  4. About 0.9 s later, the automatic tour:
+     - a kale **Evidence scan** line sweeps across the page toward the section;
+     - `SHKSite.go` moves the page once (instant for long distances);
+     - the spotlight appears;
+     - the pet **walks along the bottom edge** toward the evidence. On desktop it walks up to 620 px across the page, passing in front of the open chat. On phones a slim paper strip slides up from the bottom and the small pet walks inside it, with its bubble beside it, so it never covers page text;
+     - it looks at the evidence and says "Here's the proof." (the first project of the visit gets a jump and "Now we're talking!");
+     - after 2.6 s it walks home.
+- **Visitor control:** a wheel, touch or keyboard scroll, or a new question, ends the tour at once; the pet goes straight home and the page is never moved again.
+- **Chat during a tour:** desktop keeps the chat open unless it would cover the evidence; phones minimise the sheet (one tap restores it). A manual Explore click during an automatic tour takes it over and moves focus to the evidence.
+- **Unknown or unverifiable:** a thoughtful head tilt, then the waiting pose, with "Umm… that's outside my territory." The sad `failed` row is no longer shown.
+- **Other lines:**
+  - "Bro, one mission at a time!" when asking while it's busy;
+  - "Mission accomplished!" with a jump on Copy email (at most once per 30 s);
+  - a rare "Oh sh*t, here we go again." on a complex question (long, or several questions or topics; at most once per visit);
+  - "Look who's back!" with a wave for a returning visitor.
+- **Speech bubble** (`.tw-say`):
+  - decorative (`aria-hidden`), placed beside wherever the pet stands, two frames after layout changes;
+  - lines queue, and each shows for at least 1.6 s;
+  - with the desktop chat open, it stays in the free column to the right of the panel;
+  - on phones it sits inside the strip.
+- **Spotlight:** anchor sections highlight their key card (not the whole section), clamped below the real header. `SHKSite.go` lands targets 16 px under the header as it looks after scrolling, measured from layout so reveal animations can't shift it.
+- **Storage:** the only thing kept across visits is ONE localStorage flag, `tw:visited = "1"`, for "Look who's back!". There is no chat, date or ID, it's never sent anywhere, and the chat footer says so. Everything else stays in `sessionStorage`.
+- **Reduced motion:** still poses only, no scan, no walking, instant moves; bubbles and the card appear without animation.
+
 **Rules the guide follows**
 - It speaks as the guide, about "Javed" in the third person. It never claims to be Javed, the ChatGPT pet, or human.
 - The site is canonical. Resume-only facts are kept only when not contradicted, and are phrased "his resume also notes…". Raw resume text is never indexed, because it contains the phone number.
 - It politely declines unknown and personal questions (salary, phone, notice period, relocation, languages, …) and points to email.
-- Moods: `review` for answers; `failed` only for "can't verify"; `idle` for polite refusals; `waiting` for clarification.
+- Engine moods: `review` for answers; `failed` for "can't verify" (the UI shows it as the thoughtful tilt + `waiting`); `idle` for polite refusals; `waiting` for clarification.
 
 **Tests**
 - `node --test tests/twin/engine.test.mjs` runs hard gates (traceability, identity, evidence resolution, refusals, answerable follow-ups, no phone pattern, determinism, mood mapping) and score targets (intent, top-3 fact, Hinglish, typos, p95 latency) on `tests/twin/eval.json` (91 items).
 - `python3 tools/build_twin_kb.py --check` checks the KB against the site.
+- `tests/twin/mascot.mjs` is the browser suite for the animation plan (34 checks: welcome, listening, attention, ambient, thinking → review, thoughtful unknown, card, scan, tour out and back, manual-scroll respect, busy line, email delight, return visitor, mobile look angles, reduced motion).
 - `tests/twin/e2e.mjs` is the browser suite (Playwright; usage in its header). It is read-only and covers budgets, entrance, real typed conversation, evidence navigation, persistence, privacy, axe, keyboard, reduced motion, layout sweeps at 1440/1024/390/320/390×667, the dialog and menu layering, and errors.
 - Verified results (2026-10-26):
   - engine tests: 16/16; all eval scores 100% on 91 items plus generated typos; p95 under 1 ms
