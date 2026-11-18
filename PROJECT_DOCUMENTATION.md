@@ -217,10 +217,29 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
 - After editing site content, run `python3 tools/build_twin_kb.py` (then `--check`) and the engine tests.
 - Keep the `.work-row` and `.cert` order, the toolkit symbols, and the section ids stable; the evidence targets depend on them.
 
-**Future generative option (not enabled)**
-- A remote provider could be added behind the engine's `provider` switch. It would receive only the local top-k facts, and its citations would be validated, with a fallback to local.
-- The researched candidate is Cloudflare Workers AI: a free tier of 10,000 Neurons a day, roughly 470 short answers. It hard-fails at the cap rather than charging.
-- This needs the owner's Cloudflare account, a worker with a secret, an origin check and rate limits. No worker code ships in this repo.
+**Gemini phrasing (Nov 2026, owner's decision: Cloudflare Worker proxy)**
+- **Hybrid:** the local engine always answers first. Gemini is called **only** when the local result is a verified answer (`kind:'answer'`) whose facts contain no URL or email. Refusals, unknowns, greetings, clarifications and repo/contact answers never leave the page.
+- **Request path:** the browser sends `{ v:1, q, factIds }` (the question plus up to 6 ids of the facts the local engine used, never fact text, no cookies) to the worker at the URL in `index.html` (`data-tw-endpoint` on the `twin/tw-boot.js` script tag).
+  - The worker (`worker/`, Cloudflare Workers Free) holds the key as a Cloudflare secret.
+  - It loads the fact text itself from the live `twin/knowledge.json` and asks Gemini (`gemini-3.5-flash-lite`, Interactions API, `store:false`) to reword only those facts.
+  - It validates the reply.
+  - It also enforces an origin allow-list (`https://shk-javed.github.io`), per-IP and daily limits, and never logs questions.
+- **What Gemini changes:** only the answer **text**. The evidence card (word-for-word proof line), chips, follow-ups, auto-tour and moods stay local.
+- **Timing (local first):** Gemini gets a 1.5 s head start. After that the local answer shows. A later vetted reply (up to 10 s; the worker's own budget is `TIMEOUT_MS`, 9 s) fades in over only the answer text, with a small "Phrased by Gemini" label, while that answer is still the latest. Measured in Nov 2026: Flash-Lite on the free tier took 1.5–9 s, with some 503s; `gemini-3.5-flash` returned 503 (overloaded).
+- **Checks (worker and browser):** any of these falls back to the local answer, silently:
+  - an empty reply or one over 600 characters;
+  - uncited or unsent ids;
+  - a number or date not in the facts;
+  - a URL, an email, or a phone pattern;
+  - a first-person claim to be Javed, or to be human;
+  - markdown;
+  - a 10 s timeout, a quota or upstream error, or a blocked origin.
+- **Live:** `data-tw-endpoint="https://shk-javed-twin.shaikhjaved.workers.dev"`. Setting it to `""` makes the guide fully local again. The local test suites blank or stub it, so no test reaches the real worker.
+- **Privacy:** with an endpoint, the footer reads *"Answers use only this site's verified facts. To phrase replies, your question is sent to Google Gemini — don't share personal info."* A **Local mode** switch (session only) keeps everything on the page.
+- **Cost:** ₹0. Cloudflare Workers Free allows 100,000 requests a day and stops at the cap. Google AI Studio with billing **off** makes the free quota the hard cap. Setup and the off switch are in `worker/README.md`.
+- **Tests:**
+  - `node worker/test.mjs`: 31 offline checks with a mocked Gemini;
+  - `tests/twin/remote.mjs`: 29 browser checks with a mocked worker.
 
 ## Known Issues
 

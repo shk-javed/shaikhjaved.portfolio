@@ -2,7 +2,9 @@
    Loaded with `defer`. While the hero is on screen it only listens: no CSS, no images and no other scripts load.
    When the visitor leaves the hero, it injects tw.css, slides the poster dock in once per session and mounts the pangolin.
    The panel (tw-app.js), engine.js and knowledge.json load on the first hover, focus or click on an opener.
-   Globals: window.SHKTwin only. State: sessionStorage "tw:v1" (tab only, never sent anywhere). */
+   Globals: window.SHKTwin only. State: sessionStorage "tw:v1" (tab only, never sent anywhere).
+   Optional phrasing endpoint: data-tw-endpoint on this script tag (https only; http://localhost / 127.0.0.1 for testing).
+   Empty = everything stays on the page. */
 (function () {
   'use strict';
   var w = window, d = document;
@@ -12,6 +14,17 @@
   var KEY = 'tw:v1', RMQ = w.matchMedia ? w.matchMedia('(prefers-reduced-motion: reduce)') : null;
   var INTERACTIVE = 'a[href],button,input,select,textarea,summary,label,[tabindex]:not([tabindex="-1"]),[contenteditable="true"],.cert-foot';
   var rm = function () { return !!(RMQ && RMQ.matches); };
+  // The Gemini phrasing proxy (tw-app.js uses it only for verified answers, and never in Local mode).
+  var ENDPOINT = (function (tag) {
+    var raw = tag && tag.dataset ? String(tag.dataset.twEndpoint || '').trim() : '';
+    if (!raw) return '';
+    try {
+      var u = new URL(raw);
+      if (u.username || u.password) return '';
+      if (u.protocol === 'https:' || (u.protocol === 'http:' && (u.hostname === 'localhost' || u.hostname === '127.0.0.1'))) return u.href;
+    } catch (e) { /* not a URL: stay local */ }
+    return '';
+  })(d.querySelector('script[src$="tw-boot.js"]') || me);
 
   function read() { try { return JSON.parse(sessionStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
   function save(patch) {
@@ -389,7 +402,7 @@
   }
 
   var kit = {
-    base: BASE, js: js, json: json, read: read, save: save, rm: rm, announce: announce,
+    base: BASE, js: js, json: json, read: read, save: save, rm: rm, announce: announce, endpoint: ENDPOINT,
     ui: function () { return ui; },
     pet: function () { return pet; },
     lookToward: lookToward,

@@ -86,6 +86,9 @@ const kb = n => (n / 1024).toFixed(1) + ' KB';
 /* ---------------- in-page instrumentation ---------------- */
 function INIT() {
   window.__tw = { ls: [], entering: 0, sprites: {}, ls0: null };
+  // index.html points at the live Gemini proxy; these runs stay local: a call to it gets ok:false (the local answer)
+  // and nothing leaves the machine. A fetch stub, not page.route, since routing disables the HTTP cache budgets use.
+  const f0 = window.fetch; window.fetch = function (u) { return /\.workers\.dev\//.test(String(u)) ? Promise.resolve(new Response('{"ok":false,"reason":"test"}', { headers: { 'Content-Type': 'application/json' } })) : f0.apply(this, arguments); };
   try { performance.setResourceTimingBufferSize(5000); } catch (e) { /* ignore */ }
   try {
     new PerformanceObserver(list => {

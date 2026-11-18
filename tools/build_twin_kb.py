@@ -336,7 +336,7 @@ fact("f.contact.availability", "person", "availability", "The site doesn't say w
 # the guide itself
 fact("f.twin.what", "twin", "twin_meta", "SHK JAVED is an AI guide, not Javed himself, and it answers only from this site's verified facts.", "twin",
      [], [], ["who are you", "are you javed", "are you human", "bot", "ai"], "meta")
-fact("f.twin.privacy", "twin", "twin_meta", "The guide runs entirely in this browser tab, sends nothing over the network and keeps the chat only until the tab closes.", "twin",
+fact("f.twin.privacy", "twin", "twin_meta", "The guide finds answers in this browser tab from verified facts; when Gemini phrasing is on, the question and those facts go to Google Gemini, and Local mode keeps everything on the page.", "twin",
      [], [], ["privacy", "data", "tracking", "store", "saved"], "meta")
 fact("f.twin.scope", "twin", "twin_meta", "The guide can answer questions about Javed's roles, projects, education, leadership, certificates, toolkit and contact details.", "twin",
      [], [], ["help", "what can you do", "topics"], "meta")

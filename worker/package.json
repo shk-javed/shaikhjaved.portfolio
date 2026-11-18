@@ -1,0 +1,9 @@
+{
+  "name": "shk-javed-twin",
+  "private": true,
+  "type": "module",
+  "description": "Gemini proxy for the SHK JAVED portfolio guide. No dependencies; wrangler runs through npx.",
+  "scripts": {
+    "test": "node test.mjs"
+  }
+}

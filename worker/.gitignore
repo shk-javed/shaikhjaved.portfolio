@@ -1,0 +1,8 @@
+# Local secrets for `wrangler dev` (GEMINI_API_KEY lives here only on your machine)
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+# Wrangler and npm caches
+.wrangler/
+node_modules/

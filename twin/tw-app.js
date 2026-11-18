@@ -30,6 +30,33 @@
   var PHONE = w.matchMedia('(max-width: 640px)');
   var HEX = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.2 13.9 4.6v6.8L8 14.8 2.1 11.4V4.6Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m5.4 8.1 1.8 1.8 3.5-3.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+  /* ---------- optional Gemini phrasing (kit.endpoint; empty = fully local) ----------
+     Only a verified local answer (kind 'answer') is sent: the question and its fact ids, nothing else. Gemini only
+     rewrites the answer text; card, chips, follow-ups, target, tour and moods stay local. Gemini gets a short head
+     start (HEAD_MS); after that the local answer shows and a later vetted reply swaps in only the answer text, while
+     that answer is still the latest. Any failure, a 10 s timeout or a reply that fails the checks below leaves the
+     local answer unchanged. The question is never logged. */
+  var LOCAL_LINE = 'Answers are built on this page. Nothing you type leaves it; this browser only remembers that you’ve visited.';
+  var REMOTE_LINE = 'Answers use only this site’s verified facts. To phrase replies, your question is sent to Google Gemini — don’t share personal info.';
+  var REMOTE_MS = 10000, HEAD_MS = 1500, MAX_IDS = 6, MAX_Q = 500, MAX_ANS = 600, LATE = {};
+  var PHONE_RE = (function () { try { return new RegExp('(?:\\+?91[\\s-]*)?(?<![\\d,.])[6-9]\\d{4}[\\s-]?\\d{5}(?!\\d)'); } catch (e) { return null; } })(); // no lookbehind: stay local
+  var URLISH = /\b(?:https?:\/\/|www\.)|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|in|io|org|net|dev|app|ai|co|me|ly|xyz|info|site|tech|page|link|gg|us|uk)\b(?!\.\w)|@/i;
+  var SELF = /\b(?:i\s+am|i['’]m|my\s+name\s+is)\s+(?:mr\.?\s+)?(?:shaikh\s+)?javed(?![’'\w])|\b(?:i\s+am|i['’]m)\s+(?:an?\s+)?(?:real\s+|actual\s+)?(?:human|person|man|guy)\b|\b(?:i\s+am|i['’]m)\s+not\s+(?:an?\s+)?(?:ai|bot|robot|machine)\b|\b(?:my|our)\s+(?:projects?|work|resume|cv|certificates?|certifications?|role|job|toolkit|skills?|education|degree|internships?|experience|portfolio|github)\b|\bI\s+(?:built|made|created|developed|designed|studied|graduated|worked|work|completed|earned|hold|led|joined|automated)\b/i;
+  var MD = /[*`]|__|\[[^\]\n]*\]\([^)\n]*\)|^\s{0,3}(?:#{1,6}\s|[-+]\s|\d+[.)]\s|>)|(?:^|\s)_[^_\s][^_\n]*_(?=[\s.,!?]|$)|<\/?[a-z][^>]*>|^\s*\|.*\|\s*$/m;
+  var NUMW = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90, hundred: 100, thousand: 1000, lakh: 1e5, million: 1e6, crore: 1e7 };
+  var MONTH = /^(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|june?|july?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)$/;
+  // Number and date tokens, normalised so "8" = "eight", "10,000" = "10000" and "August" = "Aug" ("may" counts only before a number).
+  function numTokens(s) {
+    var out = [], re = /\d+(?:[.,]\d+)*|[a-z]+/gi, m, t;
+    while ((m = re.exec(s))) {
+      t = m[0].toLowerCase();
+      if (/^\d/.test(t)) out.push(t.replace(/,/g, '').replace(/^0+(?=\d)/, ''));
+      else if (NUMW[t]) out.push(String(NUMW[t]));
+      else if (MONTH.test(t) || (t === 'may' && /^\s*\d/.test(s.slice(re.lastIndex)))) out.push(t.slice(0, 3));
+    }
+    return out;
+  }
+
   T.__app = function (kit) {
     var ui = kit.ui(), panel, log, body, typing, input, form, sendBtn, opener = null, busy = false, navBusy = false;
     var kb = null, engine = null, ctx = (function (c) { return c && typeof c === 'object' ? c : null; })(kit.read().ctx), msgs = (kit.read().msgs || []).slice(-MAX_MSGS), spotTimer = 0, spotScroll = null;
@@ -63,8 +90,11 @@
           '<input class="tw-input" id="tw-input" type="text" maxlength="280" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" placeholder="Ask about his work, projects, tools…">' +
           '<button type="submit" class="tw-send" aria-label="Send"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h9.5M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
         '</form>' +
-        '<div class="tw-foot"><span>Answers are built on this page. Nothing you type leaves it; this browser only remembers that you’ve visited.</span><button type="button" class="tw-hide">Hide for this visit</button></div>';
+        '<div class="tw-foot' + (kit.endpoint ? ' has-local' : '') + '"><span class="tw-foot__txt"></span>' +
+          (kit.endpoint ? '<button type="button" class="tw-local" aria-pressed="false">Local mode</button>' : '') +
+          '<button type="button" class="tw-hide">Hide for this visit</button></div>';
       panel.querySelector('.tw-note').textContent = NOTE;
+      syncFoot();
       ui.root.insertBefore(panel, ui.dock); // before the dock, so the phone sheet can seat the pet in its header
       log = panel.querySelector('.tw-log');
       body = panel.querySelector('.tw-body');
@@ -75,6 +105,13 @@
 
       panel.querySelector('.tw-x').addEventListener('click', function () { close(true); });
       panel.querySelector('.tw-hide').addEventListener('click', hide);
+      var lm = panel.querySelector('.tw-local');
+      if (lm) lm.addEventListener('click', function () {
+        var on = !kit.read().local;
+        kit.save({ local: on });
+        syncFoot();
+        kit.announce(on ? 'Local mode on. Your questions stay on this page.' : 'Local mode off. Questions are sent to Google Gemini for phrasing.');
+      });
       form.addEventListener('submit', function (e) { e.preventDefault(); var q = input.value; if (ask(q)) input.value = ''; });
       panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); } });
       panel.addEventListener('click', onPanelClick);
@@ -110,10 +147,52 @@
         if (!engine) {
           engine = x.E.create(x.kb, { provider: 'local' });
           kb = x.kb;
+          (kb.facts || []).forEach(function (f) { if (f && typeof f.id === 'string') facts[f.id] = f; });
           if (!ctx) ctx = engine.newContext(); // the stored ctx (restored at start) wins, so "tell me more" survives a reload
         }
         return engine;
       });
+    }
+
+    /* ---------- optional phrasing (see the note at the top) ---------- */
+    var facts = {};
+    function remoteOn() { return !!kit.endpoint && !kit.read().local && !!PHONE_RE && !!w.fetch && !!w.AbortController; }
+    function syncFoot() {
+      panel.querySelector('.tw-foot__txt').textContent = remoteOn() ? REMOTE_LINE : LOCAL_LINE;
+      var lm = panel.querySelector('.tw-local');
+      if (lm) lm.setAttribute('aria-pressed', kit.read().local ? 'true' : 'false');
+    }
+    // 1..6 verified fact ids behind the local answer (resume-only facts are never sent).
+    function factIdsOf(r) {
+      var ids = r.debug && r.debug.factIds && r.debug.factIds.length ? r.debug.factIds : (r.evidence || []).map(function (e) { return e && e.factId; }), out = [];
+      ids.forEach(function (id) { var f = typeof id === 'string' ? facts[id] : null; if (f && f.status !== 'resume_only' && out.indexOf(id) < 0 && out.length < MAX_IDS) out.push(id); });
+      return out;
+    }
+    // Defence in depth: the proxy validates too, but a reply is shown only if it passes these checks here.
+    function vetted(j, ids) {
+      if (!j || j.ok !== true || typeof j.answer !== 'string' || !Array.isArray(j.used) || !j.used.length) return null;
+      var a = j.answer.trim();
+      if (!a || a.length > MAX_ANS) return null;
+      if (j.used.some(function (id) { return ids.indexOf(id) < 0; })) return null;
+      if (URLISH.test(a) || PHONE_RE.test(a) || SELF.test(a) || MD.test(a)) return null;
+      var known = {};
+      numTokens(ids.map(function (id) { return facts[id].text; }).join(' ')).forEach(function (t) { known[t] = 1; });
+      if (numTokens(a).some(function (t) { return !known[t]; })) return null;
+      return a.replace(/\s+/g, ' ');
+    }
+    // Resolves the vetted text, or null for "show the local answer". Never rejects, never logs.
+    function phrase(q, r) {
+      if (!remoteOn() || !r || r.kind !== 'answer') return Promise.resolve(null);
+      var ids = factIdsOf(r);
+      // Repo and contact facts carry a URL or email, which no reply may contain: don't spend a call on them.
+      if (!ids.length || ids.some(function (id) { return URLISH.test(facts[id].text); })) return Promise.resolve(null);
+      var ac = new AbortController(), timer = setTimeout(function () { ac.abort(); }, REMOTE_MS);
+      return Promise.resolve().then(function () {
+        return fetch(kit.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'omit', signal: ac.signal, body: JSON.stringify({ v: 1, q: q.slice(0, MAX_Q).trim(), factIds: ids }) });
+      }).then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (j) { return vetted(j, ids); })
+        .catch(function () { return null; })
+        .then(function (a) { clearTimeout(timer); return a; });
     }
 
     /* ---------- rendering (textContent only) ---------- */
@@ -200,6 +279,7 @@
           } else p.appendChild(d.createTextNode(s.v));
         });
         li.appendChild(p);
+        if (m.gem) li.appendChild(el('span', 'tw-ans__by', 'Phrased by Gemini'));
         var card = m.card ? renderCard(r, m.card) : null;
         if (card) li.appendChild(card);
         if (r.evidence && r.evidence.length) {
@@ -259,6 +339,16 @@
       var li = render(m, true, true);
       reveal(li);
       return li;
+    }
+    // A late Gemini reply swaps only the answer text of the latest message; card, chips, follow-ups and tour stay.
+    function upgrade(m, a) {
+      m.r.text = a; m.r.segments = [{ t: 'text', v: a }]; m.gem = true;
+      persist();
+      var lis = log.querySelectorAll('.tw-msg--bot'), li = lis[lis.length - 1], p = li && li.querySelector('.tw-ans');
+      if (!p) return;
+      p.textContent = a;
+      if (!li.querySelector('.tw-ans__by')) p.insertAdjacentElement('afterend', el('span', 'tw-ans__by', 'Phrased by Gemini'));
+      if (!kit.rm()) { p.classList.remove('is-swap'); void p.offsetWidth; p.classList.add('is-swap'); }
     }
 
     /* ---------- conversation ---------- */
@@ -333,21 +423,29 @@
       if (p) p.play('working', { loop: true });
       if (complex(q) && !kit.read().gta) { kit.save({ gta: true }); setTimeout(function () { kit.say('Oh sh*t, here we go again.', 2400); }, 120); }
       var t0 = Date.now(), minWait = kit.rm() ? 150 : 520;
+      var alt = null, late = null; // the vetted Gemini phrasing (text only); late = still on its way when the answer showed
       getEngine().then(function (E) {
         return E.ask(q, ctx);
+      }).then(function (r) {
+        // Gemini gets a short head start; a slower reply upgrades the shown answer in place when it lands.
+        var pending = phrase(q, r), head = new Promise(function (ok) { setTimeout(function () { ok(LATE); }, Math.max(0, HEAD_MS - (Date.now() - t0))); });
+        return Promise.race([pending, head]).then(function (a) { if (a === LATE) late = pending; else alt = a; return r; });
       }).then(function (r) {
         return new Promise(function (ok) { setTimeout(function () { ok(r); }, Math.max(0, minWait - (Date.now() - t0))); });
       }).then(function (r) {
         r = r || {};
-        var m = { role: 'bot', r: { kind: r.kind, text: r.text, segments: r.segments, evidence: r.evidence, followUps: r.followUps, target: r.target ? { evidence: r.target.evidence || null } : null } }; // never r.debug: it holds the visitor's question
+        var text = alt || r.text, segs = alt ? [{ t: 'text', v: alt }] : r.segments;
+        var m = { role: 'bot', r: { kind: r.kind, text: text, segments: segs, evidence: r.evidence, followUps: r.followUps, target: r.target ? { evidence: r.target.evidence || null } : null } }; // never r.debug: it holds the visitor's question
         // Evidence Scan runs only for a confident answer that has verified evidence and a section to show.
         var goEv = r.kind === 'answer' && r.mood === 'review' && r.target && r.target.evidence ? evidenceFor(r, r.target.evidence) : null;
         if (goEv && !isInternal(goEv)) goEv = null;
         var c = goEv ? cardFor(r, goEv) : null;
         if (c) m.card = c;
+        if (alt) m.gem = true;
         setTyping(false);
         push(m);
-        kit.announce('SHK JAVED: ' + (r.text || '') + (r.evidence && r.evidence.length ? ' ' + r.evidence.length + (r.evidence.length === 1 ? ' evidence link' : ' evidence links') + ' below.' : ''));
+        if (late) late.then(function (a) { if (a && msgs[msgs.length - 1] === m && remoteOn()) upgrade(m, a); });
+        kit.announce('SHK JAVED: ' + (text || '') + (r.evidence && r.evidence.length ? ' ' + r.evidence.length + (r.evidence.length === 1 ? ' evidence link' : ' evidence links') + ' below.' : ''));
         var mine = msgs.length;
         if (r.mood === 'failed') { ponder(); return; }
         if (goEv) {

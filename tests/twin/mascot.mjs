@@ -10,8 +10,10 @@ const URL = process.env.TW_URL || 'http://localhost:8813/index.html';
 const results = []; const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}  ${info}`) };
 const b = await chromium.launch();
 
+// index.html points at the live Gemini proxy; these runs stay local (a call to it gets ok:false = the local answer).
+const LOCAL_ONLY = () => { const f0 = window.fetch; window.fetch = function (u) { return /\.workers\.dev\//.test(String(u)) ? Promise.resolve(new Response('{"ok":false,"reason":"test"}', { headers: { 'Content-Type': 'application/json' } })) : f0.apply(this, arguments); }; };
 async function setup(opts) {
-  const ctx = await b.newContext(opts); const p = await ctx.newPage(); const errs = [];
+  const ctx = await b.newContext(opts); await ctx.addInitScript(LOCAL_ONLY); const p = await ctx.newPage(); const errs = [];
   p.on('pageerror', e => errs.push(String(e))); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
   // record every state the pet passes through, and every look angle requested
   await p.addInitScript(() => {
@@ -114,7 +116,7 @@ const reset = p => p.evaluate(() => { window.__tw.states.length = 0; window.__tw
 
 // ---- returning visitor (another day = new session with the one flag set) ----
 {
-  const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } }); await ctx.addInitScript(() => { try { localStorage.setItem('tw:visited', '1') } catch (e) {} });
+  const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } }); await ctx.addInitScript(LOCAL_ONLY); await ctx.addInitScript(() => { try { localStorage.setItem('tw:visited', '1') } catch (e) {} });
   const p = await ctx.newPage(); await p.goto(URL, { waitUntil: 'domcontentloaded' }); await p.evaluate(() => document.fonts.ready);
   await p.evaluate(() => document.getElementById('about').scrollIntoView({ behavior: 'instant' }));
   await p.waitForFunction(() => document.querySelector('#tw-root .tw-say.is-on'), null, { timeout: 15000 }).catch(() => {});

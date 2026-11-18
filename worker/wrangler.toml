@@ -1,0 +1,20 @@
+# Cloudflare Worker for the SHK JAVED "Talk to Me" guide. Setup steps: worker/README.md.
+# NO SECRETS IN THIS FILE. The Gemini key is set with: npx wrangler@latest secret put GEMINI_API_KEY
+name = "shk-javed-twin"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = false
+
+[vars]
+# Gemini model id (Interactions API). Pick one that has a free tier.
+MODEL = "gemini-3.5-flash-lite"
+# The verified knowledge base the worker reads fact text from (the browser only sends fact ids).
+KB_URL = "https://shk-javed.github.io/shaikhjaved.portfolio/twin/knowledge.json"
+# Comma-separated list of exact origins (scheme + host, no path) allowed to call the worker.
+ALLOWED_ORIGINS = "https://shk-javed.github.io"
+# Max accepted requests per worker isolate per UTC day. "0" turns the worker off.
+DAILY_CAP = "1000"
+# Time budget for the knowledge base fetch + Gemini call, in ms (1000-20000). Flash-Lite often takes 2-7 s, and
+# the site shows the local answer meanwhile, so a slow reply only upgrades the text. Keep it below the client's 10 s.
+TIMEOUT_MS = "9000"
