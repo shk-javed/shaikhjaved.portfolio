@@ -130,7 +130,7 @@ By default the worker reads facts from the live site (`KB_URL`). To test unpubli
 
 So contact and repo questions, whose facts contain links or emails, always use the local answer. The browser runs the same kind of checks again.
 
-**Timeouts.** The whole upstream budget is `TIMEOUT_MS` (9 s, AbortController). The site doesn't wait for it: it shows the local answer after a 1.5 s head start, and a later reply (within 10 s) swaps in only the answer text. Free-tier Flash-Lite took 1.5–9 s in Nov 2026, with occasional 503s.
+**Timeouts.** The whole upstream budget is `TIMEOUT_MS` (9 s, AbortController). Meanwhile the site shows the local answer as a grey draft while the guide searches. A reply within 10 s turns it into Gemini's wording; otherwise the draft becomes final as is. Free-tier Flash-Lite took 1.5–9 s in Nov 2026, with occasional 503s.
 
 **Logs.** Each request logs one line: `{evt, ok, reason, why, facts, up, gm, use, steps, ms}`. Here `up` is Gemini's HTTP status, `gm` its round-trip in ms, `use` its token counts, and `steps` its step types. Watch them with `npx wrangler@latest tail --format json`.
 

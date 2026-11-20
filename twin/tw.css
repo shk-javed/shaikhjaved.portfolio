@@ -70,6 +70,15 @@ body.menu-open .tw-root{visibility:hidden}
 .tw-ans.is-swap{animation:tw-swap 420ms var(--tw-ease) both}
 @keyframes tw-swap{from{opacity:.15}to{opacity:1}}
 .tw-ans__by{display:block;margin-top:.35rem;color:var(--tw-muted);font:600 .56rem/1.4 var(--mono,'JetBrains Mono',monospace);letter-spacing:.1em;text-transform:uppercase}
+/* grey draft: the local answer waits like form placeholder text until Gemini's reply (or the 10 s cap) turns it black */
+.tw-ans{transition:color 380ms var(--tw-ease)}
+.tw-msg.is-draft .tw-ans,.tw-msg.is-draft .tw-ans *{color:#a7aeab}
+.tw-msg.is-draft .tw-card,.tw-msg.is-draft .tw-ev,.tw-msg.is-draft .tw-fus{display:none}
+.tw-ans__by.is-wait{display:flex;align-items:center;gap:.45rem;color:var(--tw-teal)}
+.tw-ans__by.is-wait::before{content:"";flex:none;width:.42rem;height:.42rem;border-radius:50%;background:currentColor;animation:tw-wait 900ms ease-in-out infinite alternate}
+@keyframes tw-wait{from{opacity:.2;transform:scale(.7)}to{opacity:1;transform:none}}
+.tw-msg.is-final .tw-card{animation:tw-card-in 420ms var(--tw-ease) both}
+.tw-msg.is-final .tw-ev,.tw-msg.is-final .tw-fus{animation:tw-msg-in 380ms var(--tw-ease) 140ms both}
 .tw-inline{color:var(--tw-teal);font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 .tw-ev{display:flex;flex-wrap:wrap;gap:.45rem;margin:.75rem 0 0;padding:0;list-style:none}
 .tw-chip{display:inline-flex;align-items:center;gap:.45rem;min-height:2.25rem;padding:.35rem .8rem .35rem .6rem;border:1px solid rgba(0,77,64,.3);border-radius:999px;background:var(--tw-paper);color:var(--tw-deep);font:600 .64rem/1.2 var(--mono,'JetBrains Mono',monospace);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;transition:background 200ms var(--tw-ease),color 200ms var(--tw-ease),border-color 200ms var(--tw-ease)}
@@ -137,7 +146,7 @@ body.menu-open .tw-say{visibility:hidden}
 
 /* ---------- evidence scan: one kale line sweeps toward the evidence ---------- */
 .tw-scan{position:fixed;left:0;right:0;top:0;z-index:38;height:96px;pointer-events:none;opacity:0;background:linear-gradient(180deg,rgba(215,221,186,0),rgba(215,221,186,.16) 70%,rgba(215,221,186,.42));border-bottom:2px solid var(--tw-kale);box-shadow:0 1px 0 rgba(0,77,64,.55);transform:translateY(-110%)}
-.tw-scan.is-on{animation:tw-scan-down 760ms cubic-bezier(.45,0,.25,1) both}
+.tw-scan.is-on{animation:tw-scan-down 950ms cubic-bezier(.45,0,.25,1) both}
 .tw-scan.is-on.is-up{animation-name:tw-scan-up;background:linear-gradient(0deg,rgba(215,221,186,0),rgba(215,221,186,.16) 70%,rgba(215,221,186,.42));border-bottom:0;border-top:2px solid var(--tw-kale);box-shadow:0 -1px 0 rgba(0,77,64,.55)}
 @keyframes tw-scan-down{0%{opacity:0;transform:translateY(-100%)}12%{opacity:1}88%{opacity:1}100%{opacity:0;transform:translateY(100vh)}}
 @keyframes tw-scan-up{0%{opacity:0;transform:translateY(100vh)}12%{opacity:1}88%{opacity:1}100%{opacity:0;transform:translateY(-100%)}}
@@ -145,7 +154,12 @@ body.menu-open .tw-say{visibility:hidden}
 .tw-scan.is-up .tw-scan__label{bottom:auto;top:8px}
 
 /* ---------- tour: the full-size pet walks along the bottom edge, above the open chat ---------- */
-.tw-root.is-touring .tw-dock{z-index:44}
+.tw-root.is-touring .tw-dock,.tw-root.is-searching .tw-dock{z-index:44}
+.tw-root.is-searching .tw-hint{display:none}
+/* while the answer is checked: a soft line sweeps the page up and down until it lands, then locks on (.is-on) */
+.tw-scan.is-search{opacity:.8;border-bottom:0;box-shadow:none;background:linear-gradient(180deg,rgba(215,221,186,0),rgba(215,221,186,.28) 44%,var(--tw-kale) 50%,rgba(215,221,186,.28) 56%,rgba(215,221,186,0));animation:tw-scan-loop 2.2s cubic-bezier(.45,0,.55,1) infinite alternate}
+.tw-scan.is-search .tw-scan__label{bottom:auto;top:calc(50% + 6px)}
+@keyframes tw-scan-loop{from{transform:translateY(-48px)}to{transform:translateY(calc(100vh - 48px))}}
 .tw-root.is-touring .tw-hint{display:none}
 .tw-strip{display:none}
 
@@ -203,6 +217,8 @@ body.menu-open .tw-say{visibility:hidden}
   .tw-strip,.tw-root.is-touring:not([data-open]) .tw-strip{transition:none!important}
   .tw-spot.is-on{animation:none;opacity:1}
   .tw-dots i{animation:none;opacity:.6}
+  .tw-ans,.tw-msg.is-final .tw-card,.tw-msg.is-final .tw-ev,.tw-msg.is-final .tw-fus{animation:none!important;transition:none!important}
+  .tw-ans__by.is-wait::before{animation:none;opacity:1}
 }
 @media print{.tw-root{display:none!important}}
 @media (forced-colors:active){

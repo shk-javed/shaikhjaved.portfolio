@@ -1,7 +1,7 @@
 /* Optional Gemini phrasing tests (Playwright). The proxy is mocked; nothing leaves the machine.
  *   empty endpoint = fully local, no switch · valid reply replaces only the answer text (card proof, chips, tour stay) ·
- *   invented number, ok:false, 500 and malformed JSON show the local answer · a slow reply shows the local answer after
- *   ~1.5 s, then swaps in only the answer text (with the "Phrased by Gemini" label) when it lands · refusals, unknowns and
+ *   invented number, ok:false, 500 and malformed JSON show the local answer · while the reply is on its way the local
+ *   answer is a grey draft (no card yet); when it lands the text turns final with the "Phrased by Gemini" label · refusals, unknowns and
  *   greetings never call the proxy · repo/contact answers (URL or email in the facts) skip it · Local mode switch · request body is exactly {v,q,factIds} with credentials omitted.
  * Run from the repo root with the site served on :8813 (python3 -m http.server 8813):
  *   PLAYWRIGHT_DIR=/path/to/node_modules/playwright node tests/twin/remote.mjs
@@ -57,12 +57,13 @@ async function open(p) {
   if (!(await p.evaluate(() => !!document.querySelector('#tw-root[data-open]')))) await p.locator('#tw-root .tw-dock__btn').click();
   await p.waitForFunction(() => { const i = document.querySelector('#tw-root .tw-input'); return i && i.offsetParent });
 }
-// ask and return the shown answer plus timing
+// ask and return the final answer (grey draft over) plus timing
 async function ask(p, q) {
   await open(p);
+  await p.waitForFunction(() => !document.getElementById('tw-root').classList.contains('is-searching'), null, { timeout: 15000 });
   const n = await p.locator('#tw-root .tw-msg--bot').count(), t0 = Date.now();
   await p.locator('#tw-root .tw-input').fill(q); await p.keyboard.press('Enter');
-  await p.waitForFunction(n => document.querySelectorAll('#tw-root .tw-msg--bot').length > n, n, { timeout: 12000 });
+  await p.waitForFunction(n => { const l = document.querySelectorAll('#tw-root .tw-msg--bot'); return l.length > n && !l[l.length - 1].classList.contains('is-draft'); }, n, { timeout: 14000 });
   return { text: await p.evaluate(() => [...document.querySelectorAll('#tw-root .tw-ans')].pop().textContent), ms: Date.now() - t0 };
 }
 const foot = p => p.evaluate(() => ({ txt: document.querySelector('#tw-root .tw-foot__txt')?.textContent, sw: document.querySelector('#tw-root .tw-local')?.getAttribute('aria-pressed') ?? null }));
@@ -127,12 +128,13 @@ let LOCAL;
     check(`failure (${mode}) → local answer shown`, r.text === LOCAL, r.text.slice(0, 60));
   }
   state.mode = 'slow';
-  const slow = await ask(p, Q);
-  check('slow reply: local answer shown after the ~1.5 s head start (no long wait)', slow.text === LOCAL && slow.ms < 2600, `${slow.ms} ms`);
-  const late = await p.waitForFunction(G => { const li = [...document.querySelectorAll('#tw-root .tw-msg--bot')].pop(); return li.querySelector('.tw-ans').textContent === G && li; }, GOOD, { timeout: 9000 }).then(() => true, () => false);
-  const after = await p.evaluate(() => { const li = [...document.querySelectorAll('#tw-root .tw-msg--bot')].pop(); return { by: li.querySelector('.tw-ans__by')?.textContent, card: !!li.querySelector('.tw-card'), kids: li.querySelector('.tw-ans').children.length, saved: JSON.parse(sessionStorage.getItem('tw:v1')).msgs.pop().gem === true }; });
-  check('slow reply: lands later and swaps in only the answer text (label, card kept, plain text, saved)', late && after.by === 'Phrased by Gemini' && after.card && after.kids === 0 && after.saved, JSON.stringify(after));
-  await p.waitForTimeout(1500);
+  const slowP = ask(p, Q); await p.waitForTimeout(2500);
+  const draft = await p.evaluate(() => { const li = [...document.querySelectorAll('#tw-root .tw-msg--bot')].pop(), c = li.querySelector('.tw-card'); return { draft: li.classList.contains('is-draft'), text: li.querySelector('.tw-ans').textContent, color: getComputedStyle(li.querySelector('.tw-ans')).color, wait: li.querySelector('.tw-ans__by.is-wait')?.textContent, card: !!c && c.offsetParent !== null, searching: document.getElementById('tw-root').classList.contains('is-searching'), scan: document.querySelector('#tw-root .tw-scan').classList.contains('is-search') }; });
+  check('slow reply: grey local draft while waiting, no card yet, pet searching, scan looping', draft.draft && draft.text === LOCAL && draft.color === 'rgb(167, 174, 171)' && /Gemini is checking/.test(draft.wait || '') && !draft.card && draft.searching && draft.scan, JSON.stringify(draft));
+  const slow = await slowP;
+  const after = await p.evaluate(() => { const li = [...document.querySelectorAll('#tw-root .tw-msg--bot')].pop(), c = li.querySelector('.tw-card'); return { by: li.querySelector('.tw-ans__by')?.textContent, card: !!c && c.offsetParent !== null, kids: li.querySelector('.tw-ans').children.length, saved: JSON.parse(sessionStorage.getItem('tw:v1')).msgs.pop().gem === true }; });
+  check('slow reply: lands (~6.5 s) as the final answer: Gemini text, label, card shown, plain text, saved', slow.text === GOOD && slow.ms > 6000 && slow.ms < 8500 && after.by === 'Phrased by Gemini' && after.card && after.kids === 0 && after.saved, `${slow.ms} ms ` + JSON.stringify(after));
+  await p.waitForTimeout(4000);
 
   // 5. refusal / unknown / greeting never call the proxy
   const before = state.calls.length;

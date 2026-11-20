@@ -32,13 +32,16 @@
 
   /* ---------- optional Gemini phrasing (kit.endpoint; empty = fully local) ----------
      Only a verified local answer (kind 'answer') is sent: the question and its fact ids, nothing else. Gemini only
-     rewrites the answer text; card, chips, follow-ups, target, tour and moods stay local. Gemini gets a short head
-     start (HEAD_MS); after that the local answer shows and a later vetted reply swaps in only the answer text, while
-     that answer is still the latest. Any failure, a 10 s timeout or a reply that fails the checks below leaves the
-     local answer unchanged. The question is never logged. */
+     rewrites the answer text; card, chips, follow-ups, target, tour and moods stay local. While Gemini works, the local
+     answer shows as a light-grey draft (like a form placeholder) and the pet searches; when the vetted reply lands the
+     text turns black (Gemini's wording), and only then come the card, "found" and the tour. Any failure, a 10 s
+     timeout or a reply that fails the checks below turns the local draft black instead. The question is never logged. */
   var LOCAL_LINE = 'Answers are built on this page. Nothing you type leaves it; this browser only remembers that you’ve visited.';
   var REMOTE_LINE = 'Answers use only this site’s verified facts. To phrase replies, your question is sent to Google Gemini — don’t share personal info.';
-  var REMOTE_MS = 10000, HEAD_MS = 1500, MAX_IDS = 6, MAX_Q = 500, MAX_ANS = 600, LATE = {};
+  var REMOTE_MS = 10000, MIN_SEARCH = 1600, MAX_IDS = 6, MAX_Q = 500, MAX_ANS = 600;
+  var WAIT_LINE = 'Gemini is checking the facts…', BY_LINE = 'Phrased by Gemini';
+  // Search acting lines (decorative bubbles), in order; the Gemini one only when a reply is really on its way.
+  var SEARCH_LINES = ['Let me dig through the archive…', 'Sniffing out the facts…', 'Ruko zara… almost there.'], GEM_LINE = 'Cross-checking with Gemini…';
   var PHONE_RE = (function () { try { return new RegExp('(?:\\+?91[\\s-]*)?(?<![\\d,.])[6-9]\\d{4}[\\s-]?\\d{5}(?!\\d)'); } catch (e) { return null; } })(); // no lookbehind: stay local
   var URLISH = /\b(?:https?:\/\/|www\.)|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|in|io|org|net|dev|app|ai|co|me|ly|xyz|info|site|tech|page|link|gg|us|uk)\b(?!\.\w)|@/i;
   var SELF = /\b(?:i\s+am|i['’]m|my\s+name\s+is)\s+(?:mr\.?\s+)?(?:shaikh\s+)?javed(?![’'\w])|\b(?:i\s+am|i['’]m)\s+(?:an?\s+)?(?:real\s+|actual\s+)?(?:human|person|man|guy)\b|\b(?:i\s+am|i['’]m)\s+not\s+(?:an?\s+)?(?:ai|bot|robot|machine)\b|\b(?:my|our)\s+(?:projects?|work|resume|cv|certificates?|certifications?|role|job|toolkit|skills?|education|degree|internships?|experience|portfolio|github)\b|\bI\s+(?:built|made|created|developed|designed|studied|graduated|worked|work|completed|earned|hold|led|joined|automated)\b/i;
@@ -109,6 +112,7 @@
       if (lm) lm.addEventListener('click', function () {
         var on = !kit.read().local;
         kit.save({ local: on });
+        if (on && cutDraft) cutDraft(); // a grey draft waiting on Gemini becomes the final (local) answer now
         syncFoot();
         kit.announce(on ? 'Local mode on. Your questions stay on this page.' : 'Local mode off. Questions are sent to Google Gemini for phrasing.');
       });
@@ -180,12 +184,13 @@
       if (numTokens(a).some(function (t) { return !known[t]; })) return null;
       return a.replace(/\s+/g, ' ');
     }
-    // Resolves the vetted text, or null for "show the local answer". Never rejects, never logs.
+    // null when this answer stays local (no call); otherwise a promise of the vetted text, or null for "keep the local
+    // answer". Never rejects, never logs.
     function phrase(q, r) {
-      if (!remoteOn() || !r || r.kind !== 'answer') return Promise.resolve(null);
+      if (!remoteOn() || !r || r.kind !== 'answer') return null;
       var ids = factIdsOf(r);
       // Repo and contact facts carry a URL or email, which no reply may contain: don't spend a call on them.
-      if (!ids.length || ids.some(function (id) { return URLISH.test(facts[id].text); })) return Promise.resolve(null);
+      if (!ids.length || ids.some(function (id) { return URLISH.test(facts[id].text); })) return null;
       var ac = new AbortController(), timer = setTimeout(function () { ac.abort(); }, REMOTE_MS);
       return Promise.resolve().then(function () {
         return fetch(kit.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'omit', signal: ac.signal, body: JSON.stringify({ v: 1, q: q.slice(0, MAX_Q).trim(), factIds: ids }) });
@@ -279,7 +284,8 @@
           } else p.appendChild(d.createTextNode(s.v));
         });
         li.appendChild(p);
-        if (m.gem) li.appendChild(el('span', 'tw-ans__by', 'Phrased by Gemini'));
+        if (m.draft && m === liveDraft) { li.classList.add('is-draft'); li.setAttribute('aria-busy', 'true'); li.appendChild(el('span', 'tw-ans__by is-wait', WAIT_LINE)); }
+        else if (m.gem) li.appendChild(el('span', 'tw-ans__by', BY_LINE));
         var card = m.card ? renderCard(r, m.card) : null;
         if (card) li.appendChild(card);
         if (r.evidence && r.evidence.length) {
@@ -340,15 +346,139 @@
       reveal(li);
       return li;
     }
-    // A late Gemini reply swaps only the answer text of the latest message; card, chips, follow-ups and tour stay.
-    function upgrade(m, a) {
-      m.r.text = a; m.r.segments = [{ t: 'text', v: a }]; m.gem = true;
+    // The grey draft (local answer, still waiting on Gemini) of the latest message, and how to end the wait early.
+    var liveDraft = null, cutDraft = null;
+    function announceAns(m) {
+      var r = m.r || {};
+      kit.announce('SHK JAVED: ' + (r.text || '') + (r.evidence && r.evidence.length ? ' ' + r.evidence.length + (r.evidence.length === 1 ? ' evidence link' : ' evidence links') + ' below.' : ''));
+    }
+    // The draft becomes the answer: Gemini's vetted wording (a) or the local text, now in black; card, chips and
+    // follow-ups appear with it. Announced only now, so screen readers hear the final text once.
+    function finalize(m, a) {
+      cutDraft = null;
+      if (a) { m.r.text = a; m.r.segments = [{ t: 'text', v: a }]; m.gem = true; }
+      delete m.draft;
       persist();
-      var lis = log.querySelectorAll('.tw-msg--bot'), li = lis[lis.length - 1], p = li && li.querySelector('.tw-ans');
-      if (!p) return;
-      p.textContent = a;
-      if (!li.querySelector('.tw-ans__by')) p.insertAdjacentElement('afterend', el('span', 'tw-ans__by', 'Phrased by Gemini'));
-      if (!kit.rm()) { p.classList.remove('is-swap'); void p.offsetWidth; p.classList.add('is-swap'); }
+      var lis = log.querySelectorAll('.tw-msg--bot'), li = liveDraft === m && msgs[msgs.length - 1] === m ? lis[lis.length - 1] : null;
+      liveDraft = null;
+      announceAns(m);
+      if (!li) return;
+      var p = li.querySelector('.tw-ans'), by = li.querySelector('.tw-ans__by.is-wait');
+      if (a && p) {
+        p.textContent = a;
+        if (!kit.rm()) { p.classList.remove('is-swap'); void p.offsetWidth; p.classList.add('is-swap'); }
+      }
+      if (by) { if (a) { by.className = 'tw-ans__by'; by.textContent = BY_LINE; } else by.remove(); }
+      li.classList.remove('is-draft');
+      li.removeAttribute('aria-busy');
+      if (!kit.rm()) li.classList.add('is-final');
+      reveal(li);
+    }
+
+    /* ---------- search acting: while the answer is being checked, the pet looks for it ----------
+       Beats run in a fixed order (never random) until the answer lands. Desktop: a head sweep across the page, a hop up
+       the free column on the right edge, a patrol walk at that height when nothing is in the way (above the open chat,
+       or anywhere when it is closed), digging through the archive, a hop back down. Phones: the same beats in place, never
+       over the text. Reduced motion: the still "working" pose only. Evidence answers also loop the page scan meanwhile;
+       it locks on (tour) once the answer lands. stop() brings the pet back to its spot before "found". */
+    var searching = null;
+    function scanLabel(t) { var l = ui.scan && ui.scan.querySelector('.tw-scan__label'); if (l) l.textContent = t; }
+    function search(withScan, remote) {
+      var p = kit.pet(), rm = kit.rm(), phone = PHONE.matches, sc = ui.scan, dk = ui.dock;
+      var S = { done: false, anim: null, n: 0, stopped: null };
+      searching = S;
+      ui.root.classList.add('is-searching');
+      if (withScan && sc && !rm) { scanLabel('Searching the archive'); sc.classList.remove('is-on', 'is-up'); sc.classList.add('is-search'); }
+      var lines = remote ? [SEARCH_LINES[0], GEM_LINE, SEARCH_LINES[1], SEARCH_LINES[2]] : SEARCH_LINES;
+      function alive() { return !S.done && !!p && kit.pet() === p; }
+      function wait(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
+      function line() { if (alive()) kit.say(lines[S.n++ % lines.length], 2200); }
+      function k() { return (ui.stage.getBoundingClientRect().width / 96) || 1; }
+      function curY() { var m = /(-?[\d.]+)px\s*$/.exec(getComputedStyle(dk).translate || ''); return m ? +m[1] : 0; }
+      // Vertical moves ride on the dock's own translate (walkBy moves the pet sideways), with a small arc on the way.
+      function rise(to, ms) {
+        var from = curY();
+        if (S.anim) { try { S.anim.cancel(); } catch (e) { /* ignore */ } S.anim = null; }
+        dk.style.translate = to ? '0 ' + Math.round(to) + 'px' : '';
+        if (rm || !ms || typeof dk.animate !== 'function' || Math.abs(from - to) < 1) return Promise.resolve();
+        var a = S.anim = dk.animate([{ translate: '0 ' + from + 'px' }, { translate: '0 ' + (Math.min(from, to) - 28) + 'px', offset: to < from ? 0.72 : 0.3 }, { translate: '0 ' + to + 'px' }], { duration: ms, easing: 'ease-in-out' });
+        return a.finished.then(function () { if (S.anim === a) S.anim = null; }, function () {});
+      }
+      // How high the pet may climb, and whether it may walk there: above the open chat when there is room, else only up
+      // its own column; anywhere when the chat is closed. The dock never goes under the site header (top >= 84px).
+      function level() {
+        var base = dk.getBoundingClientRect().bottom - curY(), h = dk.offsetHeight || 112, top = 84 + h;
+        if (isOpen()) {
+          var pt = panel.getBoundingClientRect().top - 10;
+          if (pt >= top) return { y: pt - base, walk: true };
+        }
+        var y = -Math.min(w.innerHeight * 0.42, base - top);
+        return { y: y < -110 ? y : 0, walk: !isOpen() };
+      }
+      var L = null;
+      function sweep() {
+        if (!alive()) return;
+        line();
+        return [270, 315, 0, 45, 90, 0].reduce(function (pr, deg) {
+          return pr.then(function () { if (alive()) { p.look(deg); return wait(250); } });
+        }, Promise.resolve()).then(function () { return wait(250); });
+      }
+      function dig() {
+        if (!alive()) return;
+        p.play('working', { loop: true });
+        line();
+        return wait(1500);
+      }
+      function bounce() { if (alive()) return hop(p, { loop: false }).then(function () { return wait(200); }); }
+      function climb() {
+        if (!alive()) return;
+        L = level();
+        if (!L.y) return sweep();
+        return Promise.all([hop(p, { loop: false, hold: true }), rise(L.y, 620)]).then(function () { return wait(150); });
+      }
+      function descend() {
+        if (!alive() || !curY()) return;
+        return Promise.all([hop(p, { loop: false, hold: true }), rise(0, 560)]).then(function () { return wait(150); });
+      }
+      function patrol() {
+        if (!alive()) return;
+        if (!L || !L.walk) return sweep();
+        var dist = Math.min(380, w.innerWidth * 0.3), kk = k();
+        return p.walkBy(-dist / kk, { speed: 320 / kk, hold: true }).then(function (ok) {
+          if (!ok || !alive()) return;
+          line(); // said where it stops, so the bubble isn't left behind
+          var r = ui.stage.getBoundingClientRect();
+          kit.lookToward(r.left - 160, r.bottom + 220); // peers down at the page
+          return wait(800).then(function () { if (alive()) return p.walkBy(-(p.x || 0), { speed: 320 / kk, hold: true }); });
+        });
+      }
+      if (p && rm) p.play('working', { loop: true });
+      else if (p) {
+        var plan = phone ? [sweep, dig, bounce, sweep, dig] : [sweep, climb, dig, patrol, sweep, descend];
+        (function next(i) {
+          if (!alive()) return;
+          Promise.resolve(plan[i % plan.length]()).then(function () { next(i + 1); }, function () { next(i + 1); });
+        })(0);
+      }
+      S.stop = function () {
+        if (S.stopped) return S.stopped;
+        S.done = true;
+        kit.hush(); // no search line may outlive the search
+        if (sc) sc.classList.remove('is-search');
+        var pp = kit.pet(), jobs = [];
+        if (pp) {
+          pp.idle(); // freezes a walk wherever it is
+          if (pp.x) jobs.push(rm ? pp.walkBy(-pp.x) : pp.walkBy(-pp.x, { speed: 900 / k() }));
+        }
+        if (curY() || dk.style.translate) jobs.push(rise(0, rm ? 0 : 460));
+        // capped: a paused or interrupted move must never hold the conversation
+        S.stopped = Promise.race([Promise.all(jobs), wait(1500)]).then(function () {
+          ui.root.classList.remove('is-searching');
+          if (searching === S) searching = null;
+        });
+        return S.stopped;
+      };
+      return S;
     }
 
     /* ---------- conversation ---------- */
@@ -423,44 +553,46 @@
       if (p) p.play('working', { loop: true });
       if (complex(q) && !kit.read().gta) { kit.save({ gta: true }); setTimeout(function () { kit.say('Oh sh*t, here we go again.', 2400); }, 120); }
       var t0 = Date.now(), minWait = kit.rm() ? 150 : 520;
-      var alt = null, late = null; // the vetted Gemini phrasing (text only); late = still on its way when the answer showed
+      var got = { done: false, v: null }, pending = null;
       getEngine().then(function (E) {
         return E.ask(q, ctx);
       }).then(function (r) {
-        // Gemini gets a short head start; a slower reply upgrades the shown answer in place when it lands.
-        var pending = phrase(q, r), head = new Promise(function (ok) { setTimeout(function () { ok(LATE); }, Math.max(0, HEAD_MS - (Date.now() - t0))); });
-        return Promise.race([pending, head]).then(function (a) { if (a === LATE) late = pending; else alt = a; return r; });
-      }).then(function (r) {
+        r = r || {};
+        pending = phrase(q, r);
+        if (pending) pending.then(function (a) { got.done = true; got.v = a; });
         return new Promise(function (ok) { setTimeout(function () { ok(r); }, Math.max(0, minWait - (Date.now() - t0))); });
       }).then(function (r) {
-        r = r || {};
-        var text = alt || r.text, segs = alt ? [{ t: 'text', v: alt }] : r.segments;
-        var m = { role: 'bot', r: { kind: r.kind, text: text, segments: segs, evidence: r.evidence, followUps: r.followUps, target: r.target ? { evidence: r.target.evidence || null } : null } }; // never r.debug: it holds the visitor's question
+        var m = { role: 'bot', r: { kind: r.kind, text: r.text, segments: r.segments, evidence: r.evidence, followUps: r.followUps, target: r.target ? { evidence: r.target.evidence || null } : null } }; // never r.debug: it holds the visitor's question
         // Evidence Scan runs only for a confident answer that has verified evidence and a section to show.
         var goEv = r.kind === 'answer' && r.mood === 'review' && r.target && r.target.evidence ? evidenceFor(r, r.target.evidence) : null;
         if (goEv && !isInternal(goEv)) goEv = null;
         var c = goEv ? cardFor(r, goEv) : null;
         if (c) m.card = c;
-        if (alt) m.gem = true;
+        // A reply that is already back (or already failed) needs no draft: show the final answer at once.
+        if (pending && got.done) {
+          if (got.v) { m.r.text = got.v; m.r.segments = [{ t: 'text', v: got.v }]; m.gem = true; }
+          pending = null;
+        }
+        // Otherwise one flow: grey draft while Gemini checks (pet searching, scan looping) -> the answer turns black ->
+        // found -> tour. Local answers skip the search: they are final already.
+        if (pending) {
+          m.draft = true; liveDraft = m;
+          pending = Promise.race([pending, new Promise(function (ok) { cutDraft = function () { ok(null); }; })]);
+        }
         setTyping(false);
         push(m);
-        if (late) late.then(function (a) { if (a && msgs[msgs.length - 1] === m && remoteOn()) upgrade(m, a); });
-        kit.announce('SHK JAVED: ' + (text || '') + (r.evidence && r.evidence.length ? ' ' + r.evidence.length + (r.evidence.length === 1 ? ' evidence link' : ' evidence links') + ' below.' : ''));
-        var mine = msgs.length;
-        if (r.mood === 'failed') { ponder(); return; }
-        if (goEv) {
-          kit.say(FOUND[(foundCount++) % FOUND.length]);
-          var pr = kit.pet();
-          if (pr) pr.play('review', { loop: false });
-          // card first (the visitor reads the answer), then the scan, then the page moves: once per answer,
-          // and never after the visitor already started a tour by hand (gen changed).
-          var gen = tourGen;
-          setTimeout(function () { whenFree(function () { if (msgs.length === mine && !busy && gen === tourGen) tour(goEv, { auto: true }); }); }, kit.rm() ? 200 : 900);
-          return;
-        }
-        petMood(r.mood);
+        if (!pending) { announceAns(m); react(r, goEv); return; }
+        var S = search(!!goEv, true);
+        // Evidence answers search at least MIN_SEARCH from the question, so the acting reads even when the reply is instant.
+        var floor = new Promise(function (ok) { setTimeout(ok, goEv && !kit.rm() ? Math.max(0, MIN_SEARCH - (Date.now() - t0)) : 0); });
+        return Promise.all([pending, floor]).then(function (v) {
+          finalize(m, v[0]);
+          return S.stop();
+        }).then(function () { react(r, goEv); });
       }).catch(function (e) {
         if (w.console) console.warn(e);
+        if (liveDraft) finalize(liveDraft, null);
+        if (searching) searching.stop();
         setTyping(false);
         push({ role: 'bot', r: {
           kind: 'fallback',
@@ -474,6 +606,24 @@
         ponder();
       }).then(function () { busy = false; });
       return true;
+    }
+
+    // After the answer is final: "found" (a hop and a line), then the tour; or just the answer's mood.
+    function react(r, goEv) {
+      if (r.mood === 'failed') { ponder(); return; }
+      if (!goEv) { petMood(r.mood); return; }
+      var mine = msgs.length, gen = tourGen;
+      if (!navBusy) {
+        kit.say(FOUND[(foundCount++) % FOUND.length]);
+        var pr = kit.pet();
+        if (pr) {
+          if (kit.rm()) pr.play('review', { loop: false });
+          else hop(pr, { loop: false }).then(function (ok) { if (ok && kit.pet() === pr && !navBusy) pr.play('review', { loop: false }); });
+        }
+      }
+      // the answer first (the visitor reads it), then the scan locks on and the page moves: once per answer,
+      // and never after the visitor already started a tour by hand (gen changed).
+      setTimeout(function () { whenFree(function () { if (msgs.length === mine && !busy && gen === tourGen) tour(goEv, { auto: true }); }); }, kit.rm() ? 200 : 1000);
     }
 
     /* ---------- show me ---------- */
@@ -552,13 +702,14 @@
       var sc = ui.scan;
       if (!sc || kit.rm()) return Promise.resolve();
       return new Promise(function (ok) {
-        sc.classList.remove('is-on', 'is-up');
+        sc.classList.remove('is-on', 'is-up', 'is-search');
+        scanLabel('Evidence found');
         void sc.offsetWidth;
         if (!down) sc.classList.add('is-up');
         sc.classList.add('is-on');
         var done = false, fin = function () { if (done) return; done = true; sc.classList.remove('is-on', 'is-up'); ok(); };
         sc.addEventListener('animationend', fin, { once: true });
-        setTimeout(fin, 900);
+        setTimeout(fin, 1150);
       });
     }
     // t = the element the visitor needs to read (a cert's whole slide with its copy, a section's key card).
@@ -630,6 +781,7 @@
         return;
       }
       navBusy = true;
+      if (searching) searching.stop(); // a tour started by hand ends the search acting (the answer still lands)
       var auto = !!(how && how.auto), phone = PHONE.matches, rm = kit.rm(), p = kit.pet();
       var T = { stopped: false, ended: false, phase: 'scan', timer: 0, k: 1 }; // k: the pet's on-screen scale (phones: .6)
       activeTour = T;
@@ -702,6 +854,8 @@
           if (first) kit.save({ cheered: true });
           if (p2) {
             if (first && !rm) hop(p2, { loop: false }).then(function () { if (!T.stopped && kit.pet() === p2) look(spot); });
+            // presents the evidence: one wave, then it looks at it
+            else if (!rm) p2.play('wave', { loop: 1 }).then(function (ok) { if (ok && !T.stopped && kit.pet() === p2) look(spot); });
             else look(spot);
           }
           kit.say(first ? 'Now we\u2019re talking!' : 'Here\u2019s the proof.', 2400);

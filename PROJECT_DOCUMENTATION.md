@@ -225,7 +225,13 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
   - It validates the reply.
   - It also enforces an origin allow-list (`https://shk-javed.github.io`), per-IP and daily limits, and never logs questions.
 - **What Gemini changes:** only the answer **text**. The evidence card (word-for-word proof line), chips, follow-ups, auto-tour and moods stay local.
-- **Timing (local first):** Gemini gets a 1.5 s head start. After that the local answer shows. A later vetted reply (up to 10 s; the worker's own budget is `TIMEOUT_MS`, 9 s) fades in over only the answer text, with a small "Phrased by Gemini" label, while that answer is still the latest. Measured in Nov 2026: Flash-Lite on the free tier took 1.5–9 s, with some 503s; `gemini-3.5-flash` returned 503 (overloaded).
+- **One flow while Gemini works (Nov 2026):**
+  1. The local answer shows at once as a **light-grey draft**, like form placeholder text, under the label "Gemini is checking the facts…". Card, chips and follow-ups wait.
+  2. The pet **searches**: a head sweep, then a hop up the free right-hand column, digging through the archive, and a patrol walk above the open chat (anywhere when it's closed). Phones search in place. Meanwhile the **scan line loops** over the page ("Searching the archive").
+  3. When the vetted reply lands, the text **turns black** with Gemini's wording and a "Phrased by Gemini" label. On a failure or the 10 s cap, the draft turns black as is.
+  4. The pet hops down to its spot: "Aha! Found something." → the scan locks on ("Evidence found") → the page moves → it walks there and **waves** at the evidence.
+  - Search runs at least 1.6 s from the question. A reply that is already back after 0.5 s skips the draft. Local mode, refusals and other local answers skip the search.
+  - Measured in Nov 2026: Flash-Lite on the free tier took 1.5–9 s, with some 503s; `gemini-3.5-flash` returned 503 (overloaded).
 - **Checks (worker and browser):** any of these falls back to the local answer, silently:
   - an empty reply or one over 600 characters;
   - uncited or unsent ids;
