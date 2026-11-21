@@ -254,6 +254,25 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
   - a `pitch` cue ("Why should I hire him?", "kyu hire kare", "What makes him stand out?", "good fit") answers with the current role, what he builds, two MAK metrics and the hackathon lead, then tours Journey;
   - "Where is the code?" is no longer read as a location question: it gives the project in context's repo, or his GitHub profile.
 
+**Project case studies (Nov 2026)**
+- **What it is:** each Work row opens a case study in the same tab at `projects/<slug>/`: a real static page, so direct links, refresh, browser back/forward and per-page titles all work on GitHub Pages with no routing tricks. The rows, posters and their motion are unchanged.
+- **Source of truth:** `projects/projects.json` (content, one entry per project). Run `python3 tools/build_projects.py` to write `projects/<slug>/index.html` and `projects/posters.css`; `--check` fails if they are stale. The generator copies each project's poster and the posters' CSS from `index.html`, so every case study opens on the same animated poster as its row.
+- **Shared files:**
+  - `projects/project.css`: page styles, with the same tokens as the site (kale `#D7DDBA`, Inter, JetBrains Mono).
+  - `projects/project.js`: the back link (`history.back()` when you came from the home page, so the scroll position returns), poster play/pause, lazy dashboards, and the Aadhaar walkthrough. Vanilla, no dependencies.
+- **Templates:** every page is built from typed sections: `text`, `features`, `steps`, `dataset`, `stack`, `code`, `figure`, `dashboard`, `walkthrough`, `insights`, `pipeline` and `note`. A section marked `"pending": true` is skipped until its asset or data exists.
+- **Honesty labels:** every page says what it offers (badges `Live`, `Screenshot`, `Simulation`, `Code`).
+  - Screenshots carry a "Screenshot · Not interactive" tag.
+  - Dashboards are labelled "Rebuilt from the project's dataset".
+  - The Aadhaar walkthrough is a labelled simulation with a fictional sample card; its number starts with 1, so it can never be a real Aadhaar number. No uploads.
+- **Data:** `projects/data/*.json` is compact, verified data built from the projects' own repos, and loaded only when a dashboard nears the screen. Provenance and rules are in `projects/data/README.md`. Screenshots are in `projects/assets/`.
+- **Navigation:**
+  - Back to all projects; Previous/Next, wrapping around in Work order.
+  - Cross-document view transitions: `@view-transition` is on in both `index.html` and the case studies, so the poster morphs between `wp-0…4`. Turned off under reduced motion.
+  - Speculation-rules prefetch of `projects/*` on hover, from the home page.
+- **Guide sync:** `tools/build_twin_kb.py` and `tests/twin/engine.test.mjs` treat the case studies as part of the site. Row hrefs must equal `projects/<slug>/`, and the GitHub repo links must appear on the case studies.
+- **Sitemap:** lists the five case studies.
+
 **LinkedIn sync (21 Nov 2026)**
 - The title is now "AI Automation Analyst / Google Apps Script Developer", matching LinkedIn. It changed in the head, JSON-LD, social cards, hero, About, Journey, Contact, `site.webmanifest`, README and the guide's KB (`TITLE` in `tools/build_twin_kb.py`).
 - `og-image.png` was patched to read "AI AUTOMATION ANALYST · MUMBAI": the old line was blended out and the new one drawn in JetBrains Mono 600 15px, letter-spacing 3.3px.

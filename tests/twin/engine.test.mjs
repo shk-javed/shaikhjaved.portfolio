@@ -16,6 +16,11 @@ const kb = JSON.parse(fs.readFileSync(KB_PATH, 'utf8'));
 const rawEval = JSON.parse(fs.readFileSync(EVAL_PATH, 'utf8'));
 const items = Array.isArray(rawEval) ? rawEval : rawEval.items || rawEval.questions;
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+// Work rows open case-study pages (projects/<slug>/); the GitHub links live there, so they count as part of the site.
+const caseHtml = fs.existsSync(path.join(ROOT, 'projects'))
+  ? fs.readdirSync(path.join(ROOT, 'projects'), { withFileTypes: true }).filter(e => e.isDirectory() && fs.existsSync(path.join(ROOT, 'projects', e.name, 'index.html')))
+      .map(e => fs.readFileSync(path.join(ROOT, 'projects', e.name, 'index.html'), 'utf8')).join('\n')
+  : '';
 const PHONE = /(?:\+?91[\s-]*)?(?<![\d,.])[6-9]\d{4}[\s-]?\d{5}(?!\d)/; // shared regex (contract addendum item 5)
 const VERBOSE = !!process.env.TWIN_VERBOSE;
 const engine = Engine.create(kb, { provider: 'local' });
@@ -33,7 +38,7 @@ function resolves(e) {
   if (e.kind === 'project') return e.index >= 0 && e.index < workRows && htmlIds.has(e.href.slice(1)) ? null : 'bad project index ' + e.index;
   if (e.kind === 'cert') return e.index >= 0 && e.index < certCards && htmlIds.has(e.href.slice(1)) ? null : 'bad cert index ' + e.index;
   if (e.kind === 'tool') return toolSyms.has(e.select) && htmlIds.has(e.href.slice(1)) ? null : 'bad tool ' + e.select;
-  if (e.kind === 'url') return html.includes(e.href) || html.includes(e.href.replace(/\/$/, '')) ? null : 'url not on site ' + e.href;
+  if (e.kind === 'url') return [html, caseHtml].some(h => h.includes(e.href) || h.includes(e.href.replace(/\/$/, ''))) ? null : 'url not on site ' + e.href;
   if (e.kind === 'file') return fs.existsSync(path.join(ROOT, e.href)) ? null : 'missing file ' + e.href;
   if (e.kind === 'mailto') return html.includes(e.href) || html.includes(e.href.slice(7)) ? null : 'mailto not on site';
   return 'unknown kind ' + e.kind;

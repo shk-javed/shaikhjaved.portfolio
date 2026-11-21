@@ -1,0 +1,815 @@
+{
+  "_about": "Content for the project case-study pages. tools/build_projects.py turns this into projects/<slug>/index.html. Every statement here comes from the project's README, its code, its data (see projects/data/README.md) or the portfolio itself. Keep it that way: no invented metrics or features.",
+  "site": "https://shk-javed.github.io/shaikhjaved.portfolio/",
+  "projects": [
+    {
+      "slug": "aadhaar-masking-tool",
+      "index": 0,
+      "title": "Aadhaar Masking Tool",
+      "kicker": "Privacy tool · Python / Django",
+      "summary": "Finds Aadhaar numbers in images and PDFs with OCR, checks for the 12-digit pattern and masks the first eight digits.",
+      "template": "app",
+      "repo": "https://github.com/shk-javed/Aadhaar-Masking-Tool",
+      "experience": [
+        {
+          "kind": "sim",
+          "label": "Interactive walkthrough · simulated"
+        },
+        {
+          "kind": "code",
+          "label": "Source code on GitHub"
+        }
+      ],
+      "facts": [
+        [
+          "Type",
+          "Django web app"
+        ],
+        [
+          "Input",
+          "JPG, PNG, PDF (every page)"
+        ],
+        [
+          "OCR",
+          "PaddleOCR, Tesseract fallback"
+        ],
+        [
+          "Masks",
+          "First 8 of 12 digits"
+        ]
+      ],
+      "sections": [
+        {
+          "type": "text",
+          "eyebrow": "The problem",
+          "title": "Share the document, not the number.",
+          "body": [
+            "Aadhaar copies get shared all the time, and every copy carries the full 12-digit number. This tool takes an image or PDF, finds the Aadhaar number with OCR, and masks the first eight digits so only the last four stay visible, the same idea as a masked Aadhaar.",
+            "It is a privacy-preserving OCR app: detection and masking happen in one Django web flow, and the masked file comes back as a download."
+          ]
+        },
+        {
+          "type": "walkthrough",
+          "eyebrow": "How it works",
+          "title": "Follow one document through the pipeline.",
+          "steps": [
+            {
+              "t": "Upload",
+              "d": "A JPG, PNG or PDF goes to the Django app. Each PDF page is rendered as an image at 2×.",
+              "layers": [
+                "file"
+              ]
+            },
+            {
+              "t": "Boost contrast",
+              "d": "OpenCV evens out the contrast (CLAHE) so faint print reads better.",
+              "layers": [
+                "scan"
+              ]
+            },
+            {
+              "t": "Read the text",
+              "d": "PaddleOCR finds every piece of text and its position; Tesseract steps in only if it finds nothing.",
+              "layers": [
+                "ocr"
+              ]
+            },
+            {
+              "t": "Find the number",
+              "d": "A 12-digit run, or three 4-digit groups on one line, is the Aadhaar number. Numbers next to VID, mobile, phone or email are skipped.",
+              "layers": [
+                "hit"
+              ]
+            },
+            {
+              "t": "Mask eight digits",
+              "d": "The first eight digits are covered and “XXXX XXXX” is written over them; the last four stay readable.",
+              "layers": [
+                "hit",
+                "mask"
+              ]
+            },
+            {
+              "t": "Download",
+              "d": "The masked image, or a rebuilt PDF, comes back for download.",
+              "layers": [
+                "mask",
+                "done"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "features",
+          "eyebrow": "Features",
+          "title": "What the app does.",
+          "source": "README, checked against the code",
+          "items": [
+            [
+              "Automatic detection",
+              "Finds the Aadhaar number with OCR: PaddleOCR first, Tesseract if PaddleOCR finds nothing."
+            ],
+            [
+              "Images and PDFs",
+              "Accepts JPG, PNG and PDF; every page of a PDF is masked and rebuilt."
+            ],
+            [
+              "Masks 8, keeps 4",
+              "Covers the first eight digits and writes “XXXX XXXX” over them; the last four stay as they were."
+            ],
+            [
+              "Rotated text",
+              "PaddleOCR runs with its text-angle classifier on, so rotated text can still be read."
+            ],
+            [
+              "Skips look-alikes",
+              "Numbers sitting next to words like VID, mobile, phone or email are ignored."
+            ],
+            [
+              "Simple web UI",
+              "A Django page to upload a file, preview the result and download the masked output."
+            ]
+          ]
+        },
+        {
+          "type": "pipeline",
+          "eyebrow": "As implemented",
+          "title": "What the code actually does.",
+          "source": "The code (masking/utils/ocr_utils.py, masking/views.py)",
+          "items": [
+            [
+              "Accept the file",
+              "views.py takes .jpg, .jpeg, .png or .pdf. PDFs are opened with PyMuPDF and every page is rendered at 2×; images are decoded with OpenCV."
+            ],
+            [
+              "Prepare the image",
+              "enhance_for_ocr boosts contrast with CLAHE (clip limit 2.0, 8×8 tiles); a blurred greyscale copy is kept for Tesseract."
+            ],
+            [
+              "OCR, with a fallback",
+              "PaddleOCR runs with its angle classifier on. Tesseract (English) runs only if PaddleOCR returns nothing or fails."
+            ],
+            [
+              "Pick the number",
+              "First any token with exactly 12 digits, then three 4-digit tokens on one line; only if neither matches, the first token with 11–13 digits."
+            ],
+            [
+              "Skip look-alikes",
+              "is_near_disqualifier drops candidates within three text items of words such as virtual, VID, mobile, phone, email or contact (also in Hindi)."
+            ],
+            [
+              "Mask",
+              "The left 8/12 of the number’s box is filled with the box’s median colour (blur or pixelate are options), then “XXXX XXXX” is drawn on top."
+            ],
+            [
+              "Return it",
+              "The result is saved as masked_<name>.png or a rebuilt image-only PDF, with a preview of page 1, and offered for download."
+            ]
+          ],
+          "note": "Read from the source code, not run. The code defines a few regex patterns that the current version doesn’t use; detection relies on the digit-length checks above."
+        },
+        {
+          "type": "stack",
+          "eyebrow": "Tech stack",
+          "title": "Built with.",
+          "items": [
+            [
+              "Language",
+              "Python"
+            ],
+            [
+              "Web framework",
+              "Django 4.2"
+            ],
+            [
+              "OCR",
+              "PaddleOCR 3.1 (primary) · Tesseract via pytesseract (fallback)"
+            ],
+            [
+              "Image processing",
+              "OpenCV · NumPy"
+            ],
+            [
+              "PDFs",
+              "PyMuPDF"
+            ]
+          ]
+        },
+        {
+          "type": "code",
+          "eyebrow": "Run it locally",
+          "title": "A few commands.",
+          "source": "README",
+          "lines": [
+            "git clone https://github.com/shk-javed/Aadhaar-Masking-Tool.git",
+            "cd Aadhaar-Masking-Tool",
+            "python3 -m venv venv && source venv/bin/activate",
+            "pip install -r requirements.txt",
+            "python manage.py migrate",
+            "python manage.py runserver   # then open http://127.0.0.1:8000"
+          ]
+        },
+        {
+          "type": "note",
+          "eyebrow": "Why no live demo",
+          "title": "Honest about the demo.",
+          "body": [
+            "The real app needs a Python server with the OCR models installed (its requirements include PaddlePaddle and PyTorch), which a static portfolio can't run.",
+            "And a public upload box would invite people to send real Aadhaar cards. So this page shows a simulation that runs in your browser with a made-up number, and the full code is on GitHub."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "customer-service-mis",
+      "index": 1,
+      "title": "Customer Service MIS",
+      "kicker": "Operations · SQL / Power BI",
+      "summary": "SQL analysis of 2,224 customer complaints to find recurring SLA delays, with a Power BI dashboard for weekly monitoring.",
+      "template": "analytics",
+      "repo": "https://github.com/shk-javed/comcast-customer-complaints-analysis",
+      "downloads": [
+        [
+          "Power BI file (.pbix)",
+          "https://github.com/shk-javed/comcast-customer-complaints-analysis/raw/main/comsat%20dashboard.pbix"
+        ],
+        [
+          "Dataset (.xlsx)",
+          "https://github.com/shk-javed/comcast-customer-complaints-analysis/raw/main/Comcast.xlsx"
+        ]
+      ],
+      "experience": [
+        {
+          "kind": "live",
+          "label": "Interactive dashboard · rebuilt from the dataset"
+        },
+        {
+          "kind": "shot",
+          "label": "Power BI & SQL screenshots"
+        },
+        {
+          "kind": "code",
+          "label": "Files on GitHub"
+        }
+      ],
+      "facts": [
+        [
+          "Complaints",
+          "2,224"
+        ],
+        [
+          "Analysis",
+          "SQL (MySQL)"
+        ],
+        [
+          "Dashboard",
+          "Power BI · DAX"
+        ],
+        [
+          "Focus",
+          "Resolution, peaks, hotspots"
+        ]
+      ],
+      "sections": [
+        {
+          "type": "text",
+          "eyebrow": "The problem",
+          "title": "Lots of complaints, very little signal.",
+          "source": "README",
+          "body": [
+            "Organisations often collect large volumes of customer complaint data but struggle to extract meaningful insights from it. This project turns raw complaint records into an executive-friendly dashboard for faster, smarter decisions.",
+            "The analysis looks at complaint trends, operational efficiency and the regions that need service improvements."
+          ]
+        },
+        {
+          "type": "features",
+          "eyebrow": "Objectives",
+          "title": "What it set out to answer.",
+          "source": "README",
+          "items": [
+            [
+              "Volume & resolution",
+              "Total complaint volume and resolution performance."
+            ],
+            [
+              "Peak hours",
+              "When complaints peak, for workforce planning."
+            ],
+            [
+              "Hotspots",
+              "Which regions have the highest complaint density."
+            ],
+            [
+              "Categories",
+              "The major complaint categories."
+            ],
+            [
+              "Exploration",
+              "An interactive dashboard to explore it all."
+            ]
+          ]
+        },
+        {
+          "type": "steps",
+          "eyebrow": "Method",
+          "title": "From SQL to a dashboard.",
+          "source": "README",
+          "items": [
+            [
+              "Explore with SQL",
+              "MySQL queries for complaint count by state, resolution rate, peak complaint hour and complaint-type distribution."
+            ],
+            [
+              "Model in Power BI",
+              "Data cleaning and modelling, with DAX measures for the KPIs."
+            ],
+            [
+              "Design the dashboard",
+              "KPI cards (total complaints, resolution %, open cases, peak hour), monthly and hourly trends, a hotspot map, top cities, complaint types and filters."
+            ]
+          ]
+        },
+        {
+          "type": "dashboard",
+          "id": "service",
+          "data": "customer-service.json",
+          "eyebrow": "Explore",
+          "title": "Explore the complaints."
+        },
+        {
+          "type": "figure",
+          "eyebrow": "The original",
+          "title": "The Power BI dashboard.",
+          "src": "../assets/customer-service-dashboard.webp",
+          "alt": "Power BI dashboard for the Comcast customer complaints analysis, with KPI cards, trends, a map and complaint types.",
+          "caption": "Screenshot from the project repository; the .pbix can be downloaded above and opened in Power BI Desktop. Its monthly chart runs January to December because of the day/month swap in the source dates; the interactive version above uses the corrected dates."
+        },
+        {
+          "type": "figure",
+          "eyebrow": "Filtered",
+          "title": "The same report, filtered.",
+          "src": "../assets/customer-service-sql.webp",
+          "alt": "The Power BI dashboard with its slicers set to California and Customer Care Call.",
+          "caption": "Screenshot from the project repository: the dashboard with slicers applied (California, Customer Care Call). The repository has no screenshot of the SQL queries themselves."
+        },
+        {
+          "type": "insights",
+          "eyebrow": "What the data shows",
+          "title": "Findings.",
+          "items": [
+            [
+              "76.75%",
+              "of the 2,224 complaints were resolved (Solved or Closed); 363 are still open and 154 pending."
+            ],
+            [
+              "57.6%",
+              "of all complaints arrived in June 2015 (1,280). The 23–25 June spike alone holds 506 (22.75%)."
+            ],
+            [
+              "98% → 69%",
+              "Resolution fell from 97.98% for April complaints to 73.43% in May and 68.75% in June; 272 of the 363 open cases are from June."
+            ],
+            [
+              "16:00",
+              "is the peak hour (177 complaints); 88.4% arrive between 09:00 and midnight."
+            ],
+            [
+              "Georgia",
+              "leads with 288 complaints (12.95%), then Florida (240) and California (220): a third of all complaints across 42 states."
+            ],
+            [
+              "50 / 50",
+              "Calls (1,119) and online complaints (1,105) split almost evenly, with nearly the same resolution rate (77.2% vs 76.3%)."
+            ]
+          ],
+          "note": "Computed from Comcast.xlsx in the project repository, with the day/month swap corrected (see the note under the dashboard)."
+        }
+      ]
+    },
+    {
+      "slug": "domestic-airline-kpi-dashboard",
+      "index": 2,
+      "title": "Domestic Airline KPI Dashboard",
+      "kicker": "Airline data · Power BI / DAX",
+      "summary": "A star-schema model with DAX measures comparing pricing, routes and performance across 12 airlines.",
+      "template": "bi",
+      "repo": "https://github.com/shk-javed/domestic-airline-kpi-dashboard",
+      "experience": [
+        {
+          "kind": "shot",
+          "label": "Power BI dashboard · screenshot"
+        },
+        {
+          "kind": "code",
+          "label": "Project on GitHub"
+        }
+      ],
+      "facts": [
+        [
+          "Flights",
+          "9,651"
+        ],
+        [
+          "Airlines",
+          "12 (per README)"
+        ],
+        [
+          "Tools",
+          "Power BI · DAX · Power Query"
+        ],
+        [
+          "Model",
+          "Star schema"
+        ]
+      ],
+      "sections": [
+        {
+          "type": "text",
+          "eyebrow": "Overview",
+          "title": "Twelve airlines, one view.",
+          "source": "README",
+          "body": [
+            "An interactive airline analytics dashboard built in Power BI. It analyses a dataset of 9,651 domestic flights across 12 airlines to pull out pricing, route and scheduling insights.",
+            "The flight data sits in a star-schema model with DAX measures, prepared and cleaned in Power Query."
+          ]
+        },
+        {
+          "type": "figure",
+          "eyebrow": "The dashboard",
+          "title": "The Power BI report.",
+          "src": "../assets/airline-dashboard.webp",
+          "alt": "Power BI dashboard comparing domestic airlines by price, routes, departure hours and flight duration.",
+          "caption": "Screenshot from the project repository."
+        },
+        {
+          "type": "features",
+          "eyebrow": "What it shows",
+          "title": "Seven views.",
+          "source": "README",
+          "items": [
+            [
+              "Total flights",
+              "A KPI for the full flight count."
+            ],
+            [
+              "Price by airline",
+              "Average ticket price for each airline."
+            ],
+            [
+              "Peak departures",
+              "The busiest departure hours."
+            ],
+            [
+              "Duration buckets",
+              "Flights grouped by duration."
+            ],
+            [
+              "Cheapest routes",
+              "The top 3 cheapest routes."
+            ],
+            [
+              "Priciest routes",
+              "The top 3 most expensive routes."
+            ],
+            [
+              "By source",
+              "Flight distribution by source city."
+            ]
+          ]
+        },
+        {
+          "type": "steps",
+          "eyebrow": "Method",
+          "title": "How it was built.",
+          "source": "README",
+          "items": [
+            [
+              "Clean in Power Query",
+              "Data cleaning and transformation of the 9,651 flight records."
+            ],
+            [
+              "Model",
+              "A star-schema data model."
+            ],
+            [
+              "Measure with DAX",
+              "DAX measures for the KPIs and comparisons."
+            ],
+            [
+              "Design",
+              "A single-page report built for comparison across airlines and routes."
+            ]
+          ]
+        },
+        {
+          "type": "dataset",
+          "eyebrow": "The data",
+          "title": "About the dataset.",
+          "source": "README",
+          "items": [
+            [
+              "Records",
+              "9,651 flights"
+            ],
+            [
+              "Airlines",
+              "12"
+            ],
+            [
+              "Source",
+              "A custom, self-created dataset (per the project README); no external data"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "eyebrow": "Interactivity",
+          "title": "Why this one is a screenshot.",
+          "body": [
+            "The repository holds the dashboard image but not the .pbix file or the dataset, so there is nothing genuine to rebuild or embed here. If the Power BI report is published, it can be embedded on this page."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "hospital-er-dashboard",
+      "index": 3,
+      "title": "Hospital ER Dashboard",
+      "kicker": "Healthcare · Excel / PivotTables",
+      "summary": "Wait times, satisfaction, admissions and referrals across 9,216 emergency-room records.",
+      "template": "analytics",
+      "repo": "https://github.com/shk-javed/Hospital-ER-Dashboard",
+      "downloads": [
+        [
+          "Excel workbook (.xlsx)",
+          "https://github.com/shk-javed/Hospital-ER-Dashboard/raw/main/Hospital%20ER%20Dashboard.xlsx"
+        ],
+        [
+          "Dataset (.csv)",
+          "https://github.com/shk-javed/Hospital-ER-Dashboard/raw/main/Hospital%20Emergency%20Room%20Data.csv"
+        ]
+      ],
+      "experience": [
+        {
+          "kind": "live",
+          "label": "Interactive dashboard · rebuilt from the dataset"
+        },
+        {
+          "kind": "shot",
+          "label": "Original Excel dashboard · screenshot"
+        },
+        {
+          "kind": "code",
+          "label": "Files on GitHub"
+        }
+      ],
+      "facts": [
+        [
+          "Records",
+          "9,216"
+        ],
+        [
+          "Period",
+          "Apr 2023 – Oct 2024"
+        ],
+        [
+          "Tools",
+          "Excel · PivotTables · Slicers"
+        ],
+        [
+          "Filters",
+          "Year and month"
+        ]
+      ],
+      "sections": [
+        {
+          "type": "text",
+          "eyebrow": "The problem",
+          "title": "Make the emergency room readable.",
+          "source": "README",
+          "body": [
+            "Raw hospital emergency data hides the things an ER team needs at a glance: how many patients came in, how long they waited, how satisfied they were, who was admitted and where they were referred.",
+            "This dashboard turns that data into structured, actionable views for operational planning, patient experience and resource allocation."
+          ]
+        },
+        {
+          "type": "dashboard",
+          "id": "hospital",
+          "data": "hospital-er.json",
+          "eyebrow": "Explore",
+          "title": "Explore the emergency room."
+        },
+        {
+          "type": "figure",
+          "eyebrow": "The original",
+          "title": "The Excel dashboard.",
+          "src": "../../project-hospital-er.webp",
+          "alt": "The original Hospital Emergency Room Excel dashboard with month slicers, KPI cards, admission status, age groups and department referrals.",
+          "caption": "Screenshot of the original Excel dashboard from the project repository (February selected)."
+        },
+        {
+          "type": "features",
+          "eyebrow": "What it covers",
+          "title": "Eight views.",
+          "source": "README",
+          "items": [
+            [
+              "Total patients",
+              "Patient count for the selected period."
+            ],
+            [
+              "Average wait time",
+              "How long patients waited."
+            ],
+            [
+              "Satisfaction",
+              "Average satisfaction score."
+            ],
+            [
+              "Admissions",
+              "Admitted vs not admitted."
+            ],
+            [
+              "Gender",
+              "Gender-wise split."
+            ],
+            [
+              "Age groups",
+              "Patient trends by age group."
+            ],
+            [
+              "Referrals",
+              "Department referral load."
+            ],
+            [
+              "Time filters",
+              "Month and year comparison."
+            ]
+          ]
+        },
+        {
+          "type": "insights",
+          "eyebrow": "What the data shows",
+          "title": "Findings.",
+          "items": [
+            [
+              "35.3 min",
+              "average wait across all 9,216 visits; only 40.7% (3,749) were seen within 30 minutes."
+            ],
+            [
+              "50 / 50",
+              "Admissions split almost exactly: 4,612 admitted (50.04%) and 4,604 not."
+            ],
+            [
+              "Feb 2024",
+              "was the hardest month: the fewest visits (431), the longest average wait (36.67 min) and the lowest on-time rate (34.34%)."
+            ],
+            [
+              "58.6%",
+              "of visits had no department referral; General Practice leads referrals with 1,840, then Orthopedics with 995."
+            ],
+            [
+              "27%",
+              "of visits recorded a satisfaction score (2,517), averaging 4.99 out of 10."
+            ],
+            [
+              "530",
+              "visits in August 2024, the busiest month in the data (April 2023 to October 2024)."
+            ]
+          ],
+          "note": "Computed from Hospital Emergency Room Data.csv in the project repository."
+        }
+      ]
+    },
+    {
+      "slug": "spotify-2023-dashboard",
+      "index": 4,
+      "title": "Spotify 2023 Dashboard",
+      "kicker": "Music data · Excel PivotTables",
+      "summary": "Top tracks and artists, decade-wise popularity and audio features across 932 tracks.",
+      "template": "analytics",
+      "repo": "https://github.com/shk-javed/spotify2023-dashboard",
+      "downloads": [
+        [
+          "Excel workbook (.xlsx)",
+          "https://github.com/shk-javed/spotify2023-dashboard/raw/main/spotify-2023.xlsx"
+        ]
+      ],
+      "experience": [
+        {
+          "kind": "live",
+          "label": "Interactive dashboard · rebuilt from the dataset"
+        },
+        {
+          "kind": "shot",
+          "label": "Original Excel dashboard · screenshot"
+        },
+        {
+          "kind": "code",
+          "label": "Workbook on GitHub"
+        }
+      ],
+      "facts": [
+        [
+          "Tracks",
+          "932"
+        ],
+        [
+          "Tools",
+          "Excel · PivotTables · Slicers"
+        ],
+        [
+          "Charts",
+          "Radar, donut, rankings"
+        ],
+        [
+          "Data",
+          "Kaggle · Spotify 2023"
+        ]
+      ],
+      "sections": [
+        {
+          "type": "text",
+          "eyebrow": "Overview",
+          "title": "What 2023 actually streamed.",
+          "source": "README",
+          "body": [
+            "A dashboard of Spotify's most-streamed songs of 2023, built with Excel PivotTables, donut and radar charts, summary KPIs and slicers.",
+            "It answers which music era dominates streams, how artists and tracks trend by year and month, and how audio features behave."
+          ]
+        },
+        {
+          "type": "dashboard",
+          "id": "spotify",
+          "data": "spotify-2023.json",
+          "eyebrow": "Explore",
+          "title": "Explore the year in music."
+        },
+        {
+          "type": "figure",
+          "eyebrow": "The original",
+          "title": "The Excel dashboard.",
+          "src": "../assets/spotify-dashboard.webp",
+          "alt": "The original Spotify 2023 Excel dashboard: total tracks, average and total streams, top 10 tracks and artists, tracks released per year, a radar of audio features, and mode and key donuts.",
+          "caption": "Screenshot of the original Excel dashboard (WPS-compatible), shared by the author."
+        },
+        {
+          "type": "features",
+          "eyebrow": "What it covers",
+          "title": "Four views.",
+          "source": "README",
+          "items": [
+            [
+              "KPIs",
+              "Total tracks and average streams."
+            ],
+            [
+              "Rankings",
+              "Top tracks and artists, with year and month filters."
+            ],
+            [
+              "Music characteristics",
+              "A radar chart of audio features."
+            ],
+            [
+              "By decade",
+              "Decade-wise popularity."
+            ]
+          ]
+        },
+        {
+          "type": "insights",
+          "eyebrow": "What the data shows",
+          "title": "Findings.",
+          "items": [
+            [
+              "478B",
+              "total streams across the 932 tracks; the median track has 285.7M."
+            ],
+            [
+              "3.70B",
+              "Blinding Lights (The Weeknd, 2019) is the most-streamed track, ahead of Shape of You (3.56B)."
+            ],
+            [
+              "16% → 50%",
+              "The 149 tracks with a billion or more streams (16% of tracks) take 50.5% of all streams."
+            ],
+            [
+              "42%",
+              "of the tracks were released in 2022 (392); 77% are from the 2020s."
+            ],
+            [
+              "1.18B",
+              "average streams for 2010s tracks, against 339M for 2020s tracks: older hits have had longer to collect streams."
+            ],
+            [
+              "34 tracks",
+              "Taylor Swift has the most tracks and the highest total (14.05B), counting the artist credit exactly as listed."
+            ]
+          ],
+          "note": "Computed from spotify-2023.xlsx in the project repository."
+        }
+      ]
+    }
+  ]
+}

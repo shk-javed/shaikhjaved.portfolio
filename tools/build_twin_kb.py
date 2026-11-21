@@ -250,8 +250,8 @@ fact("f.lead.overview", "person", "leadership", "Javed's leadership covers leadi
      ["leadership", "achievements", "extracurricular", "community"])
 # projects (row text is parsed and cross-checked; sentences are curated)
 P = [
-    ("aadhaar", "desc", "Javed's Aadhaar Masking Tool finds Aadhaar numbers in images and PDFs with OCR, checks them with regex and masks the first eight digits.",
-     ["Finds Aadhaar numbers in images and PDFs with OCR, checks them with regex and masks the first eight digits"], ["how it works", "what is"]),
+    ("aadhaar", "desc", "Javed's Aadhaar Masking Tool finds Aadhaar numbers in images and PDFs with OCR, checks for the 12-digit pattern and masks the first eight digits.",
+     ["Finds Aadhaar numbers in images and PDFs with OCR, checks for the 12-digit pattern and masks the first eight digits"], ["how it works", "what is"]),
     ("aadhaar", "stack", "The Aadhaar Masking Tool is a privacy tool built with Python, Django, OpenCV and PaddleOCR.",
      ["PYTHON · DJANGO · OPENCV · PADDLEOCR", "Privacy tool · Python / Django"], ["stack", "tech", "built with"]),
     ("aadhaar", "figure", "Because the Aadhaar Masking Tool masks only the first 8 of 12 digits, the last 4 digits stay visible.",
@@ -292,8 +292,8 @@ fact("f.proj.csmis.resume", "proj.csmis", "project_detail", "His resume also not
      ["resume:KPI cards and dynamic filters"], ["ev.resume"], ["kpi cards", "filters"], "resume_only", 0.7)
 fact("f.proj.airline.resume", "proj.airline", "project_detail", "His resume also notes that Javed transformed the 9,651 flight records with Power Query to prepare them for reporting.", "resume",
      ["resume:transformed 9,651 flight records using Power Query"], ["ev.resume"], ["power query", "transform"], "resume_only", 0.7)
-fact("f.proj.count", "person", "projects_list", "Javed's Work section shows five projects, from a privacy tool to operational dashboards, and each one links to its code on GitHub.", "#projects",
-     ["Five projects, from a privacy tool to operational dashboards", "every row opens its code on GitHub"], ["ev.projects"], ["projects", "portfolio", "work", "kya banaya"])
+fact("f.proj.count", "person", "projects_list", "Javed's Work section shows five projects, from a privacy tool to operational dashboards; each one opens a case study, with its code on GitHub.", "#projects",
+     ["Five projects, from a privacy tool to operational dashboards", "every row opens a case study, with the code on GitHub"], ["ev.projects"], ["projects", "portfolio", "work", "kya banaya"])
 fact("f.proj.site", "proj.site", "project_detail", "Javed built this portfolio by hand as a single page of plain HTML, CSS and JavaScript, with no framework and no build step.", "README.md",
      ["readme:plain HTML, CSS and JavaScript in one file, with no framework and no build step"], ["ev.github"], ["this website", "portfolio", "how built"])
 # certificates
@@ -536,8 +536,11 @@ def check(site, kb):
         errs.append(f"expected {len(PROJECTS)} work rows, found {len(site['rows'])}")
     for key, (i, slug, label, _a) in PROJECTS.items():
         r = next((r for r in site["rows"] if r["i"] == i), None)
-        if not r or r["href"] != GH + slug:
-            errs.append(f"work row {i} no longer links to {slug}")
+        case = site.get("cases", {}).get(i)
+        if not r or not case or r["href"] != case["href"]:
+            errs.append(f"work row {i} no longer opens its case study ({case and case['href']})")
+        elif f'href="{GH + slug}"' not in case["raw"]:
+            errs.append(f"case study {case['href']} no longer links to {slug}")
     if len(site["certs"]) != len(CERTS):
         errs.append(f"expected {len(CERTS)} certs, found {len(site['certs'])}")
     for key, (i, iss, date, title, label, _a) in CERTS.items():
@@ -561,7 +564,7 @@ def check(site, kb):
     for f in C:
         for v in f["verify"]:
             if v.startswith("raw:"):
-                hay, needle = site["raw"], v[4:]
+                hay, needle = site["raw"] + site.get("cases_raw", ""), v[4:]
             elif v.startswith("readme:"):
                 hay, needle = readme, norm(v[7:])
             elif v.startswith("resume:"):
@@ -624,7 +627,7 @@ def check(site, kb):
         if k == "tool" and e["select"] not in site["EL"]:
             errs.append(f"{eid}: unknown tool {e['select']}")
         if k in ("url", "mailto", "file") and tgt not in site["hrefs"]:
-            errs.append(f"{eid}: {tgt} is not linked from index.html")
+            errs.append(f"{eid}: {tgt} is not linked from index.html or a case study")
         if k == "file" and not (ROOT / tgt).exists():
             errs.append(f"{eid}: file {tgt} missing")
     # refusals
@@ -696,11 +699,26 @@ def check(site, kb):
     return errs, warns, n_eval
 
 
+def add_case_studies(site):
+    """Work rows open case-study pages (projects/<slug>/, built by tools/build_projects.py); the GitHub links live there."""
+    site["cases"], site["cases_raw"] = {}, ""
+    data = ROOT / "projects" / "projects.json"
+    if not data.exists():
+        return site
+    for p in json.loads(data.read_text(encoding="utf-8"))["projects"]:
+        page = ROOT / "projects" / p["slug"] / "index.html"
+        raw = page.read_text(encoding="utf-8") if page.exists() else ""
+        site["cases"][p["index"]] = dict(href=f'projects/{p["slug"]}/', raw=raw)
+        site["cases_raw"] += raw
+        site["hrefs"] |= set(re.findall(r'href="([^"]+)"', raw))
+    return site
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args()
-    site = parse_site(INDEX.read_text(encoding="utf-8"))
+    site = add_case_studies(parse_site(INDEX.read_text(encoding="utf-8")))
     if not a.check:
         kb = build(site)
         import datetime
