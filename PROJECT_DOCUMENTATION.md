@@ -129,7 +129,7 @@ Planned but not currently standalone: dedicated Experience, Education, and Achie
 
 ## Site metadata, sharing, search, 404 and analytics (Oct 2026)
 
-- The `<head>` has the search title "Shaikh Javed – Automation Analyst | Data, interpreted", a 156-character description, and a canonical link to `https://shk-javed.github.io/shaikhjaved.portfolio/`. It also has JSON-LD (Person, WebSite, ProfilePage) and Open Graph and Twitter tags.
+- The `<head>` has the search title "Shaikh Javed – AI Automation Analyst | Data, interpreted", a 156-character description, and a canonical link to `https://shk-javed.github.io/shaikhjaved.portfolio/`. It also has JSON-LD (Person, WebSite, ProfilePage) and Open Graph and Twitter tags.
 - Share and icon files: `og-image.png` (1200×630 link preview), `favicon.ico` (16/32/48; the old file was 0 bytes), `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` and `site.webmanifest`. theme-color is #004d40. All icons come from the original 2048px logo (git `7f827de:logo.png`).
 - `sitemap.xml` lists only the home page; update `<lastmod>` and the JSON-LD `dateModified` on releases. There is no `robots.txt` on purpose: on a GitHub Pages project site, crawlers only read `https://shk-javed.github.io/robots.txt`, so a file in this repo would be ignored, and having none means "crawl everything".
 - `404.html` is standalone ("This row doesn't exist in the dataset.") and noindex. It uses `<base href="https://shk-javed.github.io/shaikhjaved.portfolio/">`, so its assets resolve at any depth and in local previews.
@@ -160,7 +160,7 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
 | `twin/pangolin.js` | Character | Sprite player (`SHKPangolin`). Timer clock, not rAF; per-row ground and scale corrections; 16 look directions; pauses when hidden. |
 | `twin/sprites/*.webp`, `manifest.json` | Character | Built from the official ChatGPT-pet v2 sheet (1536×2288, 192×208 cells) by `tools/build_twin_sprites.py <sheet>`. A new sheet can be dropped in by re-running the tool. `running-right` is mirrored from `running-left`. |
 | `twin/engine.js` | Engine | Local deterministic answers (`SHKTwinEngine`). Pipeline: normalise, Hinglish/synonym map, typo-tolerant tokens, intent rules, BM25 over facts and aliases, context resolution, templated grounded answers. Every sentence comes from a KB fact; output is text segments rendered with textContent only. |
-| `twin/knowledge.json` | Knowledge | 158 facts, 55 entities, 57 evidence targets, 12 refusals, 5 starters. Built and checked by `tools/build_twin_kb.py` (`--check` compares the KB against index.html and fails on drift, broken targets, or phone-number patterns). |
+| `twin/knowledge.json` | Knowledge | 159 facts, 55 entities, 57 evidence targets, 12 refusals, 5 starters. Built and checked by `tools/build_twin_kb.py` (`--check` compares the KB against index.html and fails on drift, broken targets, or phone-number patterns). |
 | `index.html` | Lead | `window.SHKSite.go` hooks in the work-index, certificate-reel and toolkit modules; the `twin/tw-boot.js` script tag; the "Ask my AI guide" button. |
 
 **Animation plan (Nov 2026, decided with the owner)**
@@ -253,6 +253,12 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
 - **Guide engine:**
   - a `pitch` cue ("Why should I hire him?", "kyu hire kare", "What makes him stand out?", "good fit") answers with the current role, what he builds, two MAK metrics and the hackathon lead, then tours Journey;
   - "Where is the code?" is no longer read as a location question: it gives the project in context's repo, or his GitHub profile.
+
+**LinkedIn sync (21 Nov 2026)**
+- The title is now "AI Automation Analyst / Google Apps Script Developer", matching LinkedIn. It changed in the head, JSON-LD, social cards, hero, About, Journey, Contact, `site.webmanifest`, README and the guide's KB (`TITLE` in `tools/build_twin_kb.py`).
+- `og-image.png` was patched to read "AI AUTOMATION ANALYST · MUMBAI": the old line was blended out and the new one drawn in JetBrains Mono 600 15px, letter-spacing 3.3px.
+- Company logos in the Journey cards: `logo-american-hairline.webp` was redrawn at 512px from the 100px LinkedIn logo (Cinzel and Montserrat on rgb(31,74,204)); `logo-mak-byte.webp` is the 100px cube upscaled 4× (Lanczos and unsharp). Both are 192px WebP (4–6 KB), shown as 56px rounded badges (44px on phones) beside the role and company in `.timeline-card__head`. `alt=""`, because the company name is right beside them.
+- The American Hairline card gained LinkedIn's line "I support business operations through automation and continuous process improvement." (KB fact `f.ah.support`).
 
 **More life for the guide (Nov 2026)**
 - **Tour climbs to the evidence (desktop):** the guide hops up its free right-hand column to the evidence's level and walks to stand beside it: on its right when there is room, else its left, else under its middle. It waves or cheers, looks at the evidence, then walks back and hops down. The vertical move rides on `.tw-dock`'s `translate` (`dockY` / `riseTo` in `tw-app.js`, shared with the search acting). Phones still use the bottom strip.

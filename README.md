@@ -1,6 +1,6 @@
 # Shaikh Javed — Portfolio
 
-**Automation Analyst and Google Apps Script Developer in Mumbai.**
+**AI Automation Analyst and Google Apps Script Developer in Mumbai.**
 Google Sheets automations, internal tools and dashboards; SQL, Power BI, Excel.
 
 ### [View the live site →](https://shk-javed.github.io/shaikhjaved.portfolio/)
@@ -15,7 +15,7 @@ This is a single-page portfolio that I built by hand. A scroll-driven canvas fil
 
 - **Hero**: a cinematic, scroll-driven canvas film.
 - **About**: who I am and what I work on.
-- **Experience**: American Hairline (Automation Analyst / Google Apps Script Developer) and MAK { Byte } (Data Analyst).
+- **Experience**: American Hairline (AI Automation Analyst / Google Apps Script Developer) and MAK { Byte } (Data Analyst).
 - **Education**: B.Sc. Data Science.
 - **Leadership**: I led a hackathon team that built Maayura, showcased a project on stage at GDG DevFest Mumbai, served as a Google Student Ambassador and contributed to open source.
 - **[Work](https://shk-javed.github.io/shaikhjaved.portfolio/#projects)**: five projects, each with its own animated poster. They are the Aadhaar Masking Tool, a Customer Service MIS, a Domestic Airline KPI Dashboard, a Hospital ER Dashboard and a Spotify 2023 Dashboard.

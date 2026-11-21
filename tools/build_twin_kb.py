@@ -39,7 +39,7 @@ EVAL_TAGS = ["recruiter", "technical", "credentials", "casual", "unanswerable", 
 EV_KINDS = ["anchor", "project", "cert", "tool", "url", "file", "mailto"]
 BANNED_TRIGGERS = {"number", "pay", "call", "age", "home", "rate", "think", "internal", "phone", "old", "live",
                    "family", "remote", "act", "you", "who", "what", "how", "contact", "job", "work"}
-TITLE = "Automation Analyst / Google Apps Script Developer"
+TITLE = "AI Automation Analyst / Google Apps Script Developer"
 GH = "https://github.com/shk-javed/"
 
 
@@ -185,6 +185,8 @@ fact("f.ah.work", "role.ah", "role_detail", "At American Hairline, Javed handles
      ["MIS automation, Google Apps Script development and Google Sheets-based business solutions"], ["ev.experience"], ["responsibilities", "work", "apps script", "sheets", "kaam"])
 fact("f.ah.build", "role.ah", "role_detail", "At American Hairline, Javed builds and maintains internal web apps, reports, dashboards and automation tools with HTML, CSS, JavaScript and AI-assisted workflows.", "#experience",
      ["internal web applications, reports, dashboards and process automation tools with HTML, CSS, JavaScript and AI-assisted development workflows"], ["ev.experience"], ["web apps", "internal tools", "dashboards", "javascript"])
+fact("f.ah.support", "role.ah", "role_detail", "At American Hairline, Javed supports business operations through automation and continuous process improvement.", "#experience",
+     ["support business operations through automation and continuous process improvement"], ["ev.experience"], ["operations", "process improvement", "support", "business"])
 # MAK { Byte }
 fact("f.mak.span", "org.mak", "experience", "Javed spent 1 yr 1 mo at MAK { Byte } in Mumbai, working hybrid, from Aug 2025 to Aug 2026.", "#experience",
      ["Aug 2025 - Aug 2026", "1 yr 1 mo · Hybrid · Mumbai"], ["ev.experience"], ["mak", "previous", "how long", "duration", "hybrid"])
@@ -332,7 +334,7 @@ fact("f.contact.github", "person", "contact", "Javed's GitHub profile is github.
 fact("f.contact.resume", "person", "resume", "Javed's resume is available as a PDF download from the Contact section.", "#contact",
      ["raw:Shaikh_Javed_Data_Analyst.pdf", "Download Resume"], ["ev.resume", "ev.contact"], ["resume", "cv", "pdf", "download"])
 fact("f.contact.availability", "person", "availability", "The site doesn't say whether Javed is looking for a new role, so the best way to ask about opportunities is to email him.", "#contact",
-     ["Currently Automation Analyst / Google Apps Script Developer, American Hairline"], ["ev.email"], ["available", "open to work", "hiring", "looking for job", "opportunities"], "partial", 0.8)
+     ["Currently AI Automation Analyst / Google Apps Script Developer, American Hairline"], ["ev.email"], ["available", "open to work", "hiring", "looking for job", "opportunities"], "partial", 0.8)
 # the guide itself
 fact("f.twin.what", "twin", "twin_meta", "SHK JAVED is an AI guide, not Javed himself, and it answers only from this site's verified facts.", "twin",
      [], [], ["who are you", "are you javed", "are you human", "bot", "ai"], "meta")

@@ -7,7 +7,7 @@
    "f.ah.role"
   ],
   "mustInclude": [
-   "Automation Analyst / Google Apps Script Developer",
+   "AI Automation Analyst / Google Apps Script Developer",
    "American Hairline"
   ],
   "mustNotContain": [],
@@ -105,7 +105,7 @@
    "f.id.title"
   ],
   "mustInclude": [
-   "Automation Analyst / Google Apps Script Developer"
+   "AI Automation Analyst / Google Apps Script Developer"
   ],
   "mustNotContain": [],
   "expectRefusal": null,
