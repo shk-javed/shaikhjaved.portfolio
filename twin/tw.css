@@ -163,9 +163,17 @@ body.menu-open .tw-say{visibility:hidden}
 @keyframes tw-tipsy{0%,100%{transform:translateX(-5px) rotate(-12deg)}30%{transform:translateX(4px) rotate(9deg)}55%{transform:translateX(-2px) rotate(-4deg)}80%{transform:translateX(6px) rotate(13deg)}}
 .tw-note{position:fixed;z-index:47;pointer-events:none;color:var(--tw-deep);font:700 20px/1 var(--body,'Inter',system-ui,sans-serif);opacity:0;animation:tw-note 1.9s ease-out both}
 @keyframes tw-note{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(16px,-96px) rotate(18deg) scale(1.1)}}
-/* the nap: zzz above the dozing pet */
-.tw-root.is-asleep .tw-pet::after{content:"z z Z";position:absolute;z-index:2;right:0;top:4px;color:var(--tw-deep);font:700 13px/1 var(--mono,'JetBrains Mono',monospace);letter-spacing:.04em;pointer-events:none;animation:tw-zzz 2.6s ease-in-out infinite}
-@keyframes tw-zzz{0%{opacity:0;transform:translate(0,6px)}30%,70%{opacity:1}100%{opacity:0;transform:translate(10px,-16px)}}
+/* the nap, cat style: slow breathing, a nose bubble that swells on each breath, z z Z rising one after another */
+.tw-nap{display:none;position:absolute;inset:0;z-index:2;pointer-events:none}
+.tw-root.is-asleep .tw-nap{display:block}
+.tw-root.is-asleep .tw-pet{animation:tw-breathe 3.4s ease-in-out infinite;transform-origin:50% 92%}
+@keyframes tw-breathe{0%,100%{transform:none}50%{transform:scale(1.025,.965) translateY(1px)}}
+.tw-bubble{position:absolute;left:10px;top:52px;width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,96,100,.4);background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.95) 0 16%,rgba(225,242,244,.6) 38%,rgba(150,205,214,.35) 72%);transform-origin:85% 40%;animation:tw-bubble 3.4s ease-in-out infinite}
+@keyframes tw-bubble{0%,100%{transform:scale(.2)}50%{transform:scale(1)}}
+.tw-zzz i{position:absolute;right:8px;top:14px;color:var(--tw-deep);font:700 11px/1 var(--mono,'JetBrains Mono',monospace);font-style:normal;opacity:0;animation:tw-z 3s ease-in infinite}
+.tw-zzz i:nth-child(2){font-size:13px;animation-delay:1s}
+.tw-zzz i:nth-child(3){font-size:16px;animation-delay:2s}
+@keyframes tw-z{0%{opacity:0;transform:translate(0,4px) scale(.6)}20%{opacity:1}75%{opacity:.85}100%{opacity:0;transform:translate(16px,-36px) rotate(-12deg) scale(1.15)}}
 /* while the answer is checked: a soft line sweeps the page up and down until it lands, then locks on (.is-on) */
 .tw-scan.is-search{opacity:.8;border-bottom:0;box-shadow:none;background:linear-gradient(180deg,rgba(215,221,186,0),rgba(215,221,186,.28) 44%,var(--tw-kale) 50%,rgba(215,221,186,.28) 56%,rgba(215,221,186,0));animation:tw-scan-loop 2.2s cubic-bezier(.45,0,.55,1) infinite alternate}
 .tw-scan.is-search .tw-scan__label{bottom:auto;top:calc(50% + 6px)}
@@ -230,7 +238,8 @@ body.menu-open .tw-say{visibility:hidden}
   .tw-ans,.tw-msg.is-final .tw-card,.tw-msg.is-final .tw-ev,.tw-msg.is-final .tw-fus{animation:none!important;transition:none!important}
   .tw-ans__by.is-wait::before{animation:none;opacity:1}
   .tw-pet.is-dancing,.tw-note{animation:none!important}.tw-note{display:none}
-  .tw-root.is-asleep .tw-pet::after{animation:none;opacity:1}
+  .tw-root.is-asleep .tw-pet,.tw-bubble{animation:none}.tw-bubble{transform:scale(.7)}
+  .tw-zzz i{animation:none;opacity:1}.tw-zzz i:nth-child(2){transform:translate(8px,-12px)}.tw-zzz i:nth-child(3){transform:translate(16px,-26px)}
 }
 @media print{.tw-root{display:none!important}}
 @media (forced-colors:active){

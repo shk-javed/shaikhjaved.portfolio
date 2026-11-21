@@ -257,7 +257,12 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
 **More life for the guide (Nov 2026)**
 - **Tour climbs to the evidence (desktop):** the guide hops up its free right-hand column to the evidence's level and walks to stand beside it: on its right when there is room, else its left, else under its middle. It waves or cheers, looks at the evidence, then walks back and hops down. The vertical move rides on `.tw-dock`'s `translate` (`dockY` / `riseTo` in `tw-app.js`, shared with the search acting). Phones still use the bottom strip.
 - **Cursor follow (desktop, fine pointer):** while idle, the face turns toward the pointer (16 directions; the face-hiding 150–210° frames snap to 135/225). It settles 2.6 s after the pointer stops. Never during a tour, search, dance or nap.
-- **Nap:** after 45 s with no pointer, scroll, key or touch (docked, chat closed), it dozes (the `failed` frame 3, with "z z Z"). Any activity wakes it with a jump and "Huh! I'm awake, I'm awake!".
+- **Nap (cat style):** after 45 s with no pointer, scroll, key or touch (docked, chat closed):
+  - the head droops frame by frame (`failed` frames 0–3);
+  - slow breathing starts (a 3.4 s squash on `.tw-pet`);
+  - a nose bubble swells on each breath (`.tw-bubble`), and z z Z rise one after another (`.tw-zzz`);
+  - a sleepy nod comes every 7–10 s.
+  Any activity wakes it with a jump and "Huh! I'm awake, I'm awake!". Reduced motion: the pose with a still zzz.
 - **Wedding-uncle dance (easter egg):** chat words like "dance", "nacho", "party", "shaadi" or "bhangra" (`DANCE_Q`), or reaching the footer (once per page view), trigger ~5.5 s of moves: a hands-up bulb twist (wave frames) → a wobbly twirl (waiting frames) → a head shake → a "Balle balle!" jump, with floating notes. Reduced motion: a still pose and the line only.
 
 ## Known Issues

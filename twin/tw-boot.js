@@ -84,7 +84,9 @@
           '<span class="tw-stage" aria-hidden="true"><span class="tw-pet">' +
             '<span class="tw-disc"></span>' +
             '<img class="tw-poster" src="' + BASE + 'sprites/poster.webp" alt="" width="96" height="104" decoding="async">' +
-          '</span></span>' +
+          '</span>' +
+          '<span class="tw-nap" aria-hidden="true"><span class="tw-bubble"></span><span class="tw-zzz"><i>z</i><i>z</i><i>Z</i></span></span>' +
+          '</span>' +
         '</button>' +
       '</div>' +
       '<div class="tw-strip" aria-hidden="true"></div>' +
@@ -259,8 +261,17 @@
     if (!followRaf) followRaf = requestAnimationFrame(followStep);
   }, { passive: true });
 
-  /* ---------- nap: 45 s with no pointer, scroll, key or touch and the docked pet dozes off (zzz); any activity wakes it with a start ---------- */
-  var asleep = false, sleepTimer = 0, lastArm = 0;
+  /* ---------- nap: 45 s with no pointer, scroll, key or touch and the docked pet dozes off like a cat: the head droops
+     frame by frame, then slow breathing, a nose bubble that grows with each breath, rising z z Z and a sleepy nod every
+     7–10 s. Any activity wakes it with a start. Reduced motion: the sleeping pose with a still zzz. ---------- */
+  var asleep = false, sleepTimer = 0, lastArm = 0, napTimers = [];
+  function nod() {
+    napTimers.push(setTimeout(function () {
+      if (!asleep || !pet) return;
+      pet.still('failed', 2); // head lifts a little…
+      napTimers.push(setTimeout(function () { if (asleep && pet) { pet.still('failed', 3); nod(); } }, 520)); // …and drops again
+    }, 7000 + Math.random() * 3000));
+  }
   function armSleep(force) {
     var now = Date.now();
     if (!force && now - lastArm < 1000) return;
@@ -269,12 +280,15 @@
   function doze() {
     if (!pet || !ui || !calm() || dancing || pet.state !== 'idle') { armSleep(true); return; }
     asleep = true;
-    ui.root.classList.add('is-asleep');
-    pet.still('failed', 3); // head down, eyes shut
+    var p = pet;
+    if (rm()) { p.still('failed', 3); ui.root.classList.add('is-asleep'); return; }
+    [0, 1, 2, 3].forEach(function (f, i) { napTimers.push(setTimeout(function () { if (asleep && pet === p) p.still('failed', f); }, i * 420)); });
+    napTimers.push(setTimeout(function () { if (asleep && pet === p) { ui.root.classList.add('is-asleep'); nod(); } }, 4 * 420 + 300));
   }
   function wake() {
     if (!asleep) { armSleep(); return; }
     asleep = false;
+    napTimers.forEach(clearTimeout); napTimers = [];
     ui.root.classList.remove('is-asleep');
     armSleep(true);
     if (!pet) return;
@@ -282,7 +296,7 @@
     Promise.resolve(pet.preload(['jump'])).then(function (ok) { if (pet && !asleep && pet.state === 'failed') { if (ok) pet.play('jump', { loop: false }); else pet.idle(); } }, function () {});
     say('Huh! I’m awake, I’m awake!', 2000);
   }
-  function wakeQuiet() { if (asleep && ui) { asleep = false; ui.root.classList.remove('is-asleep'); } armSleep(true); }
+  function wakeQuiet() { if (asleep && ui) { asleep = false; napTimers.forEach(clearTimeout); napTimers = []; ui.root.classList.remove('is-asleep'); } armSleep(true); }
   ['keydown', 'pointerdown', 'touchstart'].forEach(function (t) { d.addEventListener(t, wake, { passive: true }); });
   w.addEventListener('scroll', wake, { passive: true });
 
