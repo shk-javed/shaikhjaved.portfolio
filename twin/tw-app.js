@@ -39,6 +39,7 @@
   var LOCAL_LINE = 'Answers are built on this page. Nothing you type leaves it; this browser only remembers that you’ve visited.';
   var REMOTE_LINE = 'Answers use only this site’s verified facts. To phrase replies, your question is sent to Google Gemini — don’t share personal info.';
   var REMOTE_MS = 10000, MIN_SEARCH = 1600, MAX_IDS = 6, MAX_Q = 500, MAX_ANS = 600;
+  var DANCE_Q = /\b(dance|dancing|nach|nacho|naacho|naach|nachna|nachke|party|shaadi|shadi|bhangra|dj|thumka|naagin|nagin)\b/i;
   var WAIT_LINE = 'Gemini is checking the facts…', BY_LINE = 'Phrased by Gemini';
   // Search acting lines (decorative bubbles), in order; the Gemini one only when a reply is really on its way.
   var SEARCH_LINES = ['Let me dig through the archive…', 'Sniffing out the facts…', 'Ruko zara… almost there.'], GEM_LINE = 'Cross-checking with Gemini…';
@@ -381,11 +382,22 @@
        or anywhere when it is closed), digging through the archive, a hop back down. Phones: the same beats in place, never
        over the text. Reduced motion: the still "working" pose only. Evidence answers also loop the page scan meanwhile;
        it locks on (tour) once the answer lands. stop() brings the pet back to its spot before "found". */
-    var searching = null;
+    var searching = null, yAnim = null;
+    // The pet's height on screen: vertical moves ride on the dock's own translate (walkBy moves it sideways).
+    function dockY() { var m = /(-?[\d.]+)px\s*$/.exec(getComputedStyle(ui.dock).translate || ''); return m ? +m[1] : 0; }
+    function riseTo(to, ms) {
+      var dk = ui.dock, from = dockY();
+      if (yAnim) { try { yAnim.cancel(); } catch (e) { /* ignore */ } yAnim = null; }
+      dk.style.translate = to ? '0 ' + Math.round(to) + 'px' : '';
+      if (kit.rm() || !ms || typeof dk.animate !== 'function' || Math.abs(from - to) < 1) return Promise.resolve();
+      // a small arc above the higher point, like a hop
+      var a = yAnim = dk.animate([{ translate: '0 ' + from + 'px' }, { translate: '0 ' + (Math.min(from, to) - 28) + 'px', offset: to < from ? 0.72 : 0.3 }, { translate: '0 ' + to + 'px' }], { duration: ms, easing: 'ease-in-out' });
+      return a.finished.then(function () { if (yAnim === a) yAnim = null; }, function () {});
+    }
     function scanLabel(t) { var l = ui.scan && ui.scan.querySelector('.tw-scan__label'); if (l) l.textContent = t; }
     function search(withScan, remote) {
       var p = kit.pet(), rm = kit.rm(), phone = PHONE.matches, sc = ui.scan, dk = ui.dock;
-      var S = { done: false, anim: null, n: 0, stopped: null };
+      var S = { done: false, n: 0, stopped: null };
       searching = S;
       ui.root.classList.add('is-searching');
       if (withScan && sc && !rm) { scanLabel('Searching the archive'); sc.classList.remove('is-on', 'is-up'); sc.classList.add('is-search'); }
@@ -394,16 +406,7 @@
       function wait(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
       function line() { if (alive()) kit.say(lines[S.n++ % lines.length], 2200); }
       function k() { return (ui.stage.getBoundingClientRect().width / 96) || 1; }
-      function curY() { var m = /(-?[\d.]+)px\s*$/.exec(getComputedStyle(dk).translate || ''); return m ? +m[1] : 0; }
-      // Vertical moves ride on the dock's own translate (walkBy moves the pet sideways), with a small arc on the way.
-      function rise(to, ms) {
-        var from = curY();
-        if (S.anim) { try { S.anim.cancel(); } catch (e) { /* ignore */ } S.anim = null; }
-        dk.style.translate = to ? '0 ' + Math.round(to) + 'px' : '';
-        if (rm || !ms || typeof dk.animate !== 'function' || Math.abs(from - to) < 1) return Promise.resolve();
-        var a = S.anim = dk.animate([{ translate: '0 ' + from + 'px' }, { translate: '0 ' + (Math.min(from, to) - 28) + 'px', offset: to < from ? 0.72 : 0.3 }, { translate: '0 ' + to + 'px' }], { duration: ms, easing: 'ease-in-out' });
-        return a.finished.then(function () { if (S.anim === a) S.anim = null; }, function () {});
-      }
+      var curY = dockY, rise = riseTo;
       // How high the pet may climb, and whether it may walk there: above the open chat when there is room, else only up
       // its own column; anywhere when the chat is closed. The dock never goes under the site header (top >= 84px).
       function level() {
@@ -544,6 +547,17 @@
       if (q && busy) { nag(); return false; }
       if (!q) return false;
       if (activeTour) activeTour.stop();
+      if (kit.stopDance) kit.stopDance();
+      // Easter egg: ask for a dance and you get one (wedding-uncle style), then the guide is back to business.
+      if (DANCE_Q.test(q)) {
+        dropFollowUps();
+        push({ role: 'user', text: q.slice(0, 280) });
+        var dl = 'Okay, one quick wedding-uncle dance \ud83d\udd7a Then back to Javed\u2019s work!';
+        push({ role: 'bot', r: { kind: 'greeting', segments: [{ t: 'text', v: dl }], followUps: ['What does Javed do now?', 'Why should I hire Javed?', 'Which projects has he built?'] } });
+        kit.announce('SHK JAVED: ' + dl);
+        setTimeout(function () { if (kit.dance && !kit.dance()) kit.say('One dance at a time! \ud83d\ude04', 1800); }, 250);
+        return true;
+      }
       busy = true;
       dropFollowUps();
       push({ role: 'user', text: q.slice(0, 280) });
@@ -782,6 +796,7 @@
       }
       navBusy = true;
       if (searching) searching.stop(); // a tour started by hand ends the search acting (the answer still lands)
+      if (kit.stopDance) kit.stopDance();
       var auto = !!(how && how.auto), phone = PHONE.matches, rm = kit.rm(), p = kit.pet();
       var T = { stopped: false, ended: false, phase: 'scan', timer: 0, k: 1 }; // k: the pet's on-screen scale (phones: .6)
       activeTour = T;
@@ -800,14 +815,20 @@
         d.removeEventListener('keydown', onKey);
         var pp = kit.pet();
         var finish = function () { if (activeTour === T) activeTour = null; kit.touring(false); navBusy = false; if (pp && pp.state !== 'look') pp.idle(); };
-        if (!pp) { finish(); return; }
+        // back along its column, then a hop down to the dock (fast when the visitor took over)
+        var down = function () {
+          if (!dockY() && !ui.dock.style.translate) return Promise.resolve();
+          if (pp && !rm && !T.stopped) hop(pp, { loop: false, hold: true });
+          return riseTo(0, rm ? 0 : T.stopped ? 260 : 560);
+        };
+        if (!pp) { down().then(finish); return; }
         pp.idle(); // freezes a walk wherever it is, so "home" is measured from the real position
         var back = -(pp.x || 0);
-        if (!back) { finish(); return; }
-        if (rm) { pp.walkBy(back).then(finish); return; }
+        if (!back) { down().then(finish); return; }
+        if (rm) { pp.walkBy(back).then(down).then(finish); return; }
         pp.walkBy(back, { speed: (T.stopped ? 700 : (phone ? 240 : 380)) / T.k }).then(function (ok) {
-          if (!ok && pp.x) { pp.idle(); return pp.walkBy(-pp.x, { speed: 2400 / T.k }).then(finish); }
-          finish();
+          if (!ok && pp.x) { pp.idle(); return pp.walkBy(-pp.x, { speed: 2400 / T.k }).then(down).then(finish); }
+          return down().then(finish);
         });
       }
       T.stop = function () { if (T.stopped) return; T.stopped = true; kit.hush(); if (T.phase !== 'scan') end(); };
@@ -835,19 +856,35 @@
         T.target = t;
         if (!auto || T.manual || phone || !isOpen()) focusTarget(t);
         kit.announce('Moved to ' + (ev.label || 'the evidence') + (isOpen() ? '.' : '. Press the guide button to return to the conversation.'));
-        // walk toward the evidence along the bottom edge (desktop: across the page; phones: inside the strip only)
-        var pp = kit.pet(), dx = 0, vw = w.innerWidth;
+        // Desktop: the pet hops up its free right-hand column to the evidence's level, then walks over to stand beside it
+        // (right of it when there is room, else left of it, else under its middle). Phones: along the bottom strip only.
+        var pp = kit.pet(), dx = 0, dy = 0, vw = w.innerWidth;
         if (pp && !rm) {
-          var tr = spot.getBoundingClientRect(), pr = ui.stage.getBoundingClientRect(), mid = tr.left + tr.width / 2;
-          var aim = phone ? Math.max(vw * 0.3, Math.min(vw * 0.7, mid)) : Math.max(tr.left + 40, Math.min(tr.right - 60, mid));
+          var tr = spot.getBoundingClientRect(), pr = ui.stage.getBoundingClientRect(), mid = tr.left + tr.width / 2, cx = pr.left + pr.width / 2;
           T.k = pr.width / 96 || 1; // walkBy moves in the pet's own (unscaled) pixels
-          dx = Math.round(aim - (pr.left + pr.width / 2));
-          dx = Math.min(0, Math.max(dx, -(phone ? vw * 0.7 : Math.min(620, vw * 0.5))));
-          if (dx > -40) dx = 0;
+          if (phone) {
+            dx = Math.round(Math.max(vw * 0.3, Math.min(vw * 0.7, mid)) - cx);
+            dx = Math.min(0, Math.max(dx, -vw * 0.7));
+          } else {
+            var half = pr.width / 2, home = cx - (pp.x || 0) * T.k, aim;
+            if (tr.right + 14 + pr.width <= home + half) aim = tr.right + 14 + half;
+            else if (tr.left - 14 - pr.width >= 8) aim = tr.left - 14 - half;
+            else aim = Math.max(tr.left + 40, Math.min(tr.right - 60, mid));
+            dx = Math.round(Math.min(home, Math.max(half + 8, aim)) - cx);
+            var base = ui.dock.getBoundingClientRect().bottom - dockY();
+            var feet = Math.max(84 + ui.dock.offsetHeight + 6, Math.min(base, tr.top + Math.min(tr.height, w.innerHeight * 0.5) * 0.75));
+            dy = Math.round(feet - base);
+            if (dy > -50) dy = 0;
+          }
+          if (Math.abs(dx) < 40) dx = 0;
         }
         T.phase = 'walk';
-        if (dx) kit.hush(true); // the pet is about to leave: the current line ends once it has been readable
-        return (dx ? pp.walkBy(dx / T.k, { speed: (phone ? 240 : 380) / T.k }) : Promise.resolve(true)).then(function () {
+        if (dx || dy) kit.hush(true); // the pet is about to leave: the current line ends once it has been readable
+        var climb = dy ? Promise.all([hop(pp, { loop: false, hold: true }), riseTo(dy, Math.min(900, 420 + Math.abs(dy) * 0.6))]) : Promise.resolve();
+        return climb.then(function () {
+          if (T.stopped || T.ended || !dx) return true;
+          return pp.walkBy(dx / T.k, { speed: (phone ? 240 : 380) / T.k });
+        }).then(function () {
           if (T.stopped || T.ended) return;
           T.phase = 'arrive';
           var p2 = kit.pet(), first = ev.kind === 'project' && !kit.read().cheered;

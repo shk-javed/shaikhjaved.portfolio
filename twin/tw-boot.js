@@ -217,17 +217,130 @@
   function scheduleLife() {
     clearTimeout(lifeTimer);
     lifeTimer = setTimeout(function () {
-      if (calm() && pet.state === 'idle') {
+      if (calm() && pet.state === 'idle' && !asleep && !dancing && Date.now() - lastPointer > 5000) {
         pet.look([247.5, 270, 292.5, 315][Math.floor(Math.random() * 4)]);
         setTimeout(function () { if (pet && pet.state === 'look' && calm()) pet.idle(); }, 1300);
       }
       scheduleLife();
     }, 11000 + Math.random() * 5000);
   }
+  var overDock = false;
   function attend(on) {
+    overDock = !!on;
     if (!calm()) return;
-    if (on && pet.state === 'idle') pet.look(315);
+    if (on && (pet.state === 'idle' || pet.state === 'look')) pet.look(315);
     else if (!on && pet.state === 'look') pet.idle();
+  }
+
+  /* ---------- cursor follow (desktop): the face turns toward the pointer wherever it moves on the page ----------
+     Only while the pet is idle or already looking (never over a tour, search, dance, nap or a pose); it settles back to
+     idle 2.6 s after the pointer stops. Touch screens have no cursor, so phones keep the calm idle. */
+  var fine = w.matchMedia('(hover: hover) and (pointer: fine)'), followRaf = 0, followIdx = -1, followRest = 0, lastPointer = 0, ptrX = 0, ptrY = 0;
+  function canFollow() {
+    return !!pet && !!ui && fine.matches && !touring && !rm() && !d.hidden && zone === 'page' && mode === 'full' && !state.hidden &&
+      !dancing && !asleep && !overDock && !ui.root.classList.contains('is-searching') && (pet.state === 'idle' || pet.state === 'look');
+  }
+  function followStep() {
+    followRaf = 0;
+    if (!canFollow()) { followIdx = -1; return; }
+    var r = ui.stage.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * 0.3;
+    if (Math.abs(ptrX - cx) + Math.abs(ptrY - cy) < 80) return; // right on top of it: no frantic spinning
+    var deg = (Math.atan2(ptrX - cx, cy - ptrY) * 180 / Math.PI + 360) % 360;
+    if (deg > 150 && deg < 210) deg = deg < 180 ? 135 : 225; // those frames hide the face
+    var idx = Math.round(deg / 22.5) % 16;
+    if (idx !== followIdx || pet.state !== 'look') { followIdx = idx; pet.look(idx * 22.5); }
+    clearTimeout(followRest);
+    followRest = setTimeout(function () { if (pet && pet.state === 'look' && canFollow()) { followIdx = -1; pet.idle(); } }, 2600);
+  }
+  d.addEventListener('pointermove', function (e) {
+    if (e.pointerType && e.pointerType !== 'mouse') return;
+    ptrX = e.clientX; ptrY = e.clientY; lastPointer = Date.now();
+    wake();
+    if (!followRaf) followRaf = requestAnimationFrame(followStep);
+  }, { passive: true });
+
+  /* ---------- nap: 45 s with no pointer, scroll, key or touch and the docked pet dozes off (zzz); any activity wakes it with a start ---------- */
+  var asleep = false, sleepTimer = 0, lastArm = 0;
+  function armSleep(force) {
+    var now = Date.now();
+    if (!force && now - lastArm < 1000) return;
+    lastArm = now; clearTimeout(sleepTimer); sleepTimer = setTimeout(doze, 45000);
+  }
+  function doze() {
+    if (!pet || !ui || !calm() || dancing || pet.state !== 'idle') { armSleep(true); return; }
+    asleep = true;
+    ui.root.classList.add('is-asleep');
+    pet.still('failed', 3); // head down, eyes shut
+  }
+  function wake() {
+    if (!asleep) { armSleep(); return; }
+    asleep = false;
+    ui.root.classList.remove('is-asleep');
+    armSleep(true);
+    if (!pet) return;
+    if (rm()) { pet.idle(); return; }
+    Promise.resolve(pet.preload(['jump'])).then(function (ok) { if (pet && !asleep && pet.state === 'failed') { if (ok) pet.play('jump', { loop: false }); else pet.idle(); } }, function () {});
+    say('Huh! I’m awake, I’m awake!', 2000);
+  }
+  function wakeQuiet() { if (asleep && ui) { asleep = false; ui.root.classList.remove('is-asleep'); } armSleep(true); }
+  ['keydown', 'pointerdown', 'touchstart'].forEach(function (t) { d.addEventListener(t, wake, { passive: true }); });
+  w.addEventListener('scroll', wake, { passive: true });
+
+  /* ---------- easter egg: the wedding-uncle dance ----------
+     Asked for in the chat ("dance", "nacho", "party", "shaadi"…) or as a reward for reaching the footer. Hands-up light-bulb
+     twist (wave frames) -> a slightly wobbly uncle twirl -> head shake -> "Balle balle!" jump, with floating notes; ~5.5 s.
+     Reduced motion: a still pose and the line only. */
+  var dancing = false, lastDance = 0, danceTimers = [];
+  function notes() {
+    var r = ui.petHost.getBoundingClientRect();
+    for (var i = 0; i < 5; i++) {
+      var n = d.createElement('span');
+      n.className = 'tw-note';
+      n.setAttribute('aria-hidden', 'true');
+      n.textContent = i % 2 ? '♫' : '♪';
+      n.style.left = Math.round(r.left + r.width * (0.2 + 0.15 * i)) + 'px';
+      n.style.top = Math.round(r.top + 4) + 'px';
+      n.style.animationDelay = (i * 0.5) + 's';
+      ui.root.appendChild(n);
+      setTimeout(function (x) { return function () { x.remove(); }; }(n), 2200 + i * 500);
+    }
+  }
+  function stopDance() {
+    danceTimers.forEach(clearTimeout); danceTimers = [];
+    if (ui) ui.petHost.classList.remove('is-dancing', 'is-tipsy');
+    dancing = false;
+  }
+  function dance(line) {
+    var now = Date.now();
+    if (!pet || !ui || dancing || now - lastDance < 6000) return false;
+    lastDance = now;
+    wakeQuiet();
+    say(line || 'Shaadi mode ON! 🕺', 2000);
+    if (rm()) { pet.still('wave'); danceTimers.push(setTimeout(function () { if (pet) pet.idle(); }, 2200)); return true; }
+    dancing = true;
+    var host = ui.petHost, p = pet, at = function (ms, fn) { danceTimers.push(setTimeout(function () { if (dancing && pet === p) fn(); }, ms)); };
+    host.classList.add('is-dancing');
+    notes();
+    Promise.resolve(p.preload(['waiting', 'jump'])).catch(function () {});
+    p.play('wave', { loop: true, frameMs: 120 });                          // hands up: the light-bulb twist
+    at(1700, function () { host.classList.add('is-tipsy'); p.play('waiting', { loop: true, frameMs: 130 }); say('DJ, volume badhao!', 1700); }); // the wobbly uncle twirl
+    at(3400, function () {                                                   // head shake
+      host.classList.remove('is-tipsy');
+      var n = 0;
+      (function head() { if (!dancing || pet !== p || n >= 6) return; p.look(n++ % 2 ? 90 : 270); danceTimers.push(setTimeout(head, 210)); })();
+    });
+    at(4700, function () { host.classList.remove('is-dancing'); p.play('jump', { loop: false }); say('Balle balle!', 1600); });
+    at(5600, stopDance);
+    return true;
+  }
+  function watchFooter() {
+    var f = d.querySelector('.footer');
+    if (!f || !('IntersectionObserver' in w)) return;
+    var io = new IntersectionObserver(function (es) {
+      if (!es[es.length - 1].isIntersecting || !calm() || asleep || (pet.state !== 'idle' && pet.state !== 'look')) return;
+      if (dance('You made it to the end! 🎉')) io.disconnect(); // once per page view
+    }, { threshold: 0.6 });
+    io.observe(f);
   }
   d.addEventListener('click', function (e) {
     if (!e.target || !e.target.closest || !e.target.closest('.contact__copy')) return;
@@ -269,6 +382,8 @@
           }
           if (zone === 'hero') p.pause();
           scheduleLife();
+          armSleep(true);
+          watchFooter();
         });
       };
       if (first && !rm()) {
@@ -406,6 +521,9 @@
     ui: function () { return ui; },
     pet: function () { return pet; },
     lookToward: lookToward,
+    dance: function (line) { return dance(line); },
+    stopDance: stopDance,
+    wake: wakeQuiet,
     say: say,
     hush: hush,
     placer: function (fn) { placer = fn; },

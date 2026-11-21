@@ -54,7 +54,8 @@ Required root assets already present and must remain supported without renaming 
 - `Sahikh_javed.png` — certificate card
 - `logo.png` — header brand mark (160×160; shown at 2.1rem)
 - `about-gdg-stage.jpg` — About section stage photo
-- `Shaikh_Javed_Data_Analyst.pdf` — resume download link target
+- `Shaikh_Javed_Data_Analyst.pdf` — resume download link target.
+- `project-hospital-er.webp` — the real Hospital ER Excel dashboard (from its GitHub repo, 900 px, ~30 KB), shown inside the Hospital ER poster
 
 Other existing images remain part of the portfolio gallery and should be preserved unless genuinely unused.
 
@@ -246,6 +247,18 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
 - **Tests:**
   - `node worker/test.mjs`: 31 offline checks with a mocked Gemini;
   - `tests/twin/remote.mjs`: 29 browser checks with a mocked worker.
+
+**Nov 2026 fixes**
+- **Hospital ER poster:** once the stopwatch has run (2.4 s), the real dashboard (`project-hospital-er.webp`) rises over the lower poster with a "The real dashboard" tag, and the big number fades under it. It uses the posters' play/reset hooks. Under reduced motion the card is simply shown.
+- **Guide engine:**
+  - a `pitch` cue ("Why should I hire him?", "kyu hire kare", "What makes him stand out?", "good fit") answers with the current role, what he builds, two MAK metrics and the hackathon lead, then tours Journey;
+  - "Where is the code?" is no longer read as a location question: it gives the project in context's repo, or his GitHub profile.
+
+**More life for the guide (Nov 2026)**
+- **Tour climbs to the evidence (desktop):** the guide hops up its free right-hand column to the evidence's level and walks to stand beside it: on its right when there is room, else its left, else under its middle. It waves or cheers, looks at the evidence, then walks back and hops down. The vertical move rides on `.tw-dock`'s `translate` (`dockY` / `riseTo` in `tw-app.js`, shared with the search acting). Phones still use the bottom strip.
+- **Cursor follow (desktop, fine pointer):** while idle, the face turns toward the pointer (16 directions; the face-hiding 150–210° frames snap to 135/225). It settles 2.6 s after the pointer stops. Never during a tour, search, dance or nap.
+- **Nap:** after 45 s with no pointer, scroll, key or touch (docked, chat closed), it dozes (the `failed` frame 3, with "z z Z"). Any activity wakes it with a jump and "Huh! I'm awake, I'm awake!".
+- **Wedding-uncle dance (easter egg):** chat words like "dance", "nacho", "party", "shaadi" or "bhangra" (`DANCE_Q`), or reaching the footer (once per page view), trigger ~5.5 s of moves: a hands-up bulb twist (wave frames) → a wobbly twirl (waiting frames) → a head shake → a "Balle balle!" jump, with floating notes. Reduced motion: a still pose and the line only.
 
 ## Known Issues
 

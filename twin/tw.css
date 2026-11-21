@@ -156,6 +156,16 @@ body.menu-open .tw-say{visibility:hidden}
 /* ---------- tour: the full-size pet walks along the bottom edge, above the open chat ---------- */
 .tw-root.is-touring .tw-dock,.tw-root.is-searching .tw-dock{z-index:44}
 .tw-root.is-searching .tw-hint{display:none}
+/* the wedding-uncle dance (easter egg): a beat bounce, then a wobbly twirl; floating notes ride above it */
+.tw-pet.is-dancing{animation:tw-dance 600ms ease-in-out infinite;transform-origin:50% 100%}
+.tw-pet.is-dancing.is-tipsy{animation:tw-tipsy 1100ms cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes tw-dance{0%,100%{transform:rotate(-7deg)}25%{transform:translateY(-7px)}50%{transform:rotate(7deg)}75%{transform:translateY(-7px)}}
+@keyframes tw-tipsy{0%,100%{transform:translateX(-5px) rotate(-12deg)}30%{transform:translateX(4px) rotate(9deg)}55%{transform:translateX(-2px) rotate(-4deg)}80%{transform:translateX(6px) rotate(13deg)}}
+.tw-note{position:fixed;z-index:47;pointer-events:none;color:var(--tw-deep);font:700 20px/1 var(--body,'Inter',system-ui,sans-serif);opacity:0;animation:tw-note 1.9s ease-out both}
+@keyframes tw-note{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(16px,-96px) rotate(18deg) scale(1.1)}}
+/* the nap: zzz above the dozing pet */
+.tw-root.is-asleep .tw-pet::after{content:"z z Z";position:absolute;z-index:2;right:0;top:4px;color:var(--tw-deep);font:700 13px/1 var(--mono,'JetBrains Mono',monospace);letter-spacing:.04em;pointer-events:none;animation:tw-zzz 2.6s ease-in-out infinite}
+@keyframes tw-zzz{0%{opacity:0;transform:translate(0,6px)}30%,70%{opacity:1}100%{opacity:0;transform:translate(10px,-16px)}}
 /* while the answer is checked: a soft line sweeps the page up and down until it lands, then locks on (.is-on) */
 .tw-scan.is-search{opacity:.8;border-bottom:0;box-shadow:none;background:linear-gradient(180deg,rgba(215,221,186,0),rgba(215,221,186,.28) 44%,var(--tw-kale) 50%,rgba(215,221,186,.28) 56%,rgba(215,221,186,0));animation:tw-scan-loop 2.2s cubic-bezier(.45,0,.55,1) infinite alternate}
 .tw-scan.is-search .tw-scan__label{bottom:auto;top:calc(50% + 6px)}
@@ -219,6 +229,8 @@ body.menu-open .tw-say{visibility:hidden}
   .tw-dots i{animation:none;opacity:.6}
   .tw-ans,.tw-msg.is-final .tw-card,.tw-msg.is-final .tw-ev,.tw-msg.is-final .tw-fus{animation:none!important;transition:none!important}
   .tw-ans__by.is-wait::before{animation:none;opacity:1}
+  .tw-pet.is-dancing,.tw-note{animation:none!important}.tw-note{display:none}
+  .tw-root.is-asleep .tw-pet::after{animation:none;opacity:1}
 }
 @media print{.tw-root{display:none!important}}
 @media (forced-colors:active){

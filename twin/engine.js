@@ -64,6 +64,8 @@
   /* ---------- intent cues (run on the mapped, normalised text) ---------- */
   var NOWW = '(currently|current|right now|now|still|presently|present|these days|nowadays)', JOBW = '(work|works|working|job|role|company|employer|position|do|doing|designation|title)';
   var CUES = [
+    // "Why should I hire him?" is a pitch, not a contact request (it says "hire") and not a location ("why"/"where").
+    ['pitch', /\bwhy\b.*\b(hire|hiring|choose|pick|recruit|consider|select|employ)\b|\b(hire|choose|recruit)\b.*\bwhy\b|\bwhat makes (him|javed) (stand out|different|special|unique|valuable|a good)\b|\b(good|right|strong|great|perfect) (fit|hire|candidate|choice)\b|\bwhat (value|can he|does he) (bring|add|offer)\b|\bwhat (value )?(would|will|can) he (bring|add|offer)\b|\b(usp|unique selling point|elevator pitch|pitch him)\b/],
     ['current_role', new RegExp('\\b' + NOWW + '\\b.*\\b' + JOBW + '\\b|\\b' + JOBW + '\\b.*\\b' + NOWW + '\\b|\\bjob title\\b|\\bdesignation\\b|\\bwhere (does|do|is) (he|javed) (work|working)\\b|\\bwhat (does|is) (he|javed) do(ing)?\\b')],
     ['metrics', /\b(achieve|achieved|achievements?|impact|accomplish\w*|results?|metrics?|measurable|improv\w*|outcomes?)\b/],
     ['resume', /\b(resume|cv|biodata)\b/],
@@ -79,7 +81,7 @@
     ['location', /\b(based|located|location|city|country|timezone|time zone|what time|local time|time is it|live|lives|living|stays?)\b|^(?!.*\b(use|used|using|work|works|working|study|studied|built|verify|see|download|did)\b).*\bwhere\b/],
     ['identity', /\b(who is (he|javed)|who s (he|javed)|tell me about (him|javed|shaikh)|introduce|introduction|summary|summari[sz]e|one line|describe him|overview|bio|full name|his name|name)\b/]
   ];
-  var STRONG = set('current_role experience education location contact resume availability identity');
+  var STRONG = set('pitch current_role experience education location contact resume availability identity');
   var M = {
     repo: /\b(repo|repos|repository|github|code|source|link)\b/,
     verify: /\b(verify|verified|verification|verifiable|proof|prove|legit|authentic|genuine|credly|valid|check)\b/,
@@ -282,6 +284,7 @@
       experience: ['What did he achieve at MAK { Byte }?', 'What did he do as an intern?', 'What does Javed do now?'],
       role_detail: ['What did he achieve at MAK { Byte }?', 'How many years of experience does he have?', 'Which projects has he built?'],
       metrics: ['What did he do at MAK { Byte }?', 'Which projects has he built?', 'How can I contact him?'],
+      pitch: ['What did he achieve at MAK { Byte }?', 'Which projects has he built?', 'How can I contact him?'],
       education: ['What was his CGPA?', 'What did his degree cover?', 'List his certificates.'],
       leadership: ['What was Maayura?', 'What happened at DevFest?', 'Was he a Google Student Ambassador?'],
       projects_list: projects[0] ? ['Tell me about the ' + projects[0].name, 'Which projects used Power BI?', 'Show me the code for the ' + projects[0].name] : [],
@@ -373,6 +376,8 @@
       var E = matchEntities(q, clean, mt), cue = null, mo = {};
       CUES.some(function (c) { if (c[1].test(mt)) { cue = c[0]; return true; } return false; });
       Object.keys(M).forEach(function (k) { mo[k] = M[k].test(k === 'more' || k === 'pron' || k === 'claim' ? mt : E.free); });
+      // "Where is the code?" asks for a repo, not a place: a bare "where" means location only when nothing else is asked.
+      if (cue === 'location' && mo.repo && !/\b(based|located|location|city|country|timezone|time zone|live|lives|living|stays?)\b/.test(mt)) cue = null;
       var titleQ = /\b(title|designation)\b/.test(mt), nowQ = new RegExp('\\b' + NOWW + '\\b').test(mt);
       var freeW = set(E.free), qs = content.filter(function (w) { return freeW[w] && !/^\d{1,2}$/.test(w); }).map(stem), claimLead = mo.claim && (/\d/.test(n0) || E.length) ? 'Here\u2019s what the site says:' : null;
 
@@ -443,6 +448,11 @@
         else res = { intent: 'role_detail', facts: scoped(['role_detail'], Rl, qs.length ? qs : ['work', 'responsibiliti', 'handl', 'build'], isCur ? 2 : 3), ents: [Rl] };
       }
       if (res) { res.conf = conf; return res; }
+      // code / repo asked with no project in sight: his GitHub profile, and an offer of each project's code
+      if (!cue && mo.repo && !mo.verify && !spec.length) {
+        var gh = pool(['contact'], null).filter(function (f) { return /github/i.test(f.id + ' ' + f.text); }).slice(0, 1);
+        if (gh.length) return { intent: 'contact', facts: gh, evExtra: ['ev.github', 'ev.projects'], targetId: 'ev.projects', follow: projects.slice(0, 3).map(function (p) { return 'Show me the code for the ' + p.name; }), conf: 0.8 };
+      }
 
       /* 6. topic beats a broad cue ("Has he built web apps?") */
       var specific = content.filter(function (w) { return !CUEVOCAB[w] && !CUEVOCAB[stem(w)] && !/^\d{1,2}$/.test(w); }).map(stem);
@@ -457,6 +467,7 @@
       /* 7. cue routes */
       var Q = qs;
       switch (cue) {
+        case 'pitch': return { intent: 'pitch', lead: 'The short case, using only what this site shows:', facts: F('f.id.title').concat(F('f.ah.build'), F('f.mak.metric.acc'), F('f.mak.metric.eff'), F('f.lead.maayura')), targetId: ev['ev.experience'] ? 'ev.experience' : null, evExtra: ['ev.projects', 'ev.contact'], conf: 0.85 };
         case 'current_role': return { intent: 'current_role', facts: currentFacts(mt, mo, titleQ, true), ents: curRole ? [curRole] : [], lead: claimLead, conf: 0.85 };
         case 'metrics': return { intent: 'metrics', facts: rank(pool(['metrics'], null).filter(function (f) { return f.status !== 'resume_only'; }), Q, 4, 0.2), conf: 0.8 };
         case 'resume': return { intent: 'resume', facts: pool(['resume'], null).slice(0, 1), conf: 0.9 };
