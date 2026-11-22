@@ -290,6 +290,21 @@ A robotic-pangolin "AI guide" that answers visitors' questions about Javed from 
   Any activity wakes it with a jump and "Huh! I'm awake, I'm awake!". Reduced motion: the pose with a still zzz.
 - **Wedding-uncle dance (easter egg):** chat words like "dance", "nacho", "party", "shaadi" or "bhangra" (`DANCE_Q`), or reaching the footer (once per page view), trigger ~5.5 s of moves: a hands-up bulb twist (wave frames) → a wobbly twirl (waiting frames) → a head shake → a "Balle balle!" jump, with floating notes. Reduced motion: a still pose and the line only.
 
+## Backlog (pending)
+
+**Projects to add to Work (with their own poster and case study):**
+1. `tableau-sales-customer-dashboard`: Tableau Sales and Customer Analytics dashboards (screenshots in the repo).
+2. `virat-kohli-performance-dashboard`: React + FastAPI cricket analytics, with a live demo at https://virat-kohli-performance-dashboard.vercel.app
+3. `Super-Store-Dashboard-power-bi`: Power BI Super Store dashboard.
+4. `virinda_super_store.xl`: Excel Virinda store dashboard.
+5. `financial-forecasting`.
+
+Adding one means a new Work row and a unique poster motion in `index.html`, an entry in `projects/projects.json`, and an update to `PROJECTS` in `tools/build_twin_kb.py` and the guide tests, which expect 5 rows.
+
+**Existing case studies still missing material:**
+- **Aadhaar Masking Tool:** screenshots of the real app (upload page and masked result), using a sample or fake card only.
+- **Domestic Airline KPI:** the dataset or `.pbix` in the repo, so an interactive dashboard can be built; it is screenshot-only today.
+
 ## Known Issues
 
 - `shaikh_javed_DA.pdf` is a duplicate of `Shaikh_Javed_Data_Analyst.pdf`. It is kept because older shared links may point to it.

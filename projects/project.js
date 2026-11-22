@@ -14,7 +14,7 @@
     if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     try {
       var ref = d.referrer ? new URL(d.referrer) : null, home = new URL(a.getAttribute('href'), location.href);
-      if (ref && ref.origin === location.origin && ref.pathname === home.pathname && history.length > 1) { e.preventDefault(); history.back(); }
+      if (ref && ref.origin === location.origin && ref.pathname.replace(/index\.html$/, '') === home.pathname && history.length > 1) { e.preventDefault(); history.back(); }
     } catch (x) { /* fall back to the link */ }
   });
 
@@ -93,7 +93,7 @@
     opts = opts || {};
     var max = Math.max.apply(null, items.map(function (i) { return i.v; }).concat([1])), peak = -1, pv = -1;
     items.forEach(function (i, k) { if (i.v > pv) { pv = i.v; peak = k; } });
-    var wrap = el('div'), box = el('div', 'cols' + (opts.dense ? ' cols--dense' : '')), x = el('div', 'cols__x');
+    var wrap = el('div'), box = el('div', 'cols' + (opts.dense ? ' cols--dense' : '') + (items.length > 8 ? ' cols--many' : '')), x = el('div', 'cols__x' + (opts.dense ? ' cols__x--dense' : ''));
     items.forEach(function (i, k) {
       var c = el('div', 'col'), f = el('span', 'col__f' + (k === peak && opts.peak ? ' is-peak' : ''));
       c.style.setProperty('--h', (i.v / max * 84).toFixed(2) + '%'); // headroom so the value sits above its bar
@@ -101,7 +101,7 @@
       c.appendChild(el('span', 'col__v', opts.fmt ? opts.fmt(i.v) : fmt(i.v)));
       c.appendChild(f);
       box.appendChild(c);
-      x.appendChild(el('span', null, opts.every && k % opts.every ? '' : i.l));
+      x.appendChild(el('span', null, (opts.every && k % opts.every) || (opts.dense && k > items.length - 8) ? '' : i.l)); // no label hanging off the last bars
     });
     box.setAttribute('role', 'img');
     box.setAttribute('aria-label', items.map(function (i) { return i.l + ' ' + fmt(i.v); }).join(', '));
@@ -235,7 +235,7 @@
     clear(root);
     head(root, 'Rebuilt from the project’s dataset · ' + fmt(rows.length) + ' complaints');
     var ctl = el('div', 'dash__controls');
-    if (months.length > 1) ctl.appendChild(seg('Month', [{ label: 'All', value: 'all' }].concat(months.map(function (m) { return { label: MONTHS[+m.slice(5, 7) - 1] + ' ' + m.slice(2, 4), value: m }; })), 'all', function (v) { S.m = v; draw(); }, 'seg--months').node);
+    if (months.length > 1) ctl.appendChild(seg('Month', [{ label: 'All', value: 'all' }].concat(months.map(function (m) { return { label: MONTHS[+m.slice(5, 7) - 1] + ' ' + m.slice(0, 4), value: m }; })), 'all', function (v) { S.m = v; draw(); }, 'seg--months').node);
     if (vias.length > 1) ctl.appendChild(seg('Channel', [{ label: 'All', value: 'all' }].concat(vias.map(function (v) { return { label: v, value: v }; })), 'all', function (v) { S.v = v; draw(); }).node);
     root.appendChild(ctl); root.appendChild(body);
     var note = el('p', 'dash__note');
