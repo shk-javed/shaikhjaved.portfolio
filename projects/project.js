@@ -334,6 +334,47 @@
     draw();
   }
 
+  /* ---------- Virat Kohli: career splits from the project's dataset (a summary table, so no per-match filtering) ---------- */
+  function virat(root, D) {
+    var F = {}; D.fields.forEach(function (f, i) { F[f] = i; });
+    var SPLITS = [['In Format', 'Format'], ['By Year', 'Year'], ['vs Team', 'Opponent'], ['In Host Country', 'Host country'], ['Home vs Away', 'Home / away'],
+      ['Batting Position', 'Batting position'], ['Captain Status', 'Captaincy'], ['Match Result', 'Result'], ['In Major Trophies', 'Trophies']].filter(function (s) { return D.cats[s[0]]; });
+    var METRICS = [['Runs', 'Runs'], ['Avg', 'Average'], ['SR', 'Strike rate'], ['100s', 'Hundreds']];
+    var KEEP_ORDER = { 'By Year': 1, 'Batting Position': 1, 'In Format': 1 };
+    var S = { split: SPLITS[0][0], m: 'Runs' }, body = el('div');
+    var ov = (D.cats['Career Averages'] || [])[0];
+    function label(sub) { return sub.replace(/^(vs|in) /, '').replace(/^(\d)(st|nd|rd|th) position$/, 'No. $1').replace(/^is (not )?captain$/, function (m, n) { return n ? 'Not captain' : 'Captain'; }).replace(/^./, function (c) { return c.toUpperCase(); }); }
+    clear(root);
+    head(root, 'Rebuilt from the project’s dataset · career splits, 2008–2026');
+    var ctl = el('div', 'dash__controls');
+    ctl.appendChild(seg('Split by', SPLITS.map(function (x) { return { label: x[1], value: x[0] }; }), S.split, function (v) { S.split = v; draw(); }).node);
+    ctl.appendChild(seg('Measure', METRICS.map(function (x) { return { label: x[1], value: x[0] }; }), S.m, function (v) { S.m = v; draw(); }).node);
+    root.appendChild(ctl);
+    if (ov) root.appendChild(kpis([
+      { v: fmt(ov[F.Runs]), k: 'Career runs' },
+      { v: fmt(ov[F.Avg], 2), k: 'Average' },
+      { v: fmt(ov[F['100s']]), k: 'Hundreds' },
+      { v: String(ov[F.HS]), k: 'Highest score' }
+    ]));
+    root.appendChild(body);
+    var note = el('p', 'dash__note');
+    note.textContent = 'The dataset is a career summary (one row per split), so splits can’t be combined. For average and strike rate, splits with fewer than 5 innings are hidden so one-off matches don’t top the list.';
+    root.appendChild(note);
+    function draw() {
+      var rate = S.m === 'Avg' || S.m === 'SR';
+      var list = (D.cats[S.split] || []).filter(function (r) { return r[F[S.m]] != null && (!rate || (r[F.Inns] || 0) >= 5); })
+        .map(function (r) { return { l: label(r[F.sub]), v: r[F[S.m]], inns: r[F.Inns] }; });
+      if (!KEEP_ORDER[S.split]) list.sort(function (a, b) { return b.v - a.v; });
+      var name = METRICS.filter(function (m) { return m[0] === S.m; })[0][1], split = SPLITS.filter(function (x) { return x[0] === S.split; })[0][1];
+      clear(body);
+      var g = el('div', 'cards'), c = card(name + ' by ' + split.toLowerCase(), list.length + ' splits' + (rate ? ' with 5+ innings' : ''), 12);
+      var f = rate ? function (v) { return fmt(v, 2); } : function (v) { return fmt(v); };
+      c.appendChild(S.split === 'By Year' ? cols(list, { fmt: f, peak: true }) : hbars(list.slice(0, 14), f));
+      g.appendChild(c); body.appendChild(g);
+    }
+    draw();
+  }
+
   /* ---------- Aadhaar walkthrough: a SIMULATION of the pipeline with a made-up number; no OCR runs, nothing is uploaded ---------- */
   function walkthrough(root) {
     var src = root.querySelector('script[data-walk-steps]'), STEPS = [];
@@ -423,7 +464,7 @@
   }
 
   /* ---------- lazy start: dashboards load their data only when they come near the screen ---------- */
-  var RENDER = { hospital: hospital, service: service, spotify: spotify };
+  var RENDER = { hospital: hospital, service: service, spotify: spotify, virat: virat };
   function start(node) {
     if (node.hasAttribute('data-walk')) { walkthrough(node); return; }
     var kind = node.getAttribute('data-dash'), src = node.getAttribute('data-src');

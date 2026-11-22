@@ -249,7 +249,7 @@ test('multi-turn: tool -> repo, project -> repo, role -> more', () => {
 
 test('multi-turn: an unknown term beats context', () => {
   for (const qs of [['which python proj', 'What does Javed do now?', 'Does he know Kubernetes?'], ['What does Javed do now?', 'does he know Kubernetes?'],
-    ['Tell me about the Spotify project', 'does it use React?'], ['Does he know Python?', 'and Docker?']]) {
+    ['Tell me about the Spotify project', 'does it use Angular?'], ['Does he know Python?', 'and Docker?']]) {
     const c = engine.newContext(); let r; for (const q of qs) r = engine.askSync(q, c);
     assert.equal(r.refusal, 'unknown', qs.join(' > ') + ' -> ' + r.text);
     assert.equal(r.mood, 'failed', qs.join(' > '));
@@ -259,7 +259,7 @@ test('multi-turn: an unknown term beats context', () => {
 test('typo tolerance never turns a tech term into an ordinary word', () => {
   assert.equal(engine.askSync('how can I reach him', engine.newContext()).debug.intent, 'contact');
   assert.equal(engine.askSync('how can I raech him', engine.newContext()).debug.intent, 'contact');
-  for (const q of ['does it use React?', 'Does he know React?']) {
+  for (const q of ['does it use Angular?', 'Does he know Angular?']) { // React is real now (Virat Kohli project), so probe a tech the site never mentions
     const r = engine.askSync(q, engine.newContext());
     assert.equal(r.refusal, 'unknown', q + ' -> ' + r.text);
     assert.equal(r.mood, 'failed', q);

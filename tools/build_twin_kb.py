@@ -106,6 +106,8 @@ PROJECTS = {  # key -> (row index, repo slug, chip label, aliases)
            ["hospital er dashboard", "hospital", "er dashboard", "emergency room", "hospital er", "healthcare dashboard", "aspatal", "hospitel"]),
     "spotify": (4, "spotify2023-dashboard", "Spotify 2023 Dashboard",
                 ["spotify 2023 dashboard", "spotify", "spotfy", "spotify dashboard", "music", "songs", "gaane", "streams"]),
+    "virat": (5, "virat-kohli-performance-dashboard", "Virat Kohli Dashboard",
+              ["virat kohli performance dashboard", "virat kohli dashboard", "virat kohli", "virat", "kohli", "cricket", "cricket dashboard", "cricket analytics", "fastapi project", "react project", "full stack project", "full-stack project"]),
 }
 CERTS = {  # key -> (index, issuer, date, title, chip label, aliases)
     "ga": (0, "Great Learning Academy", "Jul 2024", "Google Analytics", "Google Analytics cert",
@@ -149,7 +151,7 @@ USED_PHRASE = {  # toolkit "used in" label -> phrase; an unknown label fails --c
     "Working knowledge · additional tool": "as working knowledge",
 }
 MOL_ENTITY = {"mak": "role.mak.da", "ah": "role.ah", "csmis": "proj.csmis", "airline": "proj.airline", "er": "proj.er",
-              "spotify": "proj.spotify", "aadhaar": "proj.aadhaar", "site": "proj.site"}
+              "spotify": "proj.spotify", "aadhaar": "proj.aadhaar", "virat": "proj.virat", "site": "proj.site"}
 
 # (id, entity, type, text, source, verify[], evidence[], tags[], status, confidence)
 #   verify prefixes: "raw:" = raw index.html, "readme:" = README.md, "resume:" = resume PDF text; else = cited section text.
@@ -282,6 +284,12 @@ P = [
      ["478B streams across 932 tracks"], ["streams", "numbers"]),
     ("spotify", "stack", "The Spotify 2023 Dashboard was built with Excel PivotTables and slicers.",
      ["EXCEL · PIVOTTABLES · SLICERS"], ["stack", "tech", "built with"]),
+    ("virat", "desc", "Javed's Virat Kohli Performance Dashboard is a full-stack cricket analytics app: React charts on a FastAPI API that runs live SQL over Virat Kohli's career data.",
+     ["A full-stack cricket analytics app: React charts on a FastAPI API that runs live SQL over Virat Kohli's career data"], ["what is", "cricket", "full stack"]),
+    ("virat", "figure", "The Virat Kohli Performance Dashboard's data records 28,215 international runs and 85 hundreds.",
+     ["international runs · 85 hundreds", "raw:28,215"], ["runs", "hundreds", "numbers"]),
+    ("virat", "stack", "The Virat Kohli Performance Dashboard was built with React, FastAPI and MySQL.",
+     ["REACT · FASTAPI · MYSQL", "Sports analytics · React / FastAPI / MySQL"], ["stack", "tech", "built with"]),
 ]
 for key, part, text, verify, tags in P:
     fact(f"f.proj.{key}.{part}", f"proj.{key}", "project_detail", text, "#projects", verify, [f"ev.proj.{key}", f"ev.repo.{key}"], tags + ["project"])
@@ -292,8 +300,8 @@ fact("f.proj.csmis.resume", "proj.csmis", "project_detail", "His resume also not
      ["resume:KPI cards and dynamic filters"], ["ev.resume"], ["kpi cards", "filters"], "resume_only", 0.7)
 fact("f.proj.airline.resume", "proj.airline", "project_detail", "His resume also notes that Javed transformed the 9,651 flight records with Power Query to prepare them for reporting.", "resume",
      ["resume:transformed 9,651 flight records using Power Query"], ["ev.resume"], ["power query", "transform"], "resume_only", 0.7)
-fact("f.proj.count", "person", "projects_list", "Javed's Work section shows five projects, from a privacy tool to operational dashboards; each one opens a case study, with its code on GitHub.", "#projects",
-     ["Five projects, from a privacy tool to operational dashboards", "every row opens a case study, with the code on GitHub"], ["ev.projects"], ["projects", "portfolio", "work", "kya banaya"])
+fact("f.proj.count", "person", "projects_list", "Javed's Work section shows six projects, from a privacy tool to a full-stack cricket analytics app; each one opens a case study, with its code on GitHub.", "#projects",
+     ["Six projects, from a privacy tool to a full-stack cricket analytics app", "every row opens a case study, with the code on GitHub"], ["ev.projects"], ["projects", "portfolio", "work", "kya banaya"])
 fact("f.proj.site", "proj.site", "project_detail", "Javed built this portfolio by hand as a single page of plain HTML, CSS and JavaScript, with no framework and no build step.", "README.md",
      ["readme:plain HTML, CSS and JavaScript in one file, with no framework and no build step"], ["ev.github"], ["this website", "portfolio", "how built"])
 # certificates
@@ -464,7 +472,7 @@ def build(site):
     for key, (i, slug, label, aliases) in PROJECTS.items():
         r = rows[i]
         ents.append(dict(id=f"proj.{key}", type="project", name=r["title"], featured=True, index=i, kicker=r["kicker"],
-                         tools=MOL[key]["list"], repo=r["href"], evidence=[f"ev.proj.{key}", f"ev.repo.{key}"], aliases=aliases))
+                         tools=MOL.get(key, {}).get("list", []), repo=r["href"], evidence=[f"ev.proj.{key}", f"ev.repo.{key}"], aliases=aliases))
     for key, (i, iss, date, title, label, aliases) in CERTS.items():
         c = site["certs"][i]
         ents.append(dict(id=f"cert.{key}", type="cert", name=c["title"], issuer=c["issuer"], date=c["date"], index=i, verify=c["verify"],

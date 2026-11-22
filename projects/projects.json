@@ -810,6 +810,223 @@
           "note": "Computed from spotify-2023.xlsx in the project repository."
         }
       ]
+    },
+    {
+      "slug": "virat-kohli-performance-dashboard",
+      "index": 5,
+      "title": "Virat Kohli Performance Dashboard",
+      "kicker": "Sports analytics · React / FastAPI / MySQL",
+      "summary": "A full-stack cricket analytics app: React charts on a FastAPI API that runs live SQL aggregations over Virat Kohli's career data.",
+      "template": "app",
+      "repo": "https://github.com/shk-javed/virat-kohli-performance-dashboard",
+      "links": [
+        [
+          "Original web app (offline right now)",
+          "https://virat-kohli-performance-dashboard.vercel.app"
+        ]
+      ],
+      "downloads": [
+        [
+          "Dataset (.csv)",
+          "https://github.com/shk-javed/virat-kohli-performance-dashboard/raw/main/virat_kohli_stats_fixed.csv"
+        ]
+      ],
+      "experience": [
+        {
+          "kind": "live",
+          "label": "Career explorer · rebuilt from the dataset"
+        },
+        {
+          "kind": "shot",
+          "label": "Original app · screenshots"
+        },
+        {
+          "kind": "code",
+          "label": "Full stack code on GitHub"
+        }
+      ],
+      "facts": [
+        [
+          "Runs in the data",
+          "28,215"
+        ],
+        [
+          "Stack",
+          "React · FastAPI · MySQL"
+        ],
+        [
+          "Splits",
+          "20 categories, 116 rows"
+        ],
+        [
+          "Deployed on",
+          "Vercel + Render"
+        ]
+      ],
+      "sections": [
+        {
+          "type": "text",
+          "eyebrow": "Overview",
+          "title": "A career, queried live.",
+          "source": "README",
+          "body": [
+            "A full-stack dashboard that analyses Virat Kohli's international career across formats, years, opponents, venues and batting positions.",
+            "The React frontend calls a FastAPI backend, which builds SQL queries from the selected filters; MySQL does the aggregation and returns fresh numbers, so every chart updates with the filters instead of showing static images."
+          ]
+        },
+        {
+          "type": "dashboard",
+          "id": "virat",
+          "data": "virat-kohli.json",
+          "eyebrow": "Explore",
+          "title": "Explore the career."
+        },
+        {
+          "type": "figure",
+          "eyebrow": "The original",
+          "title": "The original web app.",
+          "src": "../assets/virat-dashboard-preview.webp",
+          "alt": "The original Virat Kohli dashboard: KPI cards, yearly runs, format split, batting positions and smart insights.",
+          "caption": "Screenshot from the project repository: the complete dashboard."
+        },
+        {
+          "type": "steps",
+          "eyebrow": "Architecture",
+          "title": "From click to chart.",
+          "source": "README",
+          "items": [
+            [
+              "React frontend",
+              "Filters for format, opposition and venue; Recharts visualisations and KPI cards."
+            ],
+            [
+              "REST API",
+              "Each filter change calls the FastAPI backend."
+            ],
+            [
+              "FastAPI + SQLAlchemy",
+              "The backend generates the SQL for the chosen filters."
+            ],
+            [
+              "MySQL",
+              "Runs the aggregations and returns the statistics as JSON."
+            ],
+            [
+              "Interactive dashboard",
+              "The charts and KPIs re-render with the new numbers."
+            ]
+          ]
+        },
+        {
+          "type": "features",
+          "eyebrow": "Features",
+          "title": "What the app does.",
+          "source": "README",
+          "items": [
+            [
+              "KPI cards",
+              "Matches, runs, average, strike rate, hundreds and highest score."
+            ],
+            [
+              "Format filter",
+              "Test, ODI and T20I views."
+            ],
+            [
+              "Yearly trends",
+              "Runs and form year by year."
+            ],
+            [
+              "Home vs away",
+              "Home, away and neutral venues compared."
+            ],
+            [
+              "Batting position",
+              "How each batting position has gone."
+            ],
+            [
+              "Smart insights",
+              "Best year, opponent, country, format and continent, picked automatically."
+            ]
+          ]
+        },
+        {
+          "type": "figure",
+          "eyebrow": "Filters",
+          "title": "Filtered by opponent.",
+          "src": "../assets/virat-australia-filter.webp",
+          "alt": "The original dashboard filtered to matches against Australia.",
+          "caption": "Screenshot from the project repository: the dashboard filtered to Australia."
+        },
+        {
+          "type": "insights",
+          "eyebrow": "What the data shows",
+          "title": "Findings.",
+          "items": [
+            [
+              "28,215",
+              "runs in 559 international matches at an average of 52.73, with 85 hundreds, across Tests, ODIs and T20Is."
+            ],
+            [
+              "58.71",
+              "his ODI average: 14,797 runs and 54 hundreds at a strike rate of 93.82, his most productive format."
+            ],
+            [
+              "2017",
+              "his peak year: 2,818 runs at 68.73, with 11 hundreds."
+            ],
+            [
+              "56%",
+              "of his runs (15,919) came at No. 3, averaging 58.95 over 332 innings."
+            ],
+            [
+              "59.92",
+              "his average as captain (12,883 runs in 213 matches), against 47.91 when not captain."
+            ],
+            [
+              "5,551",
+              "runs against Australia, the most against any team, with 17 hundreds."
+            ]
+          ],
+          "note": "Computed from virat_kohli_stats_fixed.csv in the project repository (span 2008–2026, as recorded in the data)."
+        },
+        {
+          "type": "stack",
+          "eyebrow": "Tech stack",
+          "title": "Built with.",
+          "source": "README",
+          "items": [
+            [
+              "Frontend",
+              "React · JavaScript · CSS · Recharts"
+            ],
+            [
+              "Backend",
+              "FastAPI · Python · SQLAlchemy"
+            ],
+            [
+              "Database",
+              "MySQL"
+            ],
+            [
+              "Hosting",
+              "Vercel (frontend) · Render (API)"
+            ],
+            [
+              "Built",
+              "Data cleaning, SQL and design by the author; website code AI-assisted under his direction"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "eyebrow": "Live status",
+          "title": "About the live app.",
+          "body": [
+            "The original app is deployed on Vercel with its API on Render. When this page was built, the frontend loaded but its API returned a server error, so the live dashboard showed no data.",
+            "The explorer above runs on the same dataset directly in your browser, and the screenshots show the original working."
+          ]
+        }
+      ]
     }
   ]
 }

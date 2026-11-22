@@ -339,6 +339,9 @@ if (run(5)) {
     if (st === 404) { skip(`${tag}: dashboard`, `data JSON not there yet: 404 ${dataUrl}`); await p.close(); continue; }
     if (state !== 'ready') { check(`${tag}: renders KPIs`, false, `state=${state}, data HTTP ${st}${state === 'failed' && st === 200 ? ' · render error: ' + await dashError(proj, sel) : ''}`); await p.close(); continue; }
     const base = await kpiText(p, sel), cards = await p.locator(`${sel} .card`).count(), bad0 = await badText(p, sel);
+    // some dashboards keep career-total KPIs fixed and let the filters drive the charts (Virat Kohli), so the view = KPIs + card contents
+    const viewText = () => p.evaluate(s => [...document.querySelectorAll(s + ' .kpi, ' + s + ' .card')].map(e => e.textContent.replace(/\s+/g, ' ').trim()).join(' | '), sel);
+    const baseView = await viewText();
     check(`${tag}: renders KPIs + cards, no NaN/undefined`, base && cards > 0 && !bad0, `${base} · ${cards} cards${bad0 ? ' · BAD: ' + bad0 : ''}`);
     const live = await p.evaluate(s => [...document.querySelectorAll(s + ' .pd-badge__k')].map(b => b.textContent.trim()), sel);
     check(`${tag}: header badge says "Live"`, live.includes('Live'), live.join(','));
@@ -354,7 +357,7 @@ if (run(5)) {
         await btn.click(); tried++;
         const s = await p.evaluate(([s, gi, bj]) => [...document.querySelectorAll(s + ' .seg')[gi].querySelectorAll('button')].every((b, j) => b.getAttribute('aria-pressed') === String(j === bj)), [sel, gi, bj]);
         const k = await kpiText(p, sel), bad = await badText(p, sel);
-        if (k !== base) changed++;
+        if (k !== base || (await viewText()) !== baseView) changed++;
         seen.push(`${g.labels[bj]} → ${k.split(' | ').map(x => x.split(' ')[0]).join(' / ')}`);
         if (!s) problems.push(`${g.labels[bj]}: aria-pressed not exclusive`);
         if (bad) problems.push(`${g.labels[bj]}: ${bad} in the dashboard`);
@@ -363,7 +366,7 @@ if (run(5)) {
       }
       if (g.def >= 0) await p.locator(`${sel} .seg`).nth(gi).locator('button').nth(g.def).click();
       const back = await kpiText(p, sel);
-      check(`${tag}: ${g.name} filter — ${tried} options clicked, KPIs change for ≥1, aria-pressed exclusive, no NaN`, (tried === 0 || changed > 0) && !problems.length, `${changed}/${tried} changed KPIs · ${problems.join('; ')} · ${clip(seen.join(' ; '), 500)}`);
+      check(`${tag}: ${g.name} filter — ${tried} options clicked, the view (KPIs or charts) changes for ≥1, aria-pressed exclusive, no NaN`, (tried === 0 || changed > 0) && !problems.length, `${changed}/${tried} changed the view · ${problems.join('; ')} · ${clip(seen.join(' ; '), 500)}`);
       check(`${tag}: ${g.name} back to "${g.labels[g.def]}" restores the KPIs`, back === base, back);
     }
     if (disabled.length) check(`${tag}: disabled filter buttons do nothing when clicked`, disabled.every(x => !/CHANGED/.test(x)), clip(disabled.join(' ; '), 500));

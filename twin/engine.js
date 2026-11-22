@@ -98,7 +98,7 @@
   var INJECT = [/\b(ignore|disregard|forget|override)\b.{0,40}\b(instructions?|prompts?|rules?|above|previous|prior|context)\b/, /\bsystem prompt\b/, /\byou are now\b/, /\b(roleplay|role play|act as|jailbreak|developer mode|dan mode)\b/, /\bpretend\b/, /\b(reveal|print|show|repeat|output)\b.{0,30}\b(instructions|prompt|system|rules|config)\b/, /\bnew instructions?\b/];
   var IDENT = [/\b(speak|answer|reply|talk|respond|write)\b.{0,15}\b(as|like) (javed|shaikh|him)\b/, /\b(in|use) (the )?first person\b/, /\bimpersonat\w*\b/];
   var SCHOOL = /\b(12th|10th|hsc|ssc|school|board exams?|class (10|12|x|xii)|jee|neet|cet)\b/;
-  var OFFTOPIC = [/\b(joke|poem|song|weather|recipe|cricket|football|movie|news|bitcoin|crypto|capital of|translate|homework)\b/, /^[\d\s+\-*\/().=x?]+$/];
+  var OFFTOPIC = [/\b(joke|poem|song|weather|recipe|football|movie|news|bitcoin|crypto|capital of|translate|homework)\b/, /^[\d\s+\-*\/().=x?]+$/];
   var OPINION = /\bthink (of|about)\b|\bopinion\b|\bprefer\w*\b|\bfavou?rite\b/;
   var TWIN = /^(who|what) (are|r) (you|u)\b(?!.*\babout\b)|\bare (you|u) (javed|shaikh|him|human|real|a bot|bot|a robot|robot|an ai|ai|chatgpt|gpt|a person|alive|the real|a twin|his twin)\b|\b(your name|how do you work|who (made|built|created) you|what can you (do|help)|what do you know|where do you get|is this an ai|am i talking to|do you (store|save|keep|track|record|log)|what are you|help with)\b/;
   var COMMON = set('yourself myself everything anything something stuff things thing well really good great nice work job life field area domain industry details info information today time way lot bit sure kind type');

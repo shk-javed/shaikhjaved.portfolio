@@ -97,6 +97,8 @@ def badges(p):
 
 def actions(p):
     a = [f'<a class="pd-btn pd-btn--primary" href="{E(p["repo"])}" target="_blank" rel="noopener">{ICON["github"]}<span>View code on GitHub</span>{ICON["out"]}<span class="sr-only"> (opens in a new tab)</span></a>']
+    for label, href in p.get("links", []):
+        a.append(f'<a class="pd-btn" href="{E(href)}" target="_blank" rel="noopener">{ICON["out"]}<span>{E(label)}</span><span class="sr-only"> (opens in a new tab)</span></a>')
     for label, href in p.get("downloads", []):
         a.append(f'<a class="pd-btn" href="{E(href)}" rel="noopener" download>{ICON["down"]}<span>{E(label)}</span></a>')
     return "".join(a)
